@@ -37,7 +37,7 @@ const Doctors = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     deleteDoctor.mutate(id);
   };
 
@@ -135,11 +135,11 @@ const Doctors = () => {
                 No doctors found
               </h3>
               <p className="text-muted-foreground mb-4">
-                {filters.search || filters.specialization
+                {filters.search || filters.category || filters.practiceType
                   ? "Try adjusting your filters"
                   : "Get started by adding your first doctor"}
               </p>
-              {!filters.search && !filters.specialization && (
+              {!filters.search && !filters.category && !filters.practiceType && (
                 <Button onClick={handleCreate} variant="outline" className="gap-2">
                   <Plus className="w-4 h-4" />
                   Add Doctor
