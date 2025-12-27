@@ -62,14 +62,14 @@ const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
           </div>
           <div className="flex items-center gap-2">
             <Badge
-              variant={doctor.is_active ? "default" : "secondary"}
+              variant={doctor.isActive ? "default" : "secondary"}
               className={
-                doctor.is_active
+                doctor.isActive
                   ? "bg-success/10 text-success hover:bg-success/20"
                   : ""
               }
             >
-              {doctor.is_active ? "Active" : "Inactive"}
+              {doctor.isActive ? "Active" : "Inactive"}
             </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

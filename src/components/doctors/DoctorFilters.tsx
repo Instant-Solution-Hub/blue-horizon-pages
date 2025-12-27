@@ -48,7 +48,7 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
   const handleStatusChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      is_active: value === "all" ? undefined : value === "active",
+      isActive: value === "all" ? undefined : value === "active",
     });
   };
 
@@ -57,7 +57,7 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
   };
 
   const hasFilters =
-    filters.search || filters.specialization || filters.is_active !== undefined;
+    filters.search || filters.specialization || filters.isActive !== undefined;
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -90,9 +90,9 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
 
       <Select
         value={
-          filters.is_active === undefined
+          filters.isActive === undefined
             ? "all"
-            : filters.is_active
+            : filters.isActive
             ? "active"
             : "inactive"
         }

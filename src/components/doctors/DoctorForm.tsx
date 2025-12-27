@@ -51,7 +51,7 @@ const formSchema = z.object({
   city: z.string().max(100).optional(),
   state: z.string().max(100).optional(),
   notes: z.string().max(1000).optional(),
-  is_active: z.boolean().default(true),
+  isActive: z.boolean().default(true),
 });
 
 interface DoctorFormProps {
@@ -74,7 +74,7 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
       city: doctor?.city || "",
       state: doctor?.state || "",
       notes: doctor?.notes || "",
-      is_active: doctor?.is_active ?? true,
+      isActive: doctor?.isActive ?? true,
     },
   });
 
@@ -89,7 +89,7 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
       city: values.city || undefined,
       state: values.state || undefined,
       notes: values.notes || undefined,
-      is_active: values.is_active,
+      isActive: values.isActive,
     });
   };
 
@@ -208,7 +208,7 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="is_active"
+            name="isActive"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
