@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Form,
@@ -21,37 +20,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Doctor, DoctorFormData } from "@/hooks/useDoctors";
+import { Doctor, DoctorFormData, Category, PracticeType } from "@/hooks/useDoctors";
 
-const specializations = [
-  "General Physician",
-  "Cardiologist",
-  "Dermatologist",
-  "Endocrinologist",
-  "Gastroenterologist",
-  "Neurologist",
-  "Oncologist",
-  "Orthopedic",
-  "Pediatrician",
-  "Psychiatrist",
-  "Pulmonologist",
-  "Radiologist",
-  "Surgeon",
-  "Urologist",
-  "Other",
+const categories: { value: Category; label: string }[] = [
+  { value: "A_PLUS", label: "A+" },
+  { value: "A", label: "A" },
+  { value: "B", label: "B" },
+];
+
+const practiceTypes: { value: PracticeType; label: string }[] = [
+  { value: "RP", label: "RP (Regular Practice)" },
+  { value: "OP", label: "OP (Outpatient)" },
+  { value: "NP", label: "NP (New Practice)" },
 ];
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  specialization: z.string().min(1, "Specialization is required"),
-  hospital: z.string().max(200).optional(),
-  phone: z.string().max(20).optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  address: z.string().max(500).optional(),
-  city: z.string().max(100).optional(),
-  state: z.string().max(100).optional(),
-  notes: z.string().max(1000).optional(),
-  isActive: z.boolean().default(true),
+  category: z.enum(["A_PLUS", "A", "B"], { required_error: "Category is required" }),
+  practiceType: z.enum(["RP", "OP", "NP"], { required_error: "Practice type is required" }),
+  designation: z.string().max(100).optional(),
+  hospitalName: z.string().min(1, "Hospital name is required").max(200),
+  location: z.string().max(200).optional(),
+  contactNumber: z.string().max(20).optional(),
+  doctorCode: z.string().max(50).optional(),
+  latitude: z.string().max(50).optional(),
+  longitude: z.string().max(50).optional(),
+  active: z.boolean().default(true),
 });
 
 interface DoctorFormProps {
@@ -66,30 +60,32 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: doctor?.name || "",
-      specialization: doctor?.specialization || "",
-      hospital: doctor?.hospital || "",
-      phone: doctor?.phone || "",
-      email: doctor?.email || "",
-      address: doctor?.address || "",
-      city: doctor?.city || "",
-      state: doctor?.state || "",
-      notes: doctor?.notes || "",
-      isActive: doctor?.isActive ?? true,
+      category: doctor?.category || undefined,
+      practiceType: doctor?.practiceType || undefined,
+      designation: doctor?.designation || "",
+      hospitalName: doctor?.hospitalName || "",
+      location: doctor?.location || "",
+      contactNumber: doctor?.contactNumber || "",
+      doctorCode: doctor?.doctorCode || "",
+      latitude: doctor?.latitude || "",
+      longitude: doctor?.longitude || "",
+      active: doctor?.active ?? true,
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit({
       name: values.name,
-      specialization: values.specialization,
-      hospital: values.hospital || undefined,
-      phone: values.phone || undefined,
-      email: values.email || undefined,
-      address: values.address || undefined,
-      city: values.city || undefined,
-      state: values.state || undefined,
-      notes: values.notes || undefined,
-      isActive: values.isActive,
+      category: values.category,
+      practiceType: values.practiceType,
+      designation: values.designation || undefined,
+      hospitalName: values.hospitalName,
+      location: values.location || undefined,
+      contactNumber: values.contactNumber || undefined,
+      doctorCode: values.doctorCode || undefined,
+      latitude: values.latitude || undefined,
+      longitude: values.longitude || undefined,
+      active: values.active,
     });
   };
 
@@ -113,20 +109,34 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="specialization"
+            name="designation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Specialization *</FormLabel>
+                <FormLabel>Designation</FormLabel>
+                <FormControl>
+                  <Input placeholder="MBBS, MD" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select specialization" />
+                      <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {specializations.map((spec) => (
-                      <SelectItem key={spec} value={spec}>
-                        {spec}
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -138,10 +148,35 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="hospital"
+            name="practiceType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hospital/Clinic</FormLabel>
+                <FormLabel>Practice Type *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select practice type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {practiceTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="hospitalName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hospital Name *</FormLabel>
                 <FormControl>
                   <Input placeholder="City Hospital" {...field} />
                 </FormControl>
@@ -152,10 +187,24 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="phone"
+            name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone</FormLabel>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="Mumbai, Maharashtra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="contactNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Number</FormLabel>
                 <FormControl>
                   <Input placeholder="+91 9876543210" {...field} />
                 </FormControl>
@@ -166,12 +215,12 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="email"
+            name="doctorCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Doctor Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="doctor@example.com" type="email" {...field} />
+                  <Input placeholder="DOC001" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -180,12 +229,12 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="city"
+            name="latitude"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>Latitude</FormLabel>
                 <FormControl>
-                  <Input placeholder="Mumbai" {...field} />
+                  <Input placeholder="19.0760" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -194,12 +243,12 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="state"
+            name="longitude"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>State</FormLabel>
+                <FormLabel>Longitude</FormLabel>
                 <FormControl>
-                  <Input placeholder="Maharashtra" {...field} />
+                  <Input placeholder="72.8777" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -208,9 +257,9 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
 
           <FormField
             control={form.control}
-            name="isActive"
+            name="active"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 md:col-span-2">
                 <div className="space-y-0.5">
                   <FormLabel>Active Status</FormLabel>
                   <FormDescription>
@@ -227,34 +276,6 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Full address..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notes</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Additional notes..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onCancel}>

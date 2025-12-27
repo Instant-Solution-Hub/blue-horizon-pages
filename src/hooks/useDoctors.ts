@@ -2,40 +2,45 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
+export type Category = "A_PLUS" | "A" | "B";
+export type PracticeType = "RP" | "OP" | "NP";
+
 export interface Doctor {
-  id: string;
+  id: number;
   name: string;
-  specialization: string;
-  hospital: string | null;
-  phone: string | null;
-  email: string | null;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  notes: string | null;
-  isActive: boolean;
+  category: Category;
+  practiceType: PracticeType;
+  designation: string | null;
+  hospitalName: string;
+  location: string | null;
+  contactNumber: string | null;
+  doctorCode: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  active: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
 }
 
 export interface DoctorFormData {
   name: string;
-  specialization: string;
-  hospital?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  notes?: string;
-  isActive?: boolean;
+  category: Category;
+  practiceType: PracticeType;
+  designation?: string;
+  hospitalName: string;
+  location?: string;
+  contactNumber?: string;
+  doctorCode?: string;
+  latitude?: string;
+  longitude?: string;
+  active?: boolean;
 }
 
 export interface DoctorFilters {
   search?: string;
-  specialization?: string;
-  city?: string;
-  isActive?: boolean;
+  category?: Category;
+  practiceType?: PracticeType;
+  active?: boolean;
 }
 
 export const useDoctors = (filters?: DoctorFilters) => {
@@ -47,14 +52,14 @@ export const useDoctors = (filters?: DoctorFilters) => {
       if (filters?.search) {
         params.append("search", filters.search);
       }
-      if (filters?.specialization) {
-        params.append("specialization", filters.specialization);
+      if (filters?.category) {
+        params.append("category", filters.category);
       }
-      if (filters?.city) {
-        params.append("city", filters.city);
+      if (filters?.practiceType) {
+        params.append("practiceType", filters.practiceType);
       }
-      if (filters?.isActive !== undefined) {
-        params.append("isActive", String(filters.isActive));
+      if (filters?.active !== undefined) {
+        params.append("active", String(filters.active));
       }
 
       const queryString = params.toString();
@@ -65,7 +70,7 @@ export const useDoctors = (filters?: DoctorFilters) => {
   });
 };
 
-export const useDoctor = (id: string) => {
+export const useDoctor = (id: number) => {
   return useQuery({
     queryKey: ["doctors", id],
     queryFn: async () => {
@@ -108,7 +113,7 @@ export const useUpdateDoctor = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<DoctorFormData> }) => {
+    mutationFn: async ({ id, data }: { id: number; data: Partial<DoctorFormData> }) => {
       return apiRequest<Doctor>(`/doctors/${id}`, {
         method: "PUT",
         body: data,
@@ -136,7 +141,7 @@ export const useDeleteDoctor = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       return apiRequest<void>(`/doctors/${id}`, {
         method: "DELETE",
       });

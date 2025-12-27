@@ -8,24 +8,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
-import { DoctorFilters as Filters } from "@/hooks/useDoctors";
+import { DoctorFilters as Filters, Category, PracticeType } from "@/hooks/useDoctors";
 
-const specializations = [
-  "General Physician",
-  "Cardiologist",
-  "Dermatologist",
-  "Endocrinologist",
-  "Gastroenterologist",
-  "Neurologist",
-  "Oncologist",
-  "Orthopedic",
-  "Pediatrician",
-  "Psychiatrist",
-  "Pulmonologist",
-  "Radiologist",
-  "Surgeon",
-  "Urologist",
-  "Other",
+const categories: { value: Category; label: string }[] = [
+  { value: "A_PLUS", label: "A+" },
+  { value: "A", label: "A" },
+  { value: "B", label: "B" },
+];
+
+const practiceTypes: { value: PracticeType; label: string }[] = [
+  { value: "RP", label: "RP" },
+  { value: "OP", label: "OP" },
+  { value: "NP", label: "NP" },
 ];
 
 interface DoctorFiltersProps {
@@ -38,17 +32,24 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
     onFiltersChange({ ...filters, search: value });
   };
 
-  const handleSpecializationChange = (value: string) => {
+  const handleCategoryChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      specialization: value === "all" ? undefined : value,
+      category: value === "all" ? undefined : (value as Category),
+    });
+  };
+
+  const handlePracticeTypeChange = (value: string) => {
+    onFiltersChange({
+      ...filters,
+      practiceType: value === "all" ? undefined : (value as PracticeType),
     });
   };
 
   const handleStatusChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      isActive: value === "all" ? undefined : value === "active",
+      active: value === "all" ? undefined : value === "active",
     });
   };
 
@@ -57,7 +58,7 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
   };
 
   const hasFilters =
-    filters.search || filters.specialization || filters.isActive !== undefined;
+    filters.search || filters.category || filters.practiceType || filters.active !== undefined;
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -72,17 +73,34 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
       </div>
 
       <Select
-        value={filters.specialization || "all"}
-        onValueChange={handleSpecializationChange}
+        value={filters.category || "all"}
+        onValueChange={handleCategoryChange}
       >
-        <SelectTrigger className="w-full sm:w-[200px]">
-          <SelectValue placeholder="Specialization" />
+        <SelectTrigger className="w-full sm:w-[150px]">
+          <SelectValue placeholder="Category" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Specializations</SelectItem>
-          {specializations.map((spec) => (
-            <SelectItem key={spec} value={spec}>
-              {spec}
+          <SelectItem value="all">All Categories</SelectItem>
+          {categories.map((cat) => (
+            <SelectItem key={cat.value} value={cat.value}>
+              {cat.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={filters.practiceType || "all"}
+        onValueChange={handlePracticeTypeChange}
+      >
+        <SelectTrigger className="w-full sm:w-[150px]">
+          <SelectValue placeholder="Practice Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Types</SelectItem>
+          {practiceTypes.map((type) => (
+            <SelectItem key={type.value} value={type.value}>
+              {type.label}
             </SelectItem>
           ))}
         </SelectContent>
@@ -90,15 +108,15 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
 
       <Select
         value={
-          filters.isActive === undefined
+          filters.active === undefined
             ? "all"
-            : filters.isActive
+            : filters.active
             ? "active"
             : "inactive"
         }
         onValueChange={handleStatusChange}
       >
-        <SelectTrigger className="w-full sm:w-[150px]">
+        <SelectTrigger className="w-full sm:w-[130px]">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>

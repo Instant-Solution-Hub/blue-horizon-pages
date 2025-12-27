@@ -29,17 +29,29 @@ import {
   Stethoscope,
   Building2,
   Phone,
-  Mail,
   MapPin,
   MoreVertical,
   Pencil,
   Trash2,
+  Tag,
 } from "lucide-react";
+
+const categoryLabels: Record<string, string> = {
+  A_PLUS: "A+",
+  A: "A",
+  B: "B",
+};
+
+const practiceTypeLabels: Record<string, string> = {
+  RP: "RP",
+  OP: "OP",
+  NP: "NP",
+};
 
 interface DoctorCardProps {
   doctor: Doctor;
   onEdit: (doctor: Doctor) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
@@ -56,20 +68,26 @@ const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
                 {doctor.name}
               </CardTitle>
               <CardDescription className="text-sm">
-                {doctor.specialization}
+                {doctor.designation || "No designation"}
               </CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {categoryLabels[doctor.category] || doctor.category}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              {practiceTypeLabels[doctor.practiceType] || doctor.practiceType}
+            </Badge>
             <Badge
-              variant={doctor.isActive ? "default" : "secondary"}
+              variant={doctor.active ? "default" : "secondary"}
               className={
-                doctor.isActive
+                doctor.active
                   ? "bg-success/10 text-success hover:bg-success/20"
                   : ""
               }
             >
-              {doctor.isActive ? "Active" : "Inactive"}
+              {doctor.active ? "Active" : "Inactive"}
             </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -117,30 +135,26 @@ const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm text-muted-foreground">
-        {doctor.hospital && (
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 flex-shrink-0" />
-            <span className="truncate">{doctor.hospital}</span>
-          </div>
-        )}
-        {doctor.phone && (
+        <div className="flex items-center gap-2">
+          <Building2 className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">{doctor.hospitalName}</span>
+        </div>
+        {doctor.contactNumber && (
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 flex-shrink-0" />
-            <span>{doctor.phone}</span>
+            <span>{doctor.contactNumber}</span>
           </div>
         )}
-        {doctor.email && (
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4 flex-shrink-0" />
-            <span className="truncate">{doctor.email}</span>
-          </div>
-        )}
-        {(doctor.city || doctor.state) && (
+        {doctor.location && (
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 flex-shrink-0" />
-            <span>
-              {[doctor.city, doctor.state].filter(Boolean).join(", ")}
-            </span>
+            <span>{doctor.location}</span>
+          </div>
+        )}
+        {doctor.doctorCode && (
+          <div className="flex items-center gap-2">
+            <Tag className="w-4 h-4 flex-shrink-0" />
+            <span>Code: {doctor.doctorCode}</span>
           </div>
         )}
       </CardContent>
