@@ -7,6 +7,7 @@ import { WeekDaySelector } from "@/components/slot-planning/WeekDaySelector";
 import { SlotTable, SlotVisit } from "@/components/slot-planning/SlotTable";
 import { SlotCard } from "@/components/slot-planning/SlotCard";
 import { AddSlotModal } from "@/components/slot-planning/AddSlotModal";
+import { RequestUpdateModal } from "@/components/slot-planning/RequestUpdateModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Send } from "lucide-react";
@@ -29,6 +30,7 @@ export default function SlotPlanning() {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [selectedDay, setSelectedDay] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [slots, setSlots] = useState<SlotVisit[]>([...mockDoctorVisits, ...mockPharmacistVisits]);
 
   // Check if it's the 1st of the month
@@ -53,10 +55,10 @@ export default function SlotPlanning() {
     });
   };
 
-  const handleRequestUpdate = () => {
+  const handleRequestUpdate = (data: { visitType: string; selectedVisits: number[]; notes: string }) => {
     toast({
       title: "Request Sent",
-      description: "Your slot update request has been sent to your manager for approval.",
+      description: `Your slot update request for ${data.selectedVisits.length} ${data.visitType} visit(s) has been sent to your manager for approval.`,
     });
   };
 
@@ -87,7 +89,7 @@ export default function SlotPlanning() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle>Monthly Slot Planning</CardTitle>
                 {!isFirstOfMonth && (
-                  <Button variant="outline" onClick={handleRequestUpdate}>
+                  <Button variant="outline" onClick={() => setIsRequestModalOpen(true)}>
                     <Send className="h-4 w-4 mr-2" />
                     Request Slot Update
                   </Button>
@@ -188,6 +190,15 @@ export default function SlotPlanning() {
         selectedWeek={selectedWeek}
         selectedDay={selectedDay}
         onAddSlot={handleAddSlot}
+      />
+
+      {/* Request Update Modal */}
+      <RequestUpdateModal
+        open={isRequestModalOpen}
+        onOpenChange={setIsRequestModalOpen}
+        doctorVisits={doctorSlots.map((s) => ({ id: s.id, name: s.name, type: "doctor" as const }))}
+        pharmacistVisits={pharmacistSlots.map((s) => ({ id: s.id, name: s.name, type: "pharmacist" as const }))}
+        onSubmit={handleRequestUpdate}
       />
     </div>
   );
