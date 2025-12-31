@@ -24,7 +24,7 @@ const Header = () => {
         {/* Welcome Message */}
         <div>
           <h1 className="text-xl font-display font-bold text-foreground">
-            Field Executive Dashboard
+            Product Development Executive Dashboard
           </h1>
           <p className="text-sm text-muted-foreground">Welcome, John Doe</p>
         </div>
@@ -65,17 +65,6 @@ const Header = () => {
               <p className="text-xs text-muted-foreground">Field Executive</p>
             </div>
           </div>
-
-          {/* Logout Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/")}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Logout</span>
-          </Button>
         </div>
       </div>
     </header>
