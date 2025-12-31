@@ -182,7 +182,7 @@ const Login = () => {
           </Card>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            © 2024 Larimar Pharma. All rights reserved.
+            © 2025 Larimar Pharma. All rights reserved.
           </p>
         </div>
       </div>
