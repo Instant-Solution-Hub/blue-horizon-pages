@@ -2,12 +2,15 @@ import { cn } from "@/lib/utils";
 import { 
   Home, 
   Calendar, 
-  Stethoscope, 
-  Building2, 
-  Package, 
+  MapPin, 
   Users, 
   ShoppingCart, 
   TrendingUp,
+  Package,
+  Gift,
+  ClipboardCheck,
+  User,
+  BarChart3,
   Pill,
   LogOut,
   ChevronLeft,
@@ -25,12 +28,15 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: Home, label: "Home", href: "/dashboard" },
   { icon: Calendar, label: "Slot Planning", href: "/dashboard/slot-planning" },
-  { icon: Stethoscope, label: "Doctors", href: "/dashboard/doctors" },
-  { icon: Building2, label: "Pharmacy/Chemist", href: "/dashboard/pharmacy" },
-  { icon: Package, label: "Stockist", href: "/dashboard/stockist" },
+  { icon: MapPin, label: "Track Visits", href: "/dashboard/track-visits" },
   { icon: Users, label: "Manager Joining", href: "/dashboard/manager-joining" },
   { icon: ShoppingCart, label: "POB", href: "/dashboard/pob" },
   { icon: TrendingUp, label: "Competitive Brands", href: "/dashboard/competitive-brands" },
+  { icon: Package, label: "Stock Liquidation", href: "/dashboard/stock-liquidation" },
+  { icon: Gift, label: "Promotions", href: "/dashboard/promotions" },
+  { icon: ClipboardCheck, label: "Compliance Visit", href: "/dashboard/compliance-visit" },
+  { icon: User, label: "Profile", href: "/dashboard/profile" },
+  { icon: BarChart3, label: "Sales Progress", href: "/dashboard/sales-progress" },
 ];
 
 const Sidebar = () => {
