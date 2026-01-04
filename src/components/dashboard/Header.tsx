@@ -37,15 +37,6 @@ const Header = () => {
             <p className="text-xs text-muted-foreground">{currentTime}</p>
           </div>
 
-          {/* Search */}
-          <div className="hidden lg:block relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="pl-9 w-64 h-9 bg-muted/50 border-0 focus:bg-background"
-            />
-          </div>
-
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5 text-muted-foreground" />
