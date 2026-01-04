@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Mail, Lock, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { login } from "@/services/AuthenticationService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,16 +19,31 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate login - replace with actual auth
-    setTimeout(() => {
+    try {
+      const response = await login(email, password);
+      console.log("Login Response: ", response);
       setIsLoading(false);
+      if(response.success){
+        sessionStorage.setItem("feID", response.data.id);
+        sessionStorage.setItem("userName", response.data.name);
+        sessionStorage.setItem("userEmail", response.data.email);
+        sessionStorage.setItem("userRole", response.data.userType);
+        toast({
+          title: "Login Successful",
+          description: ``,
+        });
+        navigate("/dashboard");
+      }
+      
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Login failed:", error);
       toast({
-        title: "Welcome back!",
-        description: "Successfully logged in to Larimar Pharma",
+        title: "Login Failed",
+        description: error.response?.data?.message || "An unexpected error occurred. Please try again.",
+        variant: "destructive",
       });
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
@@ -145,14 +161,14 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end">
+                {/* <div className="flex items-center justify-end">
                   <button
                     type="button"
                     className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                   >
                     Forgot password?
                   </button>
-                </div>
+                </div> */}
 
                 <Button
                   type="submit"
