@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { fetchDoctors, fetchPharmacists } from "@/services/UsersService";
+import { get } from "http";
 
 interface Doctor {
   id: number;
@@ -46,23 +48,10 @@ interface AddSlotModalProps {
     id: number;
     week: number;
     day: number;
+    pharmacist?: any;
   }) => void;
 }
 
-// Mock data - replace with actual API data
-const mockDoctors: Doctor[] = [
-  { id: 1, name: "Dr. John Smith", category: "A_PLUS", practiceType: "RP", designation: "Cardiologist", hospitalName: "City Hospital", scheduledCount: 1, maxSchedules: 3 },
-  { id: 2, name: "Dr. Sarah Wilson", category: "A", practiceType: "OP", designation: "Pediatrician", hospitalName: "Metro Clinic", scheduledCount: 2, maxSchedules: 2 },
-  { id: 3, name: "Dr. Mike Johnson", category: "B", practiceType: "NP", designation: "General", hospitalName: "Community Health", scheduledCount: 0, maxSchedules: 1 },
-  { id: 4, name: "Dr. Emily Brown", category: "A_PLUS", practiceType: "RP", designation: "Neurologist", hospitalName: "Central Medical", scheduledCount: 3, maxSchedules: 3 },
-  { id: 5, name: "Dr. David Lee", category: "A", practiceType: "OP", designation: "Orthopedic", hospitalName: "Bone & Joint Center", scheduledCount: 0, maxSchedules: 2 },
-];
-
-const mockPharmacists: Pharmacist[] = [
-  { id: 1, name: "James Miller", pharmacyName: "City Pharmacy", location: "Downtown" },
-  { id: 2, name: "Lisa Anderson", pharmacyName: "MedPlus", location: "Suburb" },
-  { id: 3, name: "Robert Taylor", pharmacyName: "Health Mart", location: "Central" },
-];
 
 const categoryColors: Record<string, string> = {
   A_PLUS: "bg-emerald-100 text-emerald-800",
@@ -79,24 +68,47 @@ export function AddSlotModal({
 }: AddSlotModalProps) {
   const [visitType, setVisitType] = useState<"doctor" | "pharmacist">("doctor");
   const [selectedId, setSelectedId] = useState<string>("");
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [pharmacists, setPharmacists] = useState<any[]>([]);
+
+  useEffect(() => {
+   getDoctors();
+   getPharmacists();
+  }, []);
+
+  const getDoctors = async () => {
+    let response = await fetchDoctors();
+    setDoctors(response.data);
+  };
+
+  const getPharmacists = async () => {
+    let response = await fetchPharmacists();
+    setPharmacists(response);
+  };
 
   const handleSubmit = () => {
     if (!selectedId) return;
-    
+    let pharmacist;
+    if(visitType=="pharmacist"){
+      pharmacist = pharmacists.find((pharm) => pharm.id.toString() === selectedId);
+    }
     onAddSlot({
       type: visitType,
       id: parseInt(selectedId),
       week: selectedWeek,
       day: selectedDay,
+      pharmacist: pharmacist,
     });
     
     setSelectedId("");
     onOpenChange(false);
   };
 
-  const availableDoctors = mockDoctors.filter(
-    (doc) => doc.scheduledCount < doc.maxSchedules
-  );
+  // const availableDoctors = mockDoctors.filter(
+  //   (doc) => doc.scheduledCount < doc.maxSchedules
+  // );
+
+  const availableDoctors = doctors;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -193,7 +205,7 @@ export function AddSlotModal({
               <Label>Select Pharmacist</Label>
               <ScrollArea className="h-[250px] border rounded-md p-2">
                 <div className="space-y-2">
-                  {mockPharmacists.map((pharmacist) => (
+                  {pharmacists?.map((pharmacist) => (
                     <div
                       key={pharmacist.id}
                       onClick={() => setSelectedId(pharmacist.id.toString())}
@@ -203,7 +215,7 @@ export function AddSlotModal({
                           : "hover:bg-muted/50"
                       }`}
                     >
-                      <p className="font-medium">{pharmacist.name}</p>
+                      <p className="font-medium">{pharmacist.contactPerson}</p>
                       <p className="text-sm text-muted-foreground">
                         {pharmacist.pharmacyName} • {pharmacist.location}
                       </p>

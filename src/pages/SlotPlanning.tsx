@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { planVisit } from "@/services/VisitService";
 
 /* ---------------- MOCK DATA ---------------- */
 
@@ -24,7 +25,7 @@ const mockDoctorVisits: SlotVisit[] = [
     practiceType: "RP",
     designation: "Cardiologist",
     hospitalName: "City Hospital",
-    visitTrack: "Visit 2/3",
+    visitTrack: "Visit 3/3",
   },
   {
     id: 2,
@@ -84,7 +85,9 @@ export default function SlotPlanning() {
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  const isFirstOfMonth = today.getDate() === 1;
+  // const isFirstOfMonth = today.getDate() === 1;
+  const isFirstOfMonth = true;
+
   const currentMonthName = today.toLocaleString("default", {
     month: "long",
     year: "numeric",
@@ -97,12 +100,27 @@ export default function SlotPlanning() {
     id: number;
     week: number;
     day: number;
+    pharmacist?: any;
   }) => {
+
+    let obj = {
+      "fieldExecutiveId": parseInt(sessionStorage.getItem("feID") || "0"),
+      "doctorId": slot.type == "doctor" ? slot.id : null,
+      "weekNumber": slot.week,
+      "dayOfWeek": slot.day,
+      "visitType": slot.type === "doctor" ? "DOCTOR" : "PHARMACIST",
+      "pharmacyName": slot.pharmacist?.pharmacyName || "",
+      "contactPerson": slot.pharmacist?.contactPerson || "",
+      "contactNumber": slot.pharmacist?.contactNumber || "",
+      "stockistType": "NONE",
+      "stockistName": ""
+    }
+    let response = planVisit(obj);
+    console.log("Plan Visit Response: ", response);
     toast({
       title: "Slot Added",
-      description: `${
-        slot.type === "doctor" ? "Doctor" : "Pharmacist"
-      } visit scheduled for Week ${slot.week}, Day ${slot.day}`,
+      description: `${slot.type === "doctor" ? "Doctor" : "Pharmacist"
+        } visit scheduled for Week ${slot.week}, Day ${slot.day}`,
     });
   };
 
