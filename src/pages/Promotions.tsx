@@ -97,6 +97,8 @@ const Promotions = () => {
 
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-6 overflow-auto">
+          {/* Page Heading */}
+          <h1 className="text-2xl font-display font-semibold text-foreground mb-2">Promotions</h1>
           {/* Subheading */}
           <p className="text-sm text-muted-foreground mb-6">
             Stay updated with company promotions, new product launches, and special offers to maximize your sales opportunities.
