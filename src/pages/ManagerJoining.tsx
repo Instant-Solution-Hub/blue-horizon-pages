@@ -13,6 +13,7 @@ import JoiningList, {
 
 // 🔹 Replace with your axios instance if you have one
 import axios from "axios";
+import { fetchManagerJoinings } from "@/services/ManagerJoiningService";
 
 const ManagerJoining = () => {
   const { toast } = useToast();
@@ -21,7 +22,7 @@ const ManagerJoining = () => {
   const [loading, setLoading] = useState(false);
 
   // 🔹 Example: FE id from auth / localStorage
-  const feId = Number(localStorage.getItem("feId")) || 1;
+  const feId = Number(localStorage.getItem("feId")) || 5;
 
   const today = new Date();
   const month = today.getMonth() + 1;
@@ -38,23 +39,19 @@ const ManagerJoining = () => {
     try {
       setLoading(true);
 
-      const response = await axios.get(
-        `/manager-joinings/fe/monthly`,
-        {
-          params: { feId, month, year },
-        }
-      );
+   const response = await fetchManagerJoinings(feId , month , year);
+   console.log(response);
 
-      const mapped: JoiningRecord[] = response.data.map((item: any) => {
+      const mapped: JoiningRecord[] = response.map((item: any) => {
         const scheduled = new Date(item.scheduledTime);
         const joined = item.actualJoiningTime
           ? new Date(item.actualJoiningTime)
           : null;
-          const statusMap: Record<string, JoiningRecord["status"]> = {
-    ON_TIME: "on-time",
-    EARLY: "early",
-    LATE: "late",
-  };
+        const statusMap: Record<string, JoiningRecord["status"]> = {
+          ON_TIME: "on-time",
+          EARLY: "early",
+          LATE: "late",
+        };
 
         return {
           id: String(item.id),
@@ -66,7 +63,7 @@ const ManagerJoining = () => {
             ? joined.toTimeString().slice(0, 5)
             : "--",
           notes: item.notes || "",
-        status: statusMap[item.status] ?? "on-time",
+          status: statusMap[item.status] ?? "on-time",
         };
       });
 

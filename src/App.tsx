@@ -11,6 +11,8 @@ import TrackVisits from "./pages/TrackVisits";
 import ManagerJoining from "./pages/ManagerJoining";
 import POB from "./pages/POB";
 import CompetitiveBrands from "./pages/CompetitiveBrands";
+import Promotions from "./pages/Promotions";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/dashboard/manager-joining" element={<ManagerJoining />} />
           <Route path="/dashboard/pob" element={<POB />} />
           <Route path="/dashboard/competitive-brands" element={<CompetitiveBrands />} />
+          <Route path="/dashboard/promotions" element={<Promotions />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
