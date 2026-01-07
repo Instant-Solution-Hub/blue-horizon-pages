@@ -12,12 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export interface SlotVisit {
   id: number;
   type: "doctor" | "pharmacist";
-  name: string;
+  doctorName: string;
   category?: string;
   practiceType?: string;
-  designation?: string;
+  specialization?: string;
   hospitalName: string;
-  visitTrack: string;
+  status: string;
 }
 
 interface SlotTableProps {
@@ -73,7 +73,7 @@ export function SlotTable({ title, visits }: SlotTableProps) {
           <TableBody>
             {visits.map((visit) => (
               <TableRow key={visit.id}>
-                <TableCell className="font-medium">{visit.name}</TableCell>
+                <TableCell className="font-medium">{visit.doctorName}</TableCell>
                 <TableCell>
                   {visit.category && (
                     <Badge
@@ -91,10 +91,10 @@ export function SlotTable({ title, visits }: SlotTableProps) {
                     </span>
                   )}
                 </TableCell>
-                <TableCell>{visit.designation || "-"}</TableCell>
+                <TableCell>{visit.specialization || "-"}</TableCell>
                 <TableCell>{visit.hospitalName}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{visit.visitTrack}</Badge>
+                  <Badge variant="secondary">{visit.status}</Badge>
                 </TableCell>
               </TableRow>
             ))}

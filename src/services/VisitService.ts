@@ -19,8 +19,19 @@ export const planVisit = async (visitData: any) => {
 };
 
 // fetch planned visits for a field executive
-export const fetchPlannedVisits = async (fieldExecutiveId: number) => {
-  const response = await API.get(`/visit/planned/${fieldExecutiveId}`, { 
+export const fetchPlannedDoctorVisits = async (fieldExecutiveId: number, weekNumber: number, dayOfWeek: string) => {
+  const response = await API.get(`/visit/planned-doctor-visits?fieldExecutiveId=${fieldExecutiveId}&weekNumber=${weekNumber}&dayOfWeek=${dayOfWeek}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+};
+
+
+export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekNumber: number, dayOfWeek: string) => {
+  const response = await API.get(`/visit/planned-pharmacy-visits?fieldExecutiveId=${fieldExecutiveId}&weekNumber=${weekNumber}&dayOfWeek=${dayOfWeek}`, { 
     headers: {
         "Content-Type": "application/json", 
         "Accept": "application/json", 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { MonthlyTargetProgress } from "@/components/slot-planning/MonthlyTargetProgress";
@@ -12,59 +12,60 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { planVisit } from "@/services/VisitService";
+import { fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
+import { set } from "date-fns";
 
 /* ---------------- MOCK DATA ---------------- */
 
-const mockDoctorVisits: SlotVisit[] = [
-  {
-    id: 1,
-    type: "doctor",
-    name: "Dr. John Smith",
-    category: "A_PLUS",
-    practiceType: "RP",
-    designation: "Cardiologist",
-    hospitalName: "City Hospital",
-    visitTrack: "Visit 3/3",
-  },
-  {
-    id: 2,
-    type: "doctor",
-    name: "Dr. Sarah Wilson",
-    category: "A",
-    practiceType: "OP",
-    designation: "Pediatrician",
-    hospitalName: "Metro Clinic",
-    visitTrack: "Visit 1/2",
-  },
-  {
-    id: 3,
-    type: "doctor",
-    name: "Dr. Mike Johnson",
-    category: "B",
-    practiceType: "NP",
-    designation: "General",
-    hospitalName: "Community Health",
-    visitTrack: "Visit 1/1",
-  },
-];
+// const mockDoctorVisits: SlotVisit[] = [
+//   {
+//     id: 1,
+//     type: "doctor",
+//     name: "Dr. John Smith",
+//     category: "A_PLUS",
+//     practiceType: "RP",
+//     designation: "Cardiologist",
+//     hospitalName: "City Hospital",
+//     visitTrack: "Visit 3/3",
+//   },
+//   {
+//     id: 2,
+//     type: "doctor",
+//     name: "Dr. Sarah Wilson",
+//     category: "A",
+//     practiceType: "OP",
+//     designation: "Pediatrician",
+//     hospitalName: "Metro Clinic",
+//     visitTrack: "Visit 1/2",
+//   },
+//   {
+//     id: 3,
+//     type: "doctor",
+//     name: "Dr. Mike Johnson",
+//     category: "B",
+//     practiceType: "NP",
+//     designation: "General",
+//     hospitalName: "Community Health",
+//     visitTrack: "Visit 1/1",
+//   },
+// ];
 
-const mockPharmacistVisits: SlotVisit[] = [
-  {
-    id: 4,
-    type: "pharmacist",
-    name: "James Miller",
-    hospitalName: "City Pharmacy",
-    visitTrack: "Scheduled",
-  },
-  {
-    id: 5,
-    type: "pharmacist",
-    name: "Lisa Anderson",
-    hospitalName: "MedPlus",
-    visitTrack: "Scheduled",
-  },
-];
+// const mockPharmacistVisits: SlotVisit[] = [
+//   {
+//     id: 4,
+//     type: "pharmacist",
+//     name: "James Miller",
+//     hospitalName: "City Pharmacy",
+//     visitTrack: "Scheduled",
+//   },
+//   {
+//     id: 5,
+//     type: "pharmacist",
+//     name: "Lisa Anderson",
+//     hospitalName: "MedPlus",
+//     visitTrack: "Scheduled",
+//   },
+// ];
 
 /* ---------------- PAGE ---------------- */
 
@@ -77,16 +78,36 @@ export default function SlotPlanning() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  const [slots, setSlots] = useState<SlotVisit[]>([
-    ...mockDoctorVisits,
-    ...mockPharmacistVisits,
-  ]);
+  const [doctorSlots, setDoctorSlots] = useState<any[]>([]);
+  const [pharmacistSlots, setPharmacistSlots] = useState<any[]>([]);
+
+  // const [slots, setSlots] = useState<SlotVisit[]>([
+  //   ...mockDoctorVisits,
+  //   ...mockPharmacistVisits,
+  // ]);
+
+  const feID = parseInt(sessionStorage.getItem("feID") || "0");
+
+  useEffect(() => { 
+   getPlannedDoctorVisits();
+   getPlannedPharmacyVisits();
+  }, [selectedWeek, selectedDay]);
+
+  const getPlannedDoctorVisits = async ()=>{
+    const response = await fetchPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
+    setDoctorSlots(response);
+  };
+
+  const getPlannedPharmacyVisits = async ()=>{
+    const response = await fetchPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
+    setPharmacistSlots(response);
+  };
 
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  // const isFirstOfMonth = today.getDate() === 1;
-  const isFirstOfMonth = true;
+  const isFirstOfMonth = today.getDate() === 1;
+  // const isFirstOfMonth = true;
 
   const currentMonthName = today.toLocaleString("default", {
     month: "long",
@@ -125,7 +146,7 @@ export default function SlotPlanning() {
   };
 
   const handleDeleteSlot = (id: number) => {
-    setSlots((prev) => prev.filter((slot) => slot.id !== id));
+    // setSlots((prev) => prev.filter((slot) => slot.id !== id));
     toast({
       title: "Slot Removed",
       description: "The visit has been removed from your schedule.",
@@ -148,8 +169,8 @@ export default function SlotPlanning() {
 
   /* ---------------- FILTERS ---------------- */
 
-  const doctorSlots = slots.filter((s) => s.type === "doctor");
-  const pharmacistSlots = slots.filter((s) => s.type === "pharmacist");
+  // const doctorSlots = slots.filter((s) => s.type === "doctor");
+  // const pharmacistSlots = slots.filter((s) => s.type === "pharmacist");
 
   /* ---------------- UI ---------------- */
 

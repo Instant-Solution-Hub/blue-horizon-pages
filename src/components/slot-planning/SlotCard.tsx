@@ -5,11 +5,11 @@ import { Trash2, User, Building2 } from "lucide-react";
 
 interface SlotCardProps {
   id: number;
-  type: "doctor" | "pharmacist";
-  name: string;
+  visitType: "doctor" | "pharmacist";
+  doctorName: string;
   category?: string;
   practiceType?: string;
-  designation?: string;
+  specialization?: string;
   hospitalName: string;
   visitTrack?: string;
   canDelete: boolean;
@@ -30,11 +30,11 @@ const practiceTypeLabels: Record<string, string> = {
 
 export function SlotCard({
   id,
-  type,
-  name,
+  visitType,
+  doctorName,
   category,
   practiceType,
-  designation,
+  specialization,
   hospitalName,
   visitTrack,
   canDelete,
@@ -44,19 +44,19 @@ export function SlotCard({
     <Card className="relative overflow-hidden">
       <div
         className={`absolute left-0 top-0 bottom-0 w-1 ${
-          type === "doctor" ? "bg-primary" : "bg-violet-500"
+          visitType.toLowerCase() === "doctor" ? "bg-primary" : "bg-violet-500"
         }`}
       />
       <CardContent className="p-4 pl-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              {type === "doctor" ? (
+              {visitType.toLowerCase() === "doctor" ? (
                 <User className="h-4 w-4 text-primary" />
               ) : (
                 <Building2 className="h-4 w-4 text-violet-500" />
               )}
-              <span className="font-semibold">{name}</span>
+              <span className="font-semibold">{doctorName}</span>
               {category && (
                 <Badge
                   variant="outline"
@@ -68,8 +68,8 @@ export function SlotCard({
             </div>
 
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-              {designation && <span>{designation}</span>}
-              {designation && hospitalName && <span>•</span>}
+              {specialization && <span>{specialization}</span>}
+              {specialization && hospitalName && <span>•</span>}
               <span>{hospitalName}</span>
             </div>
 
