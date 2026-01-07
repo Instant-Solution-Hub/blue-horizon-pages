@@ -6,6 +6,7 @@ import AddLiquidationModal, {
   LiquidationPlan,
 } from "@/components/stock-liquidation/AddLiquidationModal";
 import LiquidationList from "@/components/stock-liquidation/LiquidationList";
+import StatsCards from "@/components/stock-liquidation/StatsCards";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock initial data
@@ -16,8 +17,10 @@ const mockPlans: LiquidationPlan[] = [
     quantity: 1500,
     doctor: "Dr. Rajesh Kumar",
     targetLiquidation: 200,
+    achievedUnits: 120,
     marketName: "Central Market",
     medicalShopName: "Apollo Pharmacy",
+    status: "APPROVED",
     createdAt: new Date("2024-01-15"),
   },
   {
@@ -26,7 +29,9 @@ const mockPlans: LiquidationPlan[] = [
     quantity: 1500,
     doctor: "Dr. Priya Sharma",
     targetLiquidation: 150,
+    achievedUnits: 0,
     marketName: "East Zone",
+    status: "PENDING",
     createdAt: new Date("2024-01-16"),
   },
   {
@@ -35,8 +40,10 @@ const mockPlans: LiquidationPlan[] = [
     quantity: 800,
     doctor: "Dr. Amit Patel",
     targetLiquidation: 100,
+    achievedUnits: 75,
     marketName: "West Market",
     medicalShopName: "MedPlus",
+    status: "APPROVED",
     createdAt: new Date("2024-01-17"),
   },
 ];
@@ -98,14 +105,17 @@ const StockLiquidation = () => {
                 Stock Liquidation
               </h1>
               <p className="text-muted-foreground mt-1">
-                Manage your product liquidation plans
+                Create and manage stock liquidation plans with your manager. Track progress towards clearing aging inventory.
               </p>
             </div>
-            <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+            <Button onClick={() => setIsModalOpen(true)} className="gap-2 shrink-0">
               <Plus className="w-4 h-4" />
               Add New Liquidation Plan
             </Button>
           </div>
+
+          {/* Stats Cards */}
+          <StatsCards plans={plans} />
 
           {/* Liquidation Plans List */}
           <LiquidationList plans={plans} onUpdate={handleUpdatePlan} />
