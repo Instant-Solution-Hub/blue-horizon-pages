@@ -38,8 +38,10 @@ export interface LiquidationPlan {
   quantity: number;
   doctor: string;
   targetLiquidation: number;
+  achievedUnits: number;
   marketName: string;
   medicalShopName?: string;
+  status: "PENDING" | "APPROVED";
   createdAt: Date;
 }
 
@@ -138,8 +140,10 @@ const AddLiquidationModal = ({
       quantity,
       doctor,
       targetLiquidation: Number(targetLiquidation),
+      achievedUnits: editData?.achievedUnits || 0,
       marketName,
       medicalShopName: medicalShopName || undefined,
+      status: editData?.status || "PENDING",
     });
 
     toast({

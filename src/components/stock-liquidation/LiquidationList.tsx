@@ -156,7 +156,7 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
                   ) : (
                     // View Mode
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 flex-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 flex-1">
                         <div>
                           <p className="text-xs text-muted-foreground">Doctor</p>
                           <p className="font-medium text-sm">{plan.doctor}</p>
@@ -180,6 +180,19 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
                           <p className="font-medium text-sm">
                             {plan.medicalShopName || "-"}
                           </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Status</p>
+                          <Badge
+                            variant={plan.status === "APPROVED" ? "default" : "secondary"}
+                            className={
+                              plan.status === "APPROVED"
+                                ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                            }
+                          >
+                            {plan.status}
+                          </Badge>
                         </div>
                       </div>
                       <Button
