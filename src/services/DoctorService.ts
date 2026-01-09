@@ -11,7 +11,7 @@ const API = axios.create({
 
 
 
-export const fetchDoctorsByFE = async (feId: string): Promise<Doctor[]> => {
+export const fetchDoctorsByFE = async (feId: number): Promise<Doctor[]> => {
   const res = await API.get(
     `/field-executives/${feId}/doctors`
   );
