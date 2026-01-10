@@ -10,31 +10,59 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
-import { CalendarIcon, Plus, Trash2, Check } from "lucide-react";
+import { CalendarIcon, Plus, Trash2 , Check } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { getProducts } from "@/services/ProductService";
+
 
 export interface ProductRow {
-  id: string;
+  id: string;        // UI-only
+  productId: number; // backend ID
   productName: string;
   qty: number;
   price: number;
   total: number;
 }
 
+
 export interface POBFormData {
-  id?: string;
-  doctorName: string;
-  hospitalName: string;
+  institutionName: string;
+  institutionType: "HOSPITAL" | "CLINIC" | "PHARMACY";
+  contactPerson: string;
+  contactNumber: string;
   orderDate: Date;
-  products: ProductRow[];
-  totalValue: number;
   discount: number;
   notes: string;
-  status?: "pending" | "confirmed" | "cancelled";
+  items: {
+    productId: number;
+    quantity: number;
+    price: number;
+    total: number;
+  }[];
+  totalAmount:number;
+}
+
+
+interface OrderItemRequest {
+  productId: number;
+  quantity: number;
+  price: number;
+  total: number;
 }
 
 interface AddPOBModalProps {
@@ -44,33 +72,14 @@ interface AddPOBModalProps {
   editData?: POBFormData | null;
 }
 
-const mockProducts = [
-  { name: "Paracetamol 500mg", price: 25 },
-  { name: "Amoxicillin 250mg", price: 45 },
-  { name: "Omeprazole 20mg", price: 35 },
-  { name: "Metformin 500mg", price: 30 },
-  { name: "Atorvastatin 10mg", price: 55 },
-  { name: "Amlodipine 5mg", price: 40 },
-  { name: "Losartan 50mg", price: 50 },
-  { name: "Vitamin D3 1000IU", price: 60 },
-];
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+}
 
-const mockDoctors = [
-  "Dr. Rajesh Kumar",
-  "Dr. Priya Sharma",
-  "Dr. Amit Patel",
-  "Dr. Sunita Gupta",
-  "Dr. Vikram Singh",
-];
 
-const mockHospitals = [
-  "City Hospital",
-  "Apollo Clinic",
-  "Fortis Healthcare",
-  "Max Hospital",
-  "Medanta Pharmacy",
-  "Life Care Clinic",
-];
+
 
 const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) => {
   const [doctorName, setDoctorName] = useState("");
@@ -79,27 +88,74 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
   const [notes, setNotes] = useState("");
   const [discount, setDiscount] = useState(0);
   const [products, setProducts] = useState<ProductRow[]>([]);
-  const [doctorOpen, setDoctorOpen] = useState(false);
-  const [hospitalOpen, setHospitalOpen] = useState(false);
+  const [productsMaster, setProductsMaster] = useState<Product[]>([]);
+const [loadingProducts, setLoadingProducts] = useState(false);
   
   // New product row state
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState(1);
   const [productOpen, setProductOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+  if (!isOpen) {
+    return;
+  }
+
+  const fetchProducts = async () => {
+    try {
+      setLoadingProducts(true);
+      const res = await getProducts();
+    
+
+      setProductsMaster(res.data || []);
+      console.log(res.data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  fetchProducts();
+}, [isOpen]);
+
 
   // Populate form when editing
+  // useEffect(() => {
+  //   if (editData) {
+  //     setDoctorName(editData.institutionName);
+  //     setHospitalName(editData.institutionType);
+  //     setOrderDate(editData.orderDate);
+  //     setNotes(editData.notes);
+  //     setDiscount(editData.discount || 0);
+  //     setProducts(editData.items);
+  //   } else {
+  //     resetForm();
+  //   }
+  // }, [editData, isOpen]);
+
   useEffect(() => {
-    if (editData) {
-      setDoctorName(editData.doctorName);
-      setHospitalName(editData.hospitalName);
-      setOrderDate(editData.orderDate);
-      setNotes(editData.notes);
-      setDiscount(editData.discount || 0);
-      setProducts(editData.products);
-    } else {
-      resetForm();
-    }
-  }, [editData, isOpen]);
+  if (!editData) return;
+
+  setDoctorName(editData.contactPerson);
+  setHospitalName(editData.institutionName);
+  setOrderDate(editData.orderDate);
+  setNotes(editData.notes);
+  setDiscount(editData.discount);
+
+  setProducts(
+    editData.items.map(item => ({
+      id: crypto.randomUUID(),
+      productId: item.productId,
+      productName: productsMaster.find(p => p.id === item.productId)?.name || "",
+      qty: item.quantity,
+      price: item.price,
+      total: item.total,
+    }))
+  );
+}, [editData, productsMaster]);
+
 
   const resetForm = () => {
     setDoctorName("");
@@ -110,29 +166,28 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
     setProducts([]);
     setNewProduct("");
     setNewQty(1);
+    setSelectedProduct(null);
   };
 
-  const getProductPrice = (productName: string) => {
-    const product = mockProducts.find(p => p.name === productName);
-    return product?.price || 0;
+
+const addProductRow = () => {
+  if (!selectedProduct || newQty <= 0) return;
+
+  const newRow: ProductRow = {
+    id: Date.now().toString(),
+    productId: selectedProduct.id,
+    productName: selectedProduct.name,
+    qty: newQty,
+    price: selectedProduct.price,
+    total: selectedProduct.price * newQty,
   };
 
-  const addProductRow = () => {
-    if (!newProduct || newQty <= 0) return;
-    
-    const price = getProductPrice(newProduct);
-    const newRow: ProductRow = {
-      id: Date.now().toString(),
-      productName: newProduct,
-      qty: newQty,
-      price: price,
-      total: price * newQty,
-    };
-    
-    setProducts([...products, newRow]);
-    setNewProduct("");
-    setNewQty(1);
-  };
+  setProducts([...products, newRow]);
+  setNewProduct("");
+  setSelectedProduct(null);
+  setNewQty(1);
+};
+
 
   const removeProductRow = (id: string) => {
     setProducts(products.filter(p => p.id !== id));
@@ -150,41 +205,51 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
   const subtotal = products.reduce((sum, p) => sum + p.total, 0);
   const totalOrderValue = subtotal - discount;
 
+ 
   const handleSubmit = () => {
-    if (!doctorName || !hospitalName || !orderDate || products.length === 0) return;
-    
-    onSubmit({
-      id: editData?.id,
-      doctorName,
-      hospitalName,
-      orderDate,
-      products,
-      totalValue: totalOrderValue,
-      discount,
-      notes,
-      status: editData?.status || "pending",
-    });
-    
-    resetForm();
-    onClose();
-  };
+  if (
+    !doctorName ||
+    !hospitalName ||
+    !orderDate ||
+    products.length === 0
+  ) return;
+
+
+onSubmit({
+  institutionName: hospitalName,
+  institutionType: "HOSPITAL",
+  contactPerson: doctorName,
+  contactNumber: "9999999999",
+  orderDate,
+  discount,
+  totalAmount:totalOrderValue,
+  notes,
+  items: products.map(p => ({
+    productId: p.productId,
+    quantity: p.qty,
+    price: p.price,
+    total: p.total,
+  })),
+});
+onClose();
+ resetForm();
+};
+
 
   const handleClose = () => {
     resetForm();
     onClose();
   };
 
-  const filteredDoctors = mockDoctors.filter(d => 
-    d.toLowerCase().includes(doctorName.toLowerCase())
-  );
+  const selectedProductIds = new Set(products.map(p => p.productId));
 
-  const filteredHospitals = mockHospitals.filter(h => 
-    h.toLowerCase().includes(hospitalName.toLowerCase())
-  );
 
-  const filteredProducts = mockProducts.filter(p => 
+const filteredProducts = productsMaster
+  .filter(p => !selectedProductIds.has(p.id)) // 🚫 exclude already added
+  .filter(p =>
     p.name.toLowerCase().includes(newProduct.toLowerCase())
   );
+
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -196,98 +261,27 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
         <div className="space-y-4">
           {/* Doctor/Pharmacist Name */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Doctor/Pharmacist Name *</Label>
-              <Popover open={doctorOpen} onOpenChange={setDoctorOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-between font-normal"
-                  >
-                    {doctorName || "Select doctor..."}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Search doctor..." 
-                      value={doctorName}
-                      onValueChange={setDoctorName}
-                    />
-                    <CommandList>
-                      <CommandEmpty>No doctor found.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredDoctors.map((doctor) => (
-                          <CommandItem
-                            key={doctor}
-                            onSelect={() => {
-                              setDoctorName(doctor);
-                              setDoctorOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                doctorName === doctor ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {doctor}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+          <div className="space-y-2">
+  <Label>Doctor / Pharmacist Name *</Label>
+  <Input
+    value={doctorName}
+    onChange={(e) => setDoctorName(e.target.value)}
+    placeholder="Enter doctor or pharmacist name"
+    required
+  />
+</div>
 
             {/* Hospital/Pharmacy Name */}
-            <div className="space-y-2">
-              <Label>Pharmacy/Hospital Name *</Label>
-              <Popover open={hospitalOpen} onOpenChange={setHospitalOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-between font-normal"
-                  >
-                    {hospitalName || "Select hospital..."}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Search hospital..." 
-                      value={hospitalName}
-                      onValueChange={setHospitalName}
-                    />
-                    <CommandList>
-                      <CommandEmpty>No hospital found.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredHospitals.map((hospital) => (
-                          <CommandItem
-                            key={hospital}
-                            onSelect={() => {
-                              setHospitalName(hospital);
-                              setHospitalOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                hospitalName === hospital ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {hospital}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+          <div className="space-y-2">
+  <Label>Pharmacy / Hospital Name *</Label>
+  <Input
+    value={hospitalName}
+    onChange={(e) => setHospitalName(e.target.value)}
+    placeholder="Enter pharmacy or hospital name"
+    required
+  />
+</div>
+
           </div>
 
           {/* Date of Order */}
@@ -308,11 +302,16 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
-                  mode="single"
-                  selected={orderDate}
-                  onSelect={setOrderDate}
-                  initialFocus
-                />
+  mode="single"
+  selected={orderDate}
+  onSelect={(date) => {
+    if (!date) return;
+    const d = new Date(date);
+    d.setHours(12, 0, 0, 0);
+    setOrderDate(d);
+  }}
+  initialFocus
+/>
               </PopoverContent>
             </Popover>
           </div>
@@ -347,10 +346,12 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
                           {filteredProducts.map((product) => (
                             <CommandItem
                               key={product.name}
-                              onSelect={() => {
-                                setNewProduct(product.name);
-                                setProductOpen(false);
-                              }}
+                            onSelect={() => {
+  setNewProduct(product.name);
+  setSelectedProduct(product);
+  setProductOpen(false);
+}}
+
                             >
                               <Check
                                 className={cn(

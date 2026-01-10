@@ -5,12 +5,12 @@ import { format } from "date-fns";
 import { Building2, User, Calendar, Package, FileText, Pencil, Percent } from "lucide-react";
 
 export interface POBOrder {
-  id: string;
+  id: number;
   doctorName: string;
   hospitalName: string;
   orderDate: Date;
   products: {
-    id: string;
+    id: number;
     productName: string;
     qty: number;
     price: number;
@@ -73,7 +73,7 @@ const POBList = ({ orders, searchQuery, onEdit }: POBListProps) => {
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
-                      Order #{order.id.slice(-6).toUpperCase()}
+                      Order #{order.id}
                     </span>
                   </div>
 
@@ -139,10 +139,12 @@ const POBList = ({ orders, searchQuery, onEdit }: POBListProps) => {
                     )}
                     <p className="text-sm text-muted-foreground">Total Value</p>
                     <p className="text-2xl font-bold text-primary">
-                      ₹{order.totalValue.toLocaleString()}
+                      ₹{(order.totalValue ?? 0).toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {format(order.createdAt, "dd MMM yyyy, hh:mm a")}
+                      {order.createdAt && !isNaN(new Date(order.createdAt).getTime())
+  ? format(new Date(order.createdAt), "dd MMM yyyy, hh:mm a")
+  : "-"}
                     </p>
                   </div>
                   
