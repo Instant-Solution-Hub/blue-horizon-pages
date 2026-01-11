@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { Button } from "@/components/ui/button";
@@ -7,75 +7,102 @@ import { Plus, Search } from "lucide-react";
 import StatsCards from "@/components/competitive-brands/StatsCards";
 import AddReportModal from "@/components/competitive-brands/AddReportModal";
 import ReportList from "@/components/competitive-brands/ReportList";
+import { createCompetitiveReport ,updateCompetitiveReport ,fetchCompetitiveReportsByFE } from "@/services/CompetetivebrandService";
+import { toast } from "sonner";
+
 
 interface CompetitiveReport {
-  id: string;
+  id: number;
   brandName: string;
   companyName: string;
-  product: string;
+  productName?: string;
   productCategory: string;
-  doctorName: string;
-  hospitalName: string;
-  observations: string;
-  date: Date;
+  source: string;
+  designation: string;
+  observations?: string;
   imageUrl?: string;
   managerNotified: boolean;
+  createdAt:string;
+  
 }
+
 
 const CompetitiveBrands = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReport, setEditingReport] = useState<CompetitiveReport | null>(null);
-  const [reports, setReports] = useState<CompetitiveReport[]>([
-    {
-      id: "1",
-      brandName: "Competitor X",
-      companyName: "PharmaCorp",
-      product: "Competitor Drug A",
-      productCategory: "Antibiotics",
-      doctorName: "Dr. Amit Sharma",
-      hospitalName: "City Hospital",
-      observations: "New promotional scheme launched with 20% discount",
-      date: new Date(2024, 0, 15),
-      imageUrl: "",
-      managerNotified: true,
-    },
-    {
-      id: "2",
-      brandName: "Brand Y",
-      companyName: "MediLife",
-      product: "Competitor Drug C",
-      productCategory: "Cardiovascular",
-      doctorName: "Dr. Priya Patel",
-      hospitalName: "Apollo Clinic",
-      observations: "Aggressive marketing with free samples",
-      date: new Date(2024, 0, 18),
-      imageUrl: "",
-      managerNotified: false,
-    },
-  ]);
+  const [reports, setReports] = useState<CompetitiveReport[]>([]);
+  const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
+  const [loading, setLoading] = useState(true);
 
-  const handleAddReport = (
-    reportData: Omit<CompetitiveReport, "id" | "managerNotified">
-  ) => {
-    if (editingReport) {
-      setReports(
-        reports.map((r) =>
-          r.id === editingReport.id
-            ? { ...r, ...reportData }
-            : r
-        )
-      );
-    } else {
-      const newReport: CompetitiveReport = {
-        ...reportData,
-        id: Date.now().toString(),
-        managerNotified: false,
-      };
-      setReports([newReport, ...reports]);
+  useEffect(() => {
+  const loadReports = async () => {
+    try {
+      setLoading(true);
+const data = await fetchCompetitiveReportsByFE(fieldExecutiveId);
+setReports(data);
+setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch reports", error);
     }
-    setEditingReport(null);
   };
+
+  loadReports();
+}, [fieldExecutiveId]);
+
+ const handleAddReport = async ({
+  data,
+  image,
+}: {
+  data: any;
+  image?: File | null;
+}) => {
+  try {
+    const saved = await createCompetitiveReport(data, image);
+
+    setReports((prev) => [saved, ...prev]);
+    setIsModalOpen(false);
+    setEditingReport(null);
+  } catch (error) {
+    console.error("Failed to create report", error);
+    const message =
+    error?.response?.data?.message ||
+    "Upload failed. Please try again.";
+
+  toast.error(message);
+  }
+};
+
+const handleUpdateReport = async (
+  id: number,
+  {
+    data,
+    image,
+  }: {
+    data: any;
+    image?: File | null;
+  }
+) => {
+  try {
+    const updated = await updateCompetitiveReport(id, data, image);
+
+    setReports((prev) =>
+      prev.map((r) => (r.id === id ? updated : r))
+    );
+
+    setIsModalOpen(false);
+    setEditingReport(null);
+  } catch (error) {
+    console.error("Failed to update report", error);
+     const message =
+    error?.response?.data?.message ||
+    "Upload failed. Please try again.";
+
+  toast.error(message);
+  }
+};
+
+
 
   const handleEdit = (report: CompetitiveReport) => {
     setEditingReport(report);
@@ -125,8 +152,15 @@ const CompetitiveBrands = () => {
               Add New Report
             </Button>
           </div>
+          {loading ? (
+  <div className="text-center py-12 text-muted-foreground">
+    Loading reports...
+  </div>
+) : (
+  <ReportList reports={filteredReports} onEdit={handleEdit} />
+)}
 
-          <ReportList reports={filteredReports} onEdit={handleEdit} />
+          
 
           <AddReportModal
             open={isModalOpen}
@@ -134,7 +168,13 @@ const CompetitiveBrands = () => {
               setIsModalOpen(open);
               if (!open) setEditingReport(null);
             }}
-            onSubmit={handleAddReport}
+           onSubmit={(payload) => {
+    if (editingReport) {
+      handleUpdateReport(editingReport.id, payload);
+    } else {
+      handleAddReport(payload);
+    }
+  }}
             editingReport={editingReport}
           />
         </div>
