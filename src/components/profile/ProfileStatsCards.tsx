@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, Target, DollarSign } from "lucide-react";
+import { Calendar, Target, Umbrella } from "lucide-react";
 
 const ProfileStatsCards = () => {
   const attendanceData = {
@@ -15,10 +15,9 @@ const ProfileStatsCards = () => {
     rate: Math.round((112500 / 150000) * 100),
   };
 
-  const incentiveData = {
-    thisMonth: 8500,
-    lastMonth: 7200,
-    yearTotal: 45800,
+  const leaveData = {
+    casualLeave: { used: 3, total: 12 },
+    sickLeave: { used: 2, total: 10 },
   };
 
   return (
@@ -79,36 +78,44 @@ const ProfileStatsCards = () => {
         </CardContent>
       </Card>
 
-      {/* Incentive Details Card */}
+      {/* Leave Progress Card */}
       <Card className="border-border/50 shadow-sm">
         <CardContent className="p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+              <Umbrella className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Incentive Details</p>
-              <p className="text-xs text-muted-foreground/70">Earnings</p>
+              <p className="text-sm text-muted-foreground">Leave Balance</p>
+              <p className="text-xs text-muted-foreground/70">This Year</p>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">This Month</span>
-              <span className="text-sm font-semibold text-foreground">
-                ₹{incentiveData.thisMonth.toLocaleString()}
-              </span>
+          <div className="space-y-3">
+            {/* Casual Leave */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-muted-foreground">Casual Leave</span>
+                <span className="text-xs font-medium text-foreground">
+                  {leaveData.casualLeave.used}/{leaveData.casualLeave.total}
+                </span>
+              </div>
+              <Progress 
+                value={(leaveData.casualLeave.used / leaveData.casualLeave.total) * 100} 
+                className="h-2 [&>div]:bg-blue-500" 
+              />
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">Last Month</span>
-              <span className="text-sm font-medium text-muted-foreground">
-                ₹{incentiveData.lastMonth.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center pt-2 border-t border-border/50">
-              <span className="text-xs text-muted-foreground">Year Total</span>
-              <span className="text-sm font-bold text-primary">
-                ₹{incentiveData.yearTotal.toLocaleString()}
-              </span>
+            {/* Sick Leave */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-muted-foreground">Sick Leave</span>
+                <span className="text-xs font-medium text-foreground">
+                  {leaveData.sickLeave.used}/{leaveData.sickLeave.total}
+                </span>
+              </div>
+              <Progress 
+                value={(leaveData.sickLeave.used / leaveData.sickLeave.total) * 100} 
+                className="h-2 [&>div]:bg-amber-500" 
+              />
             </div>
           </div>
         </CardContent>
