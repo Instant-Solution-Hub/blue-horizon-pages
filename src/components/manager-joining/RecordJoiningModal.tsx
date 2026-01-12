@@ -1,4 +1,9 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
+import { fetchDoctorsByFE } from "@/services/DoctorService";
+
+
+
 import {
   Dialog,
   DialogContent,
@@ -27,11 +32,14 @@ import { format } from "date-fns";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+
 interface RecordJoiningModalProps {
   isOpen: boolean;
+  feId: number;
   onClose: () => void;
   onSubmit: (data: JoiningFormData) => void;
 }
+
 
 export interface JoiningFormData {
   scheduledTime: string;
@@ -43,46 +51,56 @@ export interface JoiningFormData {
   hospital: string;
 }
 
-// Mock data for doctors and hospitals
-const mockDoctors = [
-  { id: "1", name: "Dr. Sharma", hospital: "City Hospital", designation: "Cardiologist", category: "A+" },
-  { id: "2", name: "Dr. Patel", hospital: "Metro Clinic", designation: "Neurologist", category: "A" },
-  { id: "3", name: "Dr. Gupta", hospital: "Care Hospital", designation: "Orthopedic", category: "B" },
-  { id: "4", name: "Dr. Singh", hospital: "Apollo Hospital", designation: "General Physician", category: "A+" },
-  { id: "5", name: "Dr. Kumar", hospital: "Max Hospital", designation: "Dermatologist", category: "A" },
-];
+export interface Doctor {
+  id: string;
+  name: string;
+  hospitalName: string;
 
-const mockHospitals = [
-  "City Hospital",
-  "Metro Clinic",
-  "Care Hospital",
-  "Apollo Hospital",
-  "Max Hospital",
-  "Fortis Hospital",
-  "AIIMS",
-];
+  
+}
 
-const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalProps) => {
+
+
+
+
+const RecordJoiningModal = ({ isOpen, onClose, onSubmit , feId }: RecordJoiningModalProps) => {
+  useEffect(() => {
+  if (!isOpen) return;
+
+  const loadDoctors = async () => {
+    try {
+      setLoadingDoctors(true);
+      const data = await fetchDoctorsByFE(feId);
+      setDoctors(data);
+    } catch (err) {
+      console.error("Failed to fetch doctors", err);
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
+
+  loadDoctors();
+}, [isOpen, feId]);
+
+const [doctors, setDoctors] = useState<Doctor[]>([]);
+const [loadingDoctors, setLoadingDoctors] = useState(false);
+
+
   const [scheduledTime, setScheduledTime] = useState("");
   const [joiningTime, setJoiningTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState<typeof mockDoctors[0] | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<typeof doctors[0] | null>(null);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [hospital, setHospital] = useState("");
   const [doctorOpen, setDoctorOpen] = useState(false);
-  const [hospitalOpen, setHospitalOpen] = useState(false);
   const [doctorSearch, setDoctorSearch] = useState("");
-  const [hospitalSearch, setHospitalSearch] = useState("");
+  
 
-  const filteredDoctors = mockDoctors.filter((doc) =>
-    doc.name.toLowerCase().includes(doctorSearch.toLowerCase())
-  );
+ const filteredDoctors = doctors.filter((doc) =>
+  doc.name.toLowerCase().includes(doctorSearch.toLowerCase())
+);
 
-  const filteredHospitals = mockHospitals.filter((h) =>
-    h.toLowerCase().includes(hospitalSearch.toLowerCase())
-  );
-
-  const isFormValid = scheduledTime && joiningTime && selectedDoctor && date && hospital;
+  const isFormValid = scheduledTime && joiningTime && selectedDoctor && date && hospital && notes.length > 0;
 
   const handleSubmit = () => {
     if (!isFormValid || !selectedDoctor || !date) return;
@@ -90,7 +108,7 @@ const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalPro
     onSubmit({
       scheduledTime,
       joiningTime,
-      notes,
+      notes : notes.trim(),
       doctorId: selectedDoctor.id,
       doctorName: selectedDoctor.name,
       date,
@@ -173,8 +191,9 @@ const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalPro
                           key={doctor.id}
                           value={doctor.name}
                           onSelect={() => {
+                            console.log(doctor);
                             setSelectedDoctor(doctor);
-                            setHospital(doctor.hospital);
+                            setHospital(doctor.hospitalName);
                             setDoctorOpen(false);
                           }}
                         >
@@ -187,7 +206,7 @@ const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalPro
                           <div>
                             <p className="font-medium">{doctor.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {doctor.designation} • {doctor.category} • {doctor.hospital}
+                               {doctor.hospitalName}
                             </p>
                           </div>
                         </CommandItem>
@@ -198,56 +217,16 @@ const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalPro
               </PopoverContent>
             </Popover>
           </div>
+          {/* Hospital (Auto-filled) */}
+<div className="space-y-2">
+  <Label>Hospital *</Label>
+  <Input
+    value={hospital}
+    placeholder="Hospital will be auto-filled"
+    disabled
+  />
+</div>
 
-          {/* Hospital Selection */}
-          <div className="space-y-2">
-            <Label>Hospital *</Label>
-            <Popover open={hospitalOpen} onOpenChange={setHospitalOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={hospitalOpen}
-                  className="w-full justify-between"
-                >
-                  {hospital || "Select hospital..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
-                <Command>
-                  <CommandInput
-                    placeholder="Search hospital..."
-                    value={hospitalSearch}
-                    onValueChange={setHospitalSearch}
-                  />
-                  <CommandList>
-                    <CommandEmpty>No hospital found.</CommandEmpty>
-                    <CommandGroup>
-                      {filteredHospitals.map((h) => (
-                        <CommandItem
-                          key={h}
-                          value={h}
-                          onSelect={() => {
-                            setHospital(h);
-                            setHospitalOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              hospital === h ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {h}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
 
           {/* Scheduled Time */}
           <div className="space-y-2">
@@ -273,7 +252,7 @@ const RecordJoiningModal = ({ isOpen, onClose, onSubmit }: RecordJoiningModalPro
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">Notes *</Label>
             <Textarea
               id="notes"
               placeholder="Add any additional notes..."

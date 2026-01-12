@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,59 +7,17 @@ import { useToast } from "@/hooks/use-toast";
 import StatsCards from "@/components/pob/StatsCards";
 import AddPOBModal, { POBFormData } from "@/components/pob/AddPOBModal";
 import POBList, { POBOrder } from "@/components/pob/POBList";
+import { createPOBOrder , getPOBOrders ,mapOrderResponseToPOBOrder , updatePOBOrder } from "@/services/POBService";
 
 const POB = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingOrder, setEditingOrder] = useState<POBOrder | null>(null);
-  const [orders, setOrders] = useState<POBOrder[]>([
-    {
-      id: "ord-001",
-      doctorName: "Dr. Rajesh Kumar",
-      hospitalName: "City Hospital",
-      orderDate: new Date(2024, 0, 15),
-      products: [
-        { id: "p1", productName: "Paracetamol 500mg", qty: 100, price: 25, total: 2500 },
-        { id: "p2", productName: "Amoxicillin 250mg", qty: 50, price: 45, total: 2250 },
-      ],
-      totalValue: 4750,
-      discount: 0,
-      notes: "Urgent delivery required",
-      status: "confirmed",
-      createdAt: new Date(2024, 0, 15, 10, 30),
-    },
-    {
-      id: "ord-002",
-      doctorName: "Dr. Priya Sharma",
-      hospitalName: "Apollo Clinic",
-      orderDate: new Date(2024, 0, 18),
-      products: [
-        { id: "p3", productName: "Omeprazole 20mg", qty: 200, price: 35, total: 7000 },
-      ],
-      totalValue: 6500,
-      discount: 500,
-      notes: "",
-      status: "pending",
-      createdAt: new Date(2024, 0, 18, 14, 15),
-    },
-    {
-      id: "ord-003",
-      doctorName: "Dr. Amit Patel",
-      hospitalName: "Fortis Healthcare",
-      orderDate: new Date(2024, 0, 20),
-      products: [
-        { id: "p4", productName: "Metformin 500mg", qty: 150, price: 30, total: 4500 },
-        { id: "p5", productName: "Atorvastatin 10mg", qty: 100, price: 55, total: 5500 },
-        { id: "p6", productName: "Amlodipine 5mg", qty: 80, price: 40, total: 3200 },
-      ],
-      totalValue: 12200,
-      discount: 1000,
-      notes: "Monthly stock order",
-      status: "pending",
-      createdAt: new Date(2024, 0, 20, 9, 0),
-    },
-  ]);
+  const [orders, setOrders] = useState<POBOrder[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+
 
   const stats = {
     totalOrders: orders.length,
@@ -67,51 +25,63 @@ const POB = () => {
     pending: orders.filter(o => o.status === "pending").length,
     confirmed: orders.filter(o => o.status === "confirmed").length,
   };
+  const feId = Number(localStorage.getItem("feId")) || 1;
 
-  const handleAddOrder = (data: POBFormData) => {
-    if (data.id) {
-      // Editing existing order
-      setOrders(orders.map(order => 
-        order.id === data.id 
-          ? {
-              ...order,
-              doctorName: data.doctorName,
-              hospitalName: data.hospitalName,
-              orderDate: data.orderDate,
-              products: data.products,
-              totalValue: data.totalValue,
-              discount: data.discount,
-              notes: data.notes,
-            }
-          : order
-      ));
+  const fetchOrders = async () => {
+  try {
+    setLoadingOrders(true);
+    const res = await getPOBOrders(feId);
+    const apiOrders = res.data;
+    const mappedOrders = apiOrders.map(mapOrderResponseToPOBOrder);
+
+    setOrders(mappedOrders);
+    console.log(res.data);
+    console.log(res);
+  } catch (err) {
+    console.error("Failed to fetch orders", err);
+  } finally {
+    setLoadingOrders(false);
+  }
+};
+
+useEffect(() => {
+  fetchOrders();
+}, []);
+
+
+  const handleAddOrder = async (data: POBFormData) => {
+  try {
+    console.log(data.items);
+      if (editingOrder) {
+      // 🔁 UPDATE
+      await updatePOBOrder(feId, editingOrder.id, data);
+
       toast({
         title: "Order Updated",
-        description: `Order has been updated successfully.`,
+        description: "Order has been updated successfully",
       });
     } else {
-      // Adding new order
-      const newOrder: POBOrder = {
-        id: `ord-${Date.now()}`,
-        doctorName: data.doctorName,
-        hospitalName: data.hospitalName,
-        orderDate: data.orderDate,
-        products: data.products,
-        totalValue: data.totalValue,
-        discount: data.discount,
-        notes: data.notes,
-        status: "pending",
-        createdAt: new Date(),
-      };
+      // ➕ CREATE
+      await createPOBOrder(feId, data);
 
-      setOrders([newOrder, ...orders]);
       toast({
-        title: "Order Submitted",
-        description: `Order worth ₹${newOrder.totalValue.toLocaleString()} has been submitted successfully.`,
+        title: "POB Submitted",
+        description: "Order has been submitted successfully",
       });
     }
-    setEditingOrder(null);
-  };
+    setIsModalOpen(false);
+    await fetchOrders(); // same pattern as manager joinings
+  } catch (err) {
+   toast({
+      title: "Error",
+      description: editingOrder
+        ? "Failed to update order"
+        : "Failed to submit order",
+      variant: "destructive",
+    });
+  }
+};
+
 
   const handleEdit = (order: POBOrder) => {
     setEditingOrder(order);
@@ -164,22 +134,32 @@ const POB = () => {
         </div>
 
         {/* Add/Edit POB Modal */}
-        <AddPOBModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleAddOrder}
-          editData={editingOrder ? {
-            id: editingOrder.id,
-            doctorName: editingOrder.doctorName,
-            hospitalName: editingOrder.hospitalName,
-            orderDate: editingOrder.orderDate,
-            products: editingOrder.products,
-            totalValue: editingOrder.totalValue,
-            discount: editingOrder.discount || 0,
-            notes: editingOrder.notes,
-            status: editingOrder.status,
-          } : null}
-        />
+       <AddPOBModal
+  isOpen={isModalOpen}
+  onClose={handleCloseModal}
+  onSubmit={handleAddOrder}
+editData={
+  editingOrder
+    ? {
+        institutionName: editingOrder.hospitalName,
+        institutionType: "HOSPITAL",
+        contactPerson: editingOrder.doctorName,
+        contactNumber: "9999999999",
+        orderDate: editingOrder.orderDate,
+        discount: editingOrder.discount || 0,
+        notes: editingOrder.notes,
+        totalAmount:editingOrder.totalValue,
+        items: editingOrder.products.map(p => ({
+          productId: p.id,   
+          quantity: p.qty,      
+          price: p.price,
+          total: p.total,
+        })),
+      }
+    : null
+}
+/>
+
       </main>
     </div>
   );

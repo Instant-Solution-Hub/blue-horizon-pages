@@ -13,7 +13,7 @@ import JoiningList, {
 
 // 🔹 Replace with your axios instance if you have one
 import axios from "axios";
-import { fetchManagerJoinings } from "@/services/ManagerJoiningService";
+import { addNewRecord, fetchManagerJoinings } from "@/services/ManagerJoiningService";
 
 const ManagerJoining = () => {
   const { toast } = useToast();
@@ -22,7 +22,7 @@ const ManagerJoining = () => {
   const [loading, setLoading] = useState(false);
 
   // 🔹 Example: FE id from auth / localStorage
-  const feId = Number(localStorage.getItem("feId")) || 5;
+  const feId = Number(localStorage.getItem("feId")) || 1;
 
   const today = new Date();
   const month = today.getMonth() + 1;
@@ -82,32 +82,26 @@ const ManagerJoining = () => {
   // ===============================
   // Submit new joining
   // ===============================
-  const handleRecordJoining = async (data: JoiningFormData) => {
-    try {
-      await axios.post("/api/manager-joinings", {
-        fieldExecutiveId: feId,
-        doctorName: data.doctorName,
-        hospitalName: data.hospital,
-        scheduledTime: combineDateTime(data.date, data.scheduledTime),
-        actualJoiningTime: combineDateTime(data.date, data.joiningTime),
-        notes: data.notes,
-      });
+ const handleRecordJoining = async (data: JoiningFormData) => {
+  try {
+    await addNewRecord(data, feId); // ✅ service owns API logic
 
-      toast({
-        title: "Joining Recorded",
-        description: `Manager joining with ${data.doctorName} recorded successfully.`,
-      });
+    toast({
+      title: "Joining Recorded",
+      description: `Manager joining recorded successfully.`,
+    });
 
-      setIsModalOpen(false);
-      fetchJoinings(); // 🔄 refresh list
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to record joining",
-        variant: "destructive",
-      });
-    }
-  };
+    setIsModalOpen(false);
+    fetchJoinings(); // 🔄 refresh list
+  } catch (err) {
+    toast({
+      title: "Error",
+      description: "Failed to record joining",
+      variant: "destructive",
+    });
+  }
+};
+
 
   // ===============================
   // Stats
@@ -157,8 +151,7 @@ const ManagerJoining = () => {
       <RecordJoiningModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleRecordJoining}
-      />
+        onSubmit={handleRecordJoining} feId={feId}      />
     </div>
   );
 };
@@ -168,9 +161,20 @@ export default ManagerJoining;
 // ===============================
 // Helpers
 // ===============================
-function combineDateTime(date: Date, time: string) {
-  const [h, m] = time.split(":").map(Number);
-  const d = new Date(date);
-  d.setHours(h, m, 0, 0);
-  return d.toISOString();
-}
+
+const calculateStatus = (
+  scheduledTime: string,
+  joiningTime: string
+): "ON_TIME" | "EARLY" | "LATE" => {
+  const [sh, sm] = scheduledTime.split(":").map(Number);
+  const [jh, jm] = joiningTime.split(":").map(Number);
+
+  const scheduledMinutes = sh * 60 + sm;
+  const joiningMinutes = jh * 60 + jm;
+  const diff = joiningMinutes - scheduledMinutes;
+
+  if (diff < -5) return "EARLY";
+  if (diff > 5) return "LATE";
+  return "ON_TIME";
+};
+

@@ -1,0 +1,20 @@
+import axios from "axios";
+import { Doctor } from "../components/manager-joining/RecordJoiningModal";
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+
+
+
+export const fetchDoctorsByFE = async (feId: number): Promise<Doctor[]> => {
+  const res = await API.get(
+    `/field-executives/${feId}/doctors`
+  );
+
+  return res.data.data; // ApiResponseDto → data
+};

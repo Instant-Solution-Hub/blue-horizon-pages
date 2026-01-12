@@ -28,25 +28,29 @@ import { CalendarIcon, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CompetitiveReport {
-  id: string;
+  id: number;
   brandName: string;
   companyName: string;
-  product: string;
+  productName?: string;
   productCategory: string;
-  doctorName: string;
-  hospitalName: string;
-  observations: string;
-  date: Date;
+  source: string;
+  designation: string;
+  observations?: string;
   imageUrl?: string;
   managerNotified: boolean;
+  createdAt:string;
 }
 
 interface AddReportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (report: Omit<CompetitiveReport, "id" | "managerNotified">) => void;
+  onSubmit: (payload: {
+    data: any;
+    image?: File | null;
+  }) => void;
   editingReport?: CompetitiveReport | null;
 }
+
 
 const mockDoctors = [
   "Dr. Amit Sharma",
@@ -78,98 +82,96 @@ const AddReportModal = ({
   onSubmit,
   editingReport,
 }: AddReportModalProps) => {
-  const [brandName, setBrandName] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [product, setProduct] = useState("");
-  const [productCategory, setProductCategory] = useState("");
-  const [doctorName, setDoctorName] = useState("");
-  const [hospitalName, setHospitalName] = useState("");
-  const [observations, setObservations] = useState("");
-  const [date, setDate] = useState<Date>();
-  const [imageUrl, setImageUrl] = useState<string>("");
-  const [imagePreview, setImagePreview] = useState<string>("");
+const [brandName, setBrandName] = useState("");
+const [companyName, setCompanyName] = useState("");
+const [productName, setProductName] = useState("");
+const [productCategory, setProductCategory] = useState("");
+const [source, setSource] = useState("");
+const [designation, setDesignation] = useState("");
+const [observations, setObservations] = useState("");
+const [imageFile, setImageFile] = useState<File | null>(null);
+const [imagePreview, setImagePreview] = useState<string>("");
+const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
 
-  const [doctorOpen, setDoctorOpen] = useState(false);
-  const [hospitalOpen, setHospitalOpen] = useState(false);
-  const [productOpen, setProductOpen] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
+useEffect(() => {
+  if (editingReport) {
+    setBrandName(editingReport.brandName);
+    setCompanyName(editingReport.companyName);
+    setProductName(editingReport.productName);
+    setProductCategory(editingReport.productCategory);
+    setSource(editingReport.source);
+    setDesignation(editingReport.designation);
+    setObservations(editingReport.observations);
+    setImageFile(null);
+     setImagePreview(
+      editingReport.imageUrl
+        ? `${API_BASE_URL}${editingReport.imageUrl}`
+        : ""
+    );
+  } else {
+    resetForm();
+  }
+}, [editingReport, open]);
+
+const resetForm = () => {
+  setBrandName("");
+  setCompanyName("");
+  setProductName("");
+  setProductCategory("");
+  setSource("");
+  setDesignation("");
+  setObservations("");
+  setImageFile(null);
+  setImagePreview("");
+};
+
+
+
+
+ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setImageFile(file);
+  setImagePreview(URL.createObjectURL(file));
+};
+
+
+ const removeImage = () => {
+  setImageFile(null);
+  setImagePreview("");
     if (editingReport) {
-      setBrandName(editingReport.brandName);
-      setCompanyName(editingReport.companyName);
-      setProduct(editingReport.product);
-      setProductCategory(editingReport.productCategory);
-      setDoctorName(editingReport.doctorName);
-      setHospitalName(editingReport.hospitalName);
-      setObservations(editingReport.observations);
-      setDate(editingReport.date);
-      setImageUrl(editingReport.imageUrl || "");
-      setImagePreview(editingReport.imageUrl || "");
-    } else {
-      resetForm();
-    }
-  }, [editingReport, open]);
+    setImageFile(null);
+  }
+};
 
-  const resetForm = () => {
-    setBrandName("");
-    setCompanyName("");
-    setProduct("");
-    setProductCategory("");
-    setDoctorName("");
-    setHospitalName("");
-    setObservations("");
-    setDate(undefined);
-    setImageUrl("");
-    setImagePreview("");
-  };
+const handleSubmit = () => {
+  if (!brandName || !companyName || !productCategory || !source || !designation) {
+    return;
+  }
 
-  const handleProductSelect = (productName: string) => {
-    setProduct(productName);
-    const selectedProduct = mockProducts.find((p) => p.name === productName);
-    if (selectedProduct) {
-      setProductCategory(selectedProduct.category);
-    }
-    setProductOpen(false);
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setImageUrl(result);
-        setImagePreview(result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeImage = () => {
-    setImageUrl("");
-    setImagePreview("");
-  };
-
-  const handleSubmit = () => {
-    if (!brandName || !companyName || !doctorName || !hospitalName || !date) {
-      return;
-    }
-
-    onSubmit({
+  onSubmit({
+    data: {
+      fieldExecutiveId,
       brandName,
       companyName,
-      product,
+      productName: productName || null,
       productCategory,
-      doctorName,
-      hospitalName,
+      source,
+      designation,
       observations,
-      date,
-      imageUrl: imageUrl || undefined,
-    });
+      
+    },
+    image: imageFile,
+  });
 
-    resetForm();
-    onOpenChange(false);
-  };
+  resetForm();
+  onOpenChange(false);
+};
+
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -204,151 +206,47 @@ const AddReportModal = ({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Product</Label>
-              <Popover open={productOpen} onOpenChange={setProductOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-start font-normal"
-                  >
-                    {product || "Select product"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search product..." />
-                    <CommandList>
-                      <CommandEmpty>No product found.</CommandEmpty>
-                      <CommandGroup>
-                        {mockProducts.map((p) => (
-                          <CommandItem
-                            key={p.name}
-                            onSelect={() => handleProductSelect(p.name)}
-                          >
-                            {p.name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+  <div className="space-y-2">
+    <Label>Product Name</Label>
+    <Input
+      value={productName}
+      onChange={(e) => setProductName(e.target.value)}
+      placeholder="Enter product name (optional)"
+    />
+  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="productCategory">Product Category</Label>
-              <Input
-                id="productCategory"
-                value={productCategory}
-                onChange={(e) => setProductCategory(e.target.value)}
-                placeholder="Auto-filled"
-                readOnly
-                className="bg-muted"
-              />
-            </div>
-          </div>
+  <div className="space-y-2">
+    <Label>Product Category *</Label>
+    <Input
+      value={productCategory}
+      onChange={(e) => setProductCategory(e.target.value)}
+      placeholder="Enter product category"
+    />
+  </div>
+</div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Doctor *</Label>
-              <Popover open={doctorOpen} onOpenChange={setDoctorOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-start font-normal"
-                  >
-                    {doctorName || "Select doctor"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search doctor..." />
-                    <CommandList>
-                      <CommandEmpty>No doctor found.</CommandEmpty>
-                      <CommandGroup>
-                        {mockDoctors.map((doctor) => (
-                          <CommandItem
-                            key={doctor}
-                            onSelect={() => {
-                              setDoctorName(doctor);
-                              setDoctorOpen(false);
-                            }}
-                          >
-                            {doctor}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+         <div className="grid grid-cols-2 gap-4">
+  <div className="space-y-2">
+    <Label>Source *</Label>
+    <Input
+      value={source}
+      onChange={(e) => setSource(e.target.value)}
+      placeholder="Name of the person"
+    />
+  </div>
 
-            <div className="space-y-2">
-              <Label>Hospital *</Label>
-              <Popover open={hospitalOpen} onOpenChange={setHospitalOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-start font-normal"
-                  >
-                    {hospitalName || "Select hospital"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search hospital..." />
-                    <CommandList>
-                      <CommandEmpty>No hospital found.</CommandEmpty>
-                      <CommandGroup>
-                        {mockHospitals.map((hospital) => (
-                          <CommandItem
-                            key={hospital}
-                            onSelect={() => {
-                              setHospitalName(hospital);
-                              setHospitalOpen(false);
-                            }}
-                          >
-                            {hospital}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+  <div className="space-y-2">
+    <Label>Designation *</Label>
+    <Input
+      value={designation}
+      onChange={(e) => setDesignation(e.target.value)}
+      placeholder="Doctor / Pharmacist / Distributor"
+    />
+  </div>
+</div>
 
-          <div className="space-y-2">
-            <Label>Date *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : "Select date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+
+      
 
           <div className="space-y-2">
             <Label htmlFor="observations">Observations</Label>
@@ -421,3 +319,6 @@ const AddReportModal = ({
 };
 
 export default AddReportModal;
+
+
+
