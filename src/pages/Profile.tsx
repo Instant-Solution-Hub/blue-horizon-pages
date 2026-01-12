@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProfileStatsCards from "@/components/profile/ProfileStatsCards";
 import ApplyLeaveModal from "@/components/profile/ApplyLeaveModal";
@@ -8,49 +8,98 @@ import CompanyPolicies from "@/components/profile/CompanyPolicies";
 import LogoutConfirmation from "@/components/profile/LogoutConfirmation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { applyLeave, LeaveType } from "@/services/LeaveService";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import {
+  fetchFEProfileStats,
+  FEProfileStats,
+} from "@/services/ProfileService";
+import { fetchMonthlyConfirmedLeaves , fetchLeavesByFE } from "@/services/LeaveService";
+import { fetchFEContactDetails, updateFEContactDetails } from "@/services/ContactService";
+
 
 const Profile = () => {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const [leaves, setLeaves] = useState<Leave[]>([
-    {
-      id: "1",
-      leaveType: "SICK_LEAVE",
-      status: "APPROVED",
-      fromDate: new Date(2025, 0, 10),
-      toDate: new Date(2025, 0, 11),
-      reason: "Fever and cold",
-    },
-    {
-      id: "2",
-      leaveType: "CASUAL_LEAVE",
-      status: "PENDING",
-      fromDate: new Date(2025, 0, 20),
-      toDate: new Date(2025, 0, 21),
-      reason: "Family function",
-    },
-    {
-      id: "3",
-      leaveType: "EARNED_LEAVE",
-      status: "REJECTED",
-      fromDate: new Date(2024, 11, 25),
-      toDate: new Date(2024, 11, 31),
-      reason: "Vacation trip",
-    },
-  ]);
+  const [leaves, setLeaves] = useState<Leave[]>([]);
 
-  const handleApplyLeave = (newLeave: {
-    leaveType: string;
-    status: string;
-    fromDate: Date;
-    toDate: Date;
-    reason: string;
-  }) => {
-    const leave: Leave = {
-      id: Date.now().toString(),
-      ...newLeave,
-    };
-    setLeaves([leave, ...leaves]);
+  const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
+  const [profileStats, setProfileStats] = useState<FEProfileStats | null>(null);
+  const [monthlyLeaves, setMonthlyLeaves] = useState<number>(0);
+  const [contactDetails, setContactDetails] = useState<{
+  phone: string;
+  email: string;
+  emergencyContact: string;
+  name:string;
+} | null>(null);
+
+
+useEffect(() => {
+  const loadProfileData = async () => {
+    try {
+      const [stats, leavesUsed, leavesList, contact] = await Promise.all([
+        fetchFEProfileStats(fieldExecutiveId),
+        fetchMonthlyConfirmedLeaves(fieldExecutiveId),
+        fetchLeavesByFE(fieldExecutiveId),
+        fetchFEContactDetails(fieldExecutiveId),
+      ]);
+
+      setProfileStats(stats);
+      setMonthlyLeaves(leavesUsed);
+      setContactDetails(contact);
+
+      setLeaves(
+        leavesList.map((l: any) => ({
+          id: String(l.id),
+          leaveType: l.leaveType,
+          status: l.status,
+          fromDate: new Date(l.fromDate),
+          toDate: new Date(l.toDate),
+          reason: l.reason,
+        }))
+      );
+    } catch {
+      toast.error("Failed to load profile data");
+    }
   };
+
+  loadProfileData();
+}, [fieldExecutiveId]);
+
+const handleApplyLeave = async (leave: {
+  leaveType: LeaveType;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+}) => {
+  try {
+    const saved = await applyLeave({
+      fieldExecutiveId,
+      ...leave,
+    });
+
+  setLeaves((prev): Leave[] => [
+  {
+    id: String(saved.id),
+    leaveType: saved.leaveType,
+    status: saved.status,
+    fromDate: new Date(saved.fromDate),
+    toDate: new Date(saved.toDate),
+    reason: saved.reason,
+  },
+  ...prev,
+]);
+
+
+    toast.success("Leave applied successfully");
+  } catch (error: any) {
+    toast.error(
+      error?.response?.data?.message ||
+        "Failed to apply leave. Please try again."
+    );
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -67,7 +116,7 @@ const Profile = () => {
           </div>
 
           {/* Stats Cards */}
-          <ProfileStatsCards />
+          <ProfileStatsCards stats={profileStats} monthlyLeavesTaken={monthlyLeaves}/>
 
           {/* Leave Application Section */}
           <div className="mb-6">
@@ -92,7 +141,10 @@ const Profile = () => {
             <h2 className="text-lg font-semibold text-foreground mb-4">
               Contact Details
             </h2>
-            <ContactDetails />
+            <ContactDetails 
+             feId={fieldExecutiveId}
+  contact={contactDetails}
+  onUpdate={setContactDetails} />
           </div>
 
           {/* Company Policies Section */}
@@ -110,6 +162,16 @@ const Profile = () => {
         open={isLeaveModalOpen}
         onOpenChange={setIsLeaveModalOpen}
         onApply={handleApplyLeave}
+        leaveBalance={{
+    CASUAL_LEAVE: {
+      used: profileStats?.approvedCasualLeaves ?? 0,
+      total: profileStats?.casualLeaves ?? 0,
+    },
+    SICK_LEAVE: {
+      used: profileStats?.approvedSickLeaves ?? 0,
+      total: profileStats?.sickLeaves ?? 0,
+    },
+  }}
       />
     </div>
   );

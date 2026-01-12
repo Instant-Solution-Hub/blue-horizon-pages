@@ -5,11 +5,11 @@ import { format } from "date-fns";
 
 export interface Leave {
   id: string;
-  leaveType: string;
-  status: string;
+  leaveType: "CASUAL_LEAVE" | "SICK_LEAVE" | "EARNED_LEAVE";
+  status: "PENDING" | "APPROVED" | "REJECTED";
   fromDate: Date;
   toDate: Date;
-  reason: string;
+  reason?: string;
 }
 
 interface LeaveListProps {
@@ -88,7 +88,7 @@ const LeaveList = ({ leaves }: LeaveListProps) => {
                   <div>
                     <span className="text-muted-foreground">Duration: </span>
                     <span className="font-medium text-primary">
-                      {calculateDays(leave.fromDate, leave.toDate)} day(s)
+                      {calculateDays(new Date(leave.fromDate), new Date(leave.toDate))} day(s)
                     </span>
                   </div>
                 </div>
