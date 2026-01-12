@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { VisitSearchBar } from "@/components/track-visits/VisitSearchBar";
 import { AddVisitModal } from "@/components/track-visits/AddVisitModal";
 import { VisitList } from "@/components/track-visits/VisitList";
 import { useToast } from "@/hooks/use-toast";
+import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchTodaysVisits, markStockistVisit, markVisit } from "@/services/VisitService";
+import { set } from "date-fns";
+import { get } from "http";
+import { StockistVisitData } from "@/components/track-visits/StockistVisitForm";
+import { adaptBackendVisits } from "@/lib/utils";
 
 interface Visit {
   id: string;
@@ -16,81 +21,118 @@ interface Visit {
   [key: string]: unknown;
 }
 
-// Mock data for demonstration
-const mockVisits: Visit[] = [
-  {
-    id: "1",
-    visitType: "doctor",
-    doctorName: "Dr. Rahul Sharma",
-    designation: "Cardiologist",
-    category: "A+",
-    practiceType: "Consultant",
-    hospital: "City Hospital",
-    location: { lat: 28.6139, lng: 77.209 },
-    dateTime: new Date(2026, 0, 2, 10, 30),
-    activitiesPerformed: ["Product Detailing", "Sample Distribution"],
-    notes: "Discussed new cardiac medication",
-    isMissed: false,
-  },
-  {
-    id: "2",
-    visitType: "pharmacist",
-    pharmacyName: "MedPlus Pharmacy",
-    contactPerson: "Ramesh Gupta",
-    contactNumber: "9876543210",
-    dateTime: new Date(2026, 0, 2, 14, 0),
-    activitiesPerformed: ["Offer", "Expiry"],
-    notes: "Renewed stock order",
-    isMissed: false,
-  },
-  {
-    id: "3",
-    visitType: "stockist",
-    stockistName: "MedSupply India",
-    stockistType: "Super stockist",
-    contactPerson: "Rajesh Kumar",
-    contactNumber: "9876543211",
-    location: { lat: 28.6149, lng: 77.21 },
-    dateTime: new Date(2026, 0, 1, 11, 0),
-    activitiesPerformed: ["Sales Order", "Payment Collection"],
-    orderValue: "50000",
-    notes: "Large order placed for Q1",
-    isMissed: false,
-  },
-  {
-    id: "4",
-    visitType: "doctor",
-    doctorName: "Dr. Priya Patel",
-    designation: "Neurologist",
-    category: "A",
-    practiceType: "Visiting",
-    hospital: "Apollo Clinic",
-    location: null,
-    dateTime: new Date(2026, 0, 1, 9, 0),
-    activitiesPerformed: [],
-    notes: "Doctor was not available",
-    isMissed: true,
-  },
-];
+
 
 export default function TrackVisits() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [visits, setVisits] = useState<Visit[]>(mockVisits);
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [todaysVisits, setTodaysVisits] = useState<any[]>([]);
+  const [allStockists, setAllStockists] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
   const { toast } = useToast();
+  const feID = sessionStorage.getItem("feID");
 
-  const handleAddVisit = (data: any) => {
+  useEffect(() => {
+    getTodaysVisits();
+    getAllStockists();
+    getCompletedVisits();
+    getAllProducts();
+  }, []);
+
+
+  const getAllProducts = async () => {
+    try {
+      const response = await fetchAllProducts();
+      console.log("All Products:", response);
+      setAllProducts(response.data);
+    } catch (error) {   
+    }
+  }
+
+  const getAllStockists = async () => {
+    try {
+      const response = await fetchAllStockists();
+      console.log("All Stockists:", response);
+      setAllStockists(response);
+    } catch (error) {
+
+    }
+  }
+
+  const getTodaysVisits = async () => {
+    if (!feID) return;
+    try {
+      const data = await fetchTodaysVisits(Number(feID));
+      setTodaysVisits(data);
+      console.log("Today's Visits:", data);
+    } catch (error) {
+      console.error("Error fetching today's visits:", error);
+    }
+  };
+
+  const getCompletedVisits = async () => {
+    if (!feID) return;
+    try { 
+      const data = await fetchCompletedVisits(Number(feID));
+      setVisits(adaptBackendVisits(data))
+      console.log("Completed Visits:", data);
+    } catch (error) {
+      console.error("Error fetching completed visits:", error);
+    }
+
+  };
+
+
+  const handleAddStockistVisit = async (data: StockistVisitData) => {
+    let obj = {
+      "fieldExecutiveId": feID ? Number(feID) : 0,
+      "stockistId": data.stockistId,
+      "stockistType": data.stockistType,
+      "weekNumber": Math.ceil((new Date().getDate())/7),
+      "dayOfWeek": ((new Date().getDay() + 6) % 7) + 1,
+      "status": "COMPLETED",
+      "notes": data.notes,
+      "activitiesPerformed": data.activitiesPerformed,
+      "orderValue": data.orderValue,
+      "location": ""
+    }
+    try {
+
+      let response = await markStockistVisit(obj);
+      toast({
+        title: "Visit Marked",
+        description: "Your visit has been marked successfully.",
+      });
+    } catch (error) {
+
+    }
+  };
+
+
+  const handleAddVisit = async (data: any) => {
+    console.log("Adding Visit:", data);
+    if(data.visitType === "STOCKIST"){
+      await handleAddStockistVisit(data as StockistVisitData);
+      return;
+    }
     const newVisit: Visit = {
       ...data,
-      id: Date.now().toString(),
-      dateTime: new Date(),
+      status: data.isMissed ? "MISSED" : "COMPLETED",
     };
-    setVisits((prev) => [newVisit, ...prev]);
-    toast({
-      title: "Visit Added",
-      description: "Your visit has been recorded successfully.",
-    });
+    try {
+      const response = await markVisit(newVisit);
+      toast({
+        title: "Visit Marked",
+        description: "Your visit has been marked successfully.",
+      });
+    } catch (error) {
+
+    }
+    // setVisits((prev) => [newVisit, ...prev]);
+    console.log("New Visit Added:", newVisit);
+
   };
 
   return (
@@ -125,6 +167,9 @@ export default function TrackVisits() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSubmit={handleAddVisit}
+              todaysVisits={todaysVisits}
+              stockists={allStockists}
+              products={allProducts}
             />
           </div>
         </main>

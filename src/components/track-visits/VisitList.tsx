@@ -1,6 +1,6 @@
 import { VisitCard } from "./VisitCard";
 
-interface Visit {
+export interface Visit {
   id: string;
   visitType: "doctor" | "pharmacist" | "stockist";
   dateTime: Date;
@@ -39,7 +39,7 @@ export function VisitList({ visits, searchQuery, filterType }: VisitListProps) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <p>No visits found</p>
-        <p className="text-sm mt-1">Add a new visit to get started</p>
+        <p className="text-sm mt-1">Mark a visit to get started</p>
       </div>
     );
   }

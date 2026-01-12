@@ -13,21 +13,38 @@ import {
 
 interface ScheduledDoctor {
   id: string;
-  name: string;
+  doctorName: string;
   hospital: string;
   designation: string;
   category: string;
   practiceType: string;
+  visitId: string;
 }
 
 interface DoctorVisitFormProps {
   onSubmit: (data: DoctorVisitData) => void;
   onCancel: () => void;
+  doctorVisits: any[];
+  products: any[];
 }
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+}
+
+interface ConversionRow {
+  productId: number;
+  quantity: number;
+  value: number;
+}
+
 
 export interface DoctorVisitData {
   visitType: "doctor";
   doctorId: string;
+  visitId: string,
   doctorName: string;
   hospital: string;
   designation: string;
@@ -37,32 +54,41 @@ export interface DoctorVisitData {
   activitiesPerformed: string[];
   notes: string;
   location: { lat: number; lng: number } | null;
+  convertedProducts?: {
+    productId: number;
+    quantity: number;
+    value: number;
+  }[];
 }
 
-const mockScheduledDoctors: ScheduledDoctor[] = [
-  { id: "1", name: "Dr. Rahul Sharma", hospital: "City Hospital", designation: "Cardiologist", category: "A+", practiceType: "Consultant" },
-  { id: "2", name: "Dr. Priya Patel", hospital: "Apollo Clinic", designation: "Neurologist", category: "A", practiceType: "Visiting" },
-  { id: "3", name: "Dr. Amit Kumar", hospital: "Max Healthcare", designation: "General Physician", category: "B", practiceType: "Resident" },
-];
+// const products: Product[] = [
+//   { id: 1, name: "Product A", price: 120 },
+//   { id: 2, name: "Product B", price: 85 },
+//   { id: 3, name: "Product C", price: 60 },
+// ];
+
 
 const activities = [
   "Product Detailing",
   "Sample Distribution",
-  "Literature Sharing",
+  "Product Conversion",
   "Prescription Review",
   "Follow-up Discussion",
   "New Product Introduction",
 ];
 
-export function DoctorVisitForm({ onSubmit, onCancel }: DoctorVisitFormProps) {
-  const [selectedDoctor, setSelectedDoctor] = useState<ScheduledDoctor | null>(null);
+export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: DoctorVisitFormProps) {
+  const [selectedVisit, setSelectedVisit] = useState<ScheduledDoctor | null>(null);
   const [isMissed, setIsMissed] = useState(false);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [conversionRows, setConversionRows] = useState<ConversionRow[]>([
+    { productId: 0, quantity: 1, value: 0 },
+  ]);
 
-  const handleDoctorChange = (doctorId: string) => {
-    const doctor = mockScheduledDoctors.find((d) => d.id === doctorId);
-    setSelectedDoctor(doctor || null);
+  const handleDoctorChange = (visitId: string) => {
+    const doctor = doctorVisits.find((d) => d.visitId === visitId);
+    setSelectedVisit(doctor || null);
   };
 
   const handleActivityToggle = (activity: string) => {
@@ -74,76 +100,141 @@ export function DoctorVisitForm({ onSubmit, onCancel }: DoctorVisitFormProps) {
   };
 
   const handleSubmit = () => {
-    if (!selectedDoctor) return;
+    if (!selectedVisit) return;
     if (!isMissed && selectedActivities.length === 0) {
       alert("Please select at least one activity performed");
       return;
     }
+    if (
+      selectedActivities.includes("Product Conversion") &&
+      conversionRows.some((r) => (!r.productId || r.quantity <= 0))
+    ) {
+      alert("Please select product and quantity for all conversion rows");
+      return;
+    }
+
     if (isMissed && !notes.trim()) {
       alert("Notes are mandatory for missed visits");
       return;
     }
+
+    const convertedProducts =
+      selectedActivities.includes("Product Conversion")
+        ? conversionRows
+          .filter((r) => r.productId)
+          .map((r) => ({
+            productId: Number(r.productId),
+            quantity: r.quantity,
+            value: r.value,
+          }))
+        : [];
+
 
     // Get current location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         onSubmit({
           visitType: "doctor",
-          doctorId: selectedDoctor.id,
-          doctorName: selectedDoctor.name,
-          hospital: selectedDoctor.hospital,
-          designation: selectedDoctor.designation,
-          category: selectedDoctor.category,
-          practiceType: selectedDoctor.practiceType,
+          doctorId: selectedVisit.id,
+          visitId: selectedVisit.visitId,
+          doctorName: selectedVisit.doctorName,
+          hospital: selectedVisit.hospital,
+          designation: selectedVisit.designation,
+          category: selectedVisit.category,
+          practiceType: selectedVisit.practiceType,
           isMissed,
           activitiesPerformed: selectedActivities,
           notes,
           location: { lat: position.coords.latitude, lng: position.coords.longitude },
+          convertedProducts,
         });
       },
       () => {
         onSubmit({
           visitType: "doctor",
-          doctorId: selectedDoctor.id,
-          doctorName: selectedDoctor.name,
-          hospital: selectedDoctor.hospital,
-          designation: selectedDoctor.designation,
-          category: selectedDoctor.category,
-          practiceType: selectedDoctor.practiceType,
+          doctorId: selectedVisit.id,
+          visitId: selectedVisit.visitId,
+          doctorName: selectedVisit.doctorName,
+          hospital: selectedVisit.hospital,
+          designation: selectedVisit.designation,
+          category: selectedVisit.category,
+          practiceType: selectedVisit.practiceType,
           isMissed,
           activitiesPerformed: selectedActivities,
           notes,
           location: null,
+          convertedProducts,
         });
       }
     );
   };
 
+  const handleAddRow = () => {
+    setConversionRows([...conversionRows, { productId: 0, quantity: 1, value: 0 }]);
+  };
+
+  const handleRemoveRow = (index: number) => {
+    setConversionRows(conversionRows.filter((_, i) => i !== index));
+  };
+
+  const getProductPrice = (productId: number) => {
+    const product = products.find((p) => p.id === productId);
+    return product ? product.price : 0;
+  };
+
+  const handleRowChange = (
+    index: number,
+    field: keyof ConversionRow,
+    value: string | number
+  ) => {
+    const updated = [...conversionRows];
+    const row = { ...updated[index], [field]: value };
+
+    const price = getProductPrice(row.productId);
+    row.value = price * row.quantity;
+
+    updated[index] = row;
+    setConversionRows(updated);
+  };
+
+
+  const getRowPrice = (row: ConversionRow) => {
+    const product = products.find((p) => p.id === row.productId);
+    return product ? product.price * row.quantity : 0;
+  };
+
+  const subTotal = conversionRows.reduce(
+    (sum, row) => sum + row.value,
+    0
+  );
+
+
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Select Doctor (Scheduled for Today)</Label>
+        <Label>Select Visit (Scheduled for Today)</Label>
         <Select onValueChange={handleDoctorChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select a doctor" />
           </SelectTrigger>
           <SelectContent>
-            {mockScheduledDoctors.map((doctor) => (
-              <SelectItem key={doctor.id} value={doctor.id}>
-                {doctor.name} - {doctor.hospital}
+            {doctorVisits.map((visit) => (
+              <SelectItem key={visit.visitId} value={visit.visitId}>
+                {visit.doctorName} - {visit.hospital}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {selectedDoctor && (
+      {selectedVisit && (
         <div className="bg-muted p-3 rounded-lg space-y-1 text-sm">
-          <p><span className="font-medium">Name:</span> {selectedDoctor.name}</p>
-          <p><span className="font-medium">Hospital:</span> {selectedDoctor.hospital}</p>
-          <p><span className="font-medium">Designation:</span> {selectedDoctor.designation}</p>
-          <p><span className="font-medium">Category:</span> {selectedDoctor.category}</p>
-          <p><span className="font-medium">Practice Type:</span> {selectedDoctor.practiceType}</p>
+          <p><span className="font-medium">Name:</span> {selectedVisit.doctorName}</p>
+          <p><span className="font-medium">Hospital:</span> {selectedVisit.hospital}</p>
+          <p><span className="font-medium">Designation:</span> {selectedVisit.designation}</p>
+          <p><span className="font-medium">Category:</span> {selectedVisit.category}</p>
+          <p><span className="font-medium">Practice Type:</span> {selectedVisit.practiceType}</p>
         </div>
       )}
 
@@ -178,6 +269,86 @@ export function DoctorVisitForm({ onSubmit, onCancel }: DoctorVisitFormProps) {
         </div>
       )}
 
+      {selectedActivities.includes("Product Conversion") && (
+        <div className="space-y-3 border rounded-lg p-3">
+          <Label className="font-medium">Product Conversion Details</Label>
+
+          <table className="w-full text-sm border">
+            <thead className="bg-muted">
+              <tr>
+                <th className="p-2 text-left">Product</th>
+                <th className="p-2 text-left">Qty</th>
+                <th className="p-2 text-left">Price</th>
+                <th className="p-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conversionRows.map((row, index) => (
+                <tr key={index} className="border-t">
+                  <td className="p-2">
+                    <Select
+                      value={row.productId.toString()}
+                      onValueChange={(value) =>
+                        handleRowChange(index, "productId", Number(value))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select product" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((p) => (
+                          <SelectItem key={p.id} value={p.id.toString()}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </td>
+
+                  <td className="p-2">
+                    <input
+                      type="number"
+                      min={1}
+                      className="w-20 border rounded px-2 py-1"
+                      value={row.quantity}
+                      onChange={(e) =>
+                        handleRowChange(index, "quantity", Number(e.target.value))
+                      }
+                    />
+                  </td>
+
+                  <td className="p-2 font-medium">
+                    ₹{getRowPrice(row)}
+                  </td>
+
+                  <td className="p-2 text-center">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => handleRemoveRow(index)}
+                      disabled={conversionRows.length === 1}
+                    >
+                      −
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="flex justify-between items-center">
+            <Button size="sm" variant="outline" onClick={handleAddRow}>
+              + Add Product
+            </Button>
+
+            <div className="font-semibold">
+              Sub Total: ₹{subTotal}
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <div className="space-y-2">
         <Label>Notes {isMissed && "(Required)"}</Label>
         <Textarea
@@ -192,7 +363,7 @@ export function DoctorVisitForm({ onSubmit, onCancel }: DoctorVisitFormProps) {
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={!selectedDoctor}>
+        <Button onClick={handleSubmit} disabled={!selectedVisit}>
           Submit Visit
         </Button>
       </div>

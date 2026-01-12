@@ -106,8 +106,8 @@ export default function SlotPlanning() {
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  const isFirstOfMonth = today.getDate() === 1;
-  // const isFirstOfMonth = true;
+  // const isFirstOfMonth = today.getDate() === 1;
+  const isFirstOfMonth = true;
 
   const currentMonthName = today.toLocaleString("default", {
     month: "long",
@@ -127,6 +127,7 @@ export default function SlotPlanning() {
     let obj = {
       "fieldExecutiveId": parseInt(sessionStorage.getItem("feID") || "0"),
       "doctorId": slot.type == "doctor" ? slot.id : null,
+      "pharmacistId": slot.type == "pharmacist" ? slot.id : null,
       "weekNumber": slot.week,
       "dayOfWeek": slot.day,
       "visitType": slot.type === "doctor" ? "DOCTOR" : "PHARMACIST",

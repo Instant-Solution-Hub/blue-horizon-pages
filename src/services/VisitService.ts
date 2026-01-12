@@ -39,3 +39,64 @@ export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekN
   });
     return response.data;
 };
+
+export const fetchTodaysVisits = async (fieldExecutiveId: number) => {
+  const response = await API.get(`/visit/today-scheduled?fieldExecutiveId=${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const markVisit = async (visitData: any) => {
+  const response = await API.post(`/visit/mark`, visitData, {
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const markStockistVisit = async (visitData: any) => {
+  const response = await API.post(`/visit/mark-stockist`, visitData, {
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+
+export const fetchAllStockists = async () => {
+  const response = await API.get(`/stockists`, { 
+    headers: {    
+        "Content-Type": "application/json",
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const fetchCompletedVisits = async (fieldExecutiveId: number) => {
+  const response = await API.get(`/visit/completed-visits?fieldExecutiveId=${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const fetchAllProducts = async () => {
+  const response = await API.get(`/products`, { 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+};
