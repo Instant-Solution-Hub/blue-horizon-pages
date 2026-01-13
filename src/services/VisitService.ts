@@ -100,3 +100,14 @@ export const fetchAllProducts = async () => {
   });
     return response.data;
 };
+
+
+export const fetchDashboardMetrics = async (fieldExecutiveId: number) => {
+  const response = await API.get(`/visit/dashboard/${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}

@@ -14,6 +14,7 @@ import { Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
 import { set } from "date-fns";
+import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCard";
 
 /* ---------------- MOCK DATA ---------------- */
 
@@ -260,7 +261,7 @@ export default function SlotPlanning() {
                       ) : (
                         <div className="grid gap-3 md:grid-cols-2">
                           {pharmacistSlots.map((slot) => (
-                            <SlotCard
+                            <PharmacistSlotCard
                               key={slot.id}
                               {...slot}
                               canDelete
