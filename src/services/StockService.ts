@@ -7,11 +7,12 @@ const API = axios.create({
   },
 });
 
-export const getProducts = async () => {
-  const res = await API.get(`/products`);
-
-  console.log("Result");
-  console.log(res);
+export const getFEProductStock = async (
+  feId: number,
+  productId: number
+) => {
+  const res = await API.get(
+    `/field-executives/${feId}/products/${productId}/stock`
+  );
   return res.data.data;
-  
 };

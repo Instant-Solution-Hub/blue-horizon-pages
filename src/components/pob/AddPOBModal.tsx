@@ -108,7 +108,7 @@ const [loadingProducts, setLoadingProducts] = useState(false);
       const res = await getProducts();
     
 
-      setProductsMaster(res.data || []);
+      setProductsMaster(res || []);
       console.log(res.data);
     } catch (err) {
       console.error("Failed to fetch products", err);
