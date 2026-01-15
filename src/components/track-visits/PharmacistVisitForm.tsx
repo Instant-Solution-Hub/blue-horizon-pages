@@ -19,6 +19,7 @@ export interface PharmacistVisitData {
   contactPerson: string;
   contactNumber: string;
   activitiesPerformed: string[];
+  location: { lat: number; lng: number } | null;
   notes: string;
   isMissed: boolean;
 }
@@ -47,15 +48,28 @@ export function PharmacistVisitForm({ onSubmit, onCancel, pharmacistVisits }: Ph
       return;
     }
 
-    onSubmit({
+    navigator.geolocation.getCurrentPosition((position)=>{onSubmit({
       visitId: selectedVisit ? selectedVisit.visitId : "",
       visitType: "pharmacist",
       pharmacyName,
       contactPerson,
       contactNumber,
       activitiesPerformed: selectedActivities,
+      location: { lat: position.coords.latitude, lng: position.coords.longitude },
       notes,
       isMissed,
+    });}, ()=>{
+      onSubmit({
+      visitId: selectedVisit ? selectedVisit.visitId : "",
+      visitType: "pharmacist",
+      pharmacyName,
+      contactPerson,
+      contactNumber,
+      activitiesPerformed: selectedActivities,
+      location: null,
+      notes,
+      isMissed,
+    })
     });
   };
 
