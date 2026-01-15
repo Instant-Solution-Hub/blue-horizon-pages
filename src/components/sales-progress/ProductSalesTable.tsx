@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductSale {
@@ -62,49 +62,63 @@ const ProductSalesTable = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
-          Individual Product Sales - {currentMonth}
-        </CardTitle>
+    <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Package className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg font-semibold text-foreground">
+              Individual Product Sales
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">{currentMonth}</p>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="rounded-lg border overflow-hidden">
+      <CardContent className="p-0">
+        <div className="overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-16 font-semibold">SL.NO</TableHead>
-                <TableHead className="font-semibold">Product Name</TableHead>
-                <TableHead className="font-semibold">New PTS (₹)</TableHead>
-                <TableHead className="font-semibold">Qty</TableHead>
-                <TableHead className="font-semibold">Sales (₹)</TableHead>
-                <TableHead className="w-24 text-center font-semibold">Actions</TableHead>
+              <TableRow className="bg-primary/5 hover:bg-primary/5">
+                <TableHead className="w-16 font-semibold text-primary">SL.NO</TableHead>
+                <TableHead className="font-semibold text-primary">Product Name</TableHead>
+                <TableHead className="font-semibold text-primary">New PTS (₹)</TableHead>
+                <TableHead className="font-semibold text-primary">Qty</TableHead>
+                <TableHead className="font-semibold text-primary">Sales (₹)</TableHead>
+                <TableHead className="w-24 text-center font-semibold text-primary">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.map((product, index) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{product.productName}</TableCell>
-                  <TableCell>₹{product.newPTS.toLocaleString()}</TableCell>
+                <TableRow 
+                  key={product.id} 
+                  className="hover:bg-primary/5 transition-colors duration-200 border-b border-primary/10"
+                >
+                  <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell className="font-medium">{product.productName}</TableCell>
+                  <TableCell className="text-muted-foreground">₹{product.newPTS.toLocaleString()}</TableCell>
                   <TableCell>
                     {editingId === product.id ? (
                       <Input
                         type="number"
                         value={editQty}
                         onChange={(e) => setEditQty(Number(e.target.value) || 0)}
-                        className="h-8 w-24"
+                        className="h-8 w-24 border-primary/30 focus:border-primary focus:ring-primary/20"
                         min={0}
+                        autoFocus
                       />
                     ) : (
-                      product.qty
+                      <span className="font-semibold text-primary">{product.qty}</span>
                     )}
                   </TableCell>
                   <TableCell>
-                    {editingId === product.id 
-                      ? `₹${(editQty * product.newPTS).toLocaleString()}`
-                      : `₹${product.sales.toLocaleString()}`
-                    }
+                    <span className="font-semibold text-green-600">
+                      {editingId === product.id 
+                        ? `₹${(editQty * product.newPTS).toLocaleString()}`
+                        : `₹${product.sales.toLocaleString()}`
+                      }
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
@@ -113,7 +127,7 @@ const ProductSalesTable = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100 transition-colors"
                             onClick={() => handleSave(product)}
                           >
                             <Check className="h-4 w-4" />
@@ -121,7 +135,7 @@ const ProductSalesTable = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 transition-colors"
                             onClick={handleCancel}
                           >
                             <X className="h-4 w-4" />
@@ -131,7 +145,7 @@ const ProductSalesTable = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-primary hover:text-primary/80"
+                          className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
                           onClick={() => handleEdit(product)}
                         >
                           <Pencil className="h-4 w-4" />

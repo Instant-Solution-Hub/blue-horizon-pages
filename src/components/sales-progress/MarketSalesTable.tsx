@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface MarketSale {
@@ -65,36 +65,52 @@ const MarketSalesTable = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Market Wise Sales</CardTitle>
+    <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <MapPin className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg font-semibold text-foreground">
+              Market Wise Sales
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">Regional performance overview</p>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="rounded-lg border overflow-hidden">
+      <CardContent className="p-0">
+        <div className="overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-16 font-semibold">SL.NO</TableHead>
-                <TableHead className="font-semibold">Market</TableHead>
-                <TableHead className="font-semibold">Secondary Sales (₹)</TableHead>
-                <TableHead className="w-24 text-center font-semibold">Actions</TableHead>
+              <TableRow className="bg-primary/5 hover:bg-primary/5">
+                <TableHead className="w-16 font-semibold text-primary">SL.NO</TableHead>
+                <TableHead className="font-semibold text-primary">Market</TableHead>
+                <TableHead className="font-semibold text-primary">Secondary Sales (₹)</TableHead>
+                <TableHead className="w-24 text-center font-semibold text-primary">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {markets.map((market, index) => (
-                <TableRow key={market.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{market.marketName}</TableCell>
+                <TableRow 
+                  key={market.id}
+                  className="hover:bg-primary/5 transition-colors duration-200 border-b border-primary/10"
+                >
+                  <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell className="font-medium">{market.marketName}</TableCell>
                   <TableCell>
                     {editingId === market.id ? (
                       <Input
                         type="number"
                         value={editForm?.secondarySales || 0}
                         onChange={(e) => handleInputChange(e.target.value)}
-                        className="h-8 w-40"
+                        className="h-8 w-40 border-primary/30 focus:border-primary focus:ring-primary/20"
+                        autoFocus
                       />
                     ) : (
-                      `₹${market.secondarySales.toLocaleString()}`
+                      <span className="font-semibold text-green-600">
+                        ₹{market.secondarySales.toLocaleString()}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -104,7 +120,7 @@ const MarketSalesTable = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100 transition-colors"
                             onClick={handleSave}
                           >
                             <Check className="h-4 w-4" />
@@ -112,7 +128,7 @@ const MarketSalesTable = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 transition-colors"
                             onClick={handleCancel}
                           >
                             <X className="h-4 w-4" />
@@ -122,7 +138,7 @@ const MarketSalesTable = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-primary hover:text-primary/80"
+                          className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
                           onClick={() => handleEdit(market)}
                         >
                           <Pencil className="h-4 w-4" />
