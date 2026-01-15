@@ -1,5 +1,4 @@
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import ProductSalesTable from "@/components/sales-progress/ProductSalesTable";
 import MarketSalesTable from "@/components/sales-progress/MarketSalesTable";
 
@@ -8,7 +7,6 @@ const SalesProgress = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto">
-        <Header />
         <div className="p-6 space-y-6">
           {/* Page Title */}
           <div>
