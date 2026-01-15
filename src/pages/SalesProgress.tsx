@@ -1,6 +1,7 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProductSalesTable from "@/components/sales-progress/ProductSalesTable";
 import MarketSalesTable from "@/components/sales-progress/MarketSalesTable";
+import { TrendingUp } from "lucide-react";
 
 const SalesProgress = () => {
   return (
@@ -9,18 +10,27 @@ const SalesProgress = () => {
       <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
           {/* Page Title */}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Sales Progress</h1>
-            <p className="text-muted-foreground mt-1">
+          <div className="animate-fade-in">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">Sales Progress</h1>
+            </div>
+            <p className="text-muted-foreground ml-14">
               Manage your individual product sale and market wise sales here
             </p>
           </div>
 
           {/* Product Sales Section */}
-          <ProductSalesTable />
+          <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <ProductSalesTable />
+          </div>
 
           {/* Market Sales Section */}
-          <MarketSalesTable />
+          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <MarketSalesTable />
+          </div>
         </div>
       </main>
     </div>
