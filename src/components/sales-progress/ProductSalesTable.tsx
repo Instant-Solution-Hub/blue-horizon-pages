@@ -17,54 +17,48 @@ interface ProductSale {
   id: number;
   productName: string;
   newPTS: number;
+  qty: number;
   sales: number;
 }
 
 const initialProducts: ProductSale[] = [
-  { id: 1, productName: "Larimar-500", newPTS: 150, sales: 12500 },
-  { id: 2, productName: "Larimar-Plus", newPTS: 200, sales: 18000 },
-  { id: 3, productName: "Larimar-D3", newPTS: 100, sales: 8500 },
-  { id: 4, productName: "Larimar-Forte", newPTS: 175, sales: 15200 },
-  { id: 5, productName: "Larimar-Gel", newPTS: 80, sales: 6800 },
+  { id: 1, productName: "Larimar-500", newPTS: 150, qty: 83, sales: 12450 },
+  { id: 2, productName: "Larimar-Plus", newPTS: 200, qty: 90, sales: 18000 },
+  { id: 3, productName: "Larimar-D3", newPTS: 100, qty: 85, sales: 8500 },
+  { id: 4, productName: "Larimar-Forte", newPTS: 175, qty: 87, sales: 15225 },
+  { id: 5, productName: "Larimar-Gel", newPTS: 80, qty: 85, sales: 6800 },
 ];
 
 const ProductSalesTable = () => {
   const [products, setProducts] = useState<ProductSale[]>(initialProducts);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<ProductSale | null>(null);
+  const [editQty, setEditQty] = useState<number>(0);
   const { toast } = useToast();
 
   const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
 
   const handleEdit = (product: ProductSale) => {
     setEditingId(product.id);
-    setEditForm({ ...product });
+    setEditQty(product.qty);
   };
 
-  const handleSave = () => {
-    if (editForm) {
-      setProducts(products.map(p => p.id === editForm.id ? editForm : p));
-      setEditingId(null);
-      setEditForm(null);
-      toast({
-        title: "Updated Successfully",
-        description: "Product sales data has been updated.",
-      });
-    }
+  const handleSave = (product: ProductSale) => {
+    const updatedSales = editQty * product.newPTS;
+    setProducts(products.map(p => 
+      p.id === product.id 
+        ? { ...p, qty: editQty, sales: updatedSales }
+        : p
+    ));
+    setEditingId(null);
+    toast({
+      title: "Updated Successfully",
+      description: "Product quantity and sales have been updated.",
+    });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setEditForm(null);
-  };
-
-  const handleInputChange = (field: keyof ProductSale, value: string) => {
-    if (editForm) {
-      setEditForm({
-        ...editForm,
-        [field]: field === "productName" ? value : Number(value) || 0,
-      });
-    }
+    setEditQty(0);
   };
 
   return (
@@ -81,7 +75,8 @@ const ProductSalesTable = () => {
               <TableRow className="bg-muted/50">
                 <TableHead className="w-16 font-semibold">SL.NO</TableHead>
                 <TableHead className="font-semibold">Product Name</TableHead>
-                <TableHead className="font-semibold">New PTS</TableHead>
+                <TableHead className="font-semibold">New PTS (₹)</TableHead>
+                <TableHead className="font-semibold">Qty</TableHead>
                 <TableHead className="font-semibold">Sales (₹)</TableHead>
                 <TableHead className="w-24 text-center font-semibold">Actions</TableHead>
               </TableRow>
@@ -90,40 +85,26 @@ const ProductSalesTable = () => {
               {products.map((product, index) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>
-                    {editingId === product.id ? (
-                      <Input
-                        value={editForm?.productName || ""}
-                        onChange={(e) => handleInputChange("productName", e.target.value)}
-                        className="h-8"
-                      />
-                    ) : (
-                      product.productName
-                    )}
-                  </TableCell>
+                  <TableCell>{product.productName}</TableCell>
+                  <TableCell>₹{product.newPTS.toLocaleString()}</TableCell>
                   <TableCell>
                     {editingId === product.id ? (
                       <Input
                         type="number"
-                        value={editForm?.newPTS || 0}
-                        onChange={(e) => handleInputChange("newPTS", e.target.value)}
+                        value={editQty}
+                        onChange={(e) => setEditQty(Number(e.target.value) || 0)}
                         className="h-8 w-24"
+                        min={0}
                       />
                     ) : (
-                      product.newPTS
+                      product.qty
                     )}
                   </TableCell>
                   <TableCell>
-                    {editingId === product.id ? (
-                      <Input
-                        type="number"
-                        value={editForm?.sales || 0}
-                        onChange={(e) => handleInputChange("sales", e.target.value)}
-                        className="h-8 w-32"
-                      />
-                    ) : (
-                      `₹${product.sales.toLocaleString()}`
-                    )}
+                    {editingId === product.id 
+                      ? `₹${(editQty * product.newPTS).toLocaleString()}`
+                      : `₹${product.sales.toLocaleString()}`
+                    }
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
@@ -133,7 +114,7 @@ const ProductSalesTable = () => {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                            onClick={handleSave}
+                            onClick={() => handleSave(product)}
                           >
                             <Check className="h-4 w-4" />
                           </Button>
