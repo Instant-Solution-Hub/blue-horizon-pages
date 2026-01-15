@@ -1,7 +1,7 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProductSalesTable from "@/components/sales-progress/ProductSalesTable";
 import MarketSalesTable from "@/components/sales-progress/MarketSalesTable";
-import { TrendingUp } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 
 const SalesProgress = () => {
   return (
@@ -13,7 +13,7 @@ const SalesProgress = () => {
           <div className="animate-fade-in">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 bg-primary/10 rounded-xl">
-                <TrendingUp className="h-6 w-6 text-primary" />
+                <BarChart3 className="h-6 w-6 text-primary" />
               </div>
               <h1 className="text-2xl font-bold text-foreground">Sales Progress</h1>
             </div>
