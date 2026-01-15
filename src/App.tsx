@@ -15,6 +15,7 @@ import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import StockLiquidation from "./pages/StockLiquidation";
 import VisitCompliance from "./pages/VisitCompliance";
+import SalesProgress from "./pages/SalesProgress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
+          <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
