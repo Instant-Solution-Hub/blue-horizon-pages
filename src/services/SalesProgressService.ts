@@ -30,18 +30,18 @@ export const getMonthlyMarketSales = async (
   feId: number
 ) => {
   const res = await API.get(`/fe/market-sales/${feId}/current-month`);
-  return res.data.data;
+  console.log(res);
+  return res.data;
 };
 
 export const updateMarketSales = async (
   feId: number,
   payload: {
-    marketName: string;
-    secondarySales: number;
+    market: string;
+    salesAmount: number;
   }
 ) => {
-  const res = await API.put("/fe/market-sales", payload, {
-    params: { feId },
-  });
-  return res.data.data;
+  const res = await API.put(`/fe/market-sales/${feId}`, payload);
+  console.log(res);
+  return res.data;
 };
