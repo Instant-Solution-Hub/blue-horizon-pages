@@ -16,8 +16,8 @@ import { getMonthlyMarketSales, updateMarketSales } from "@/services/SalesProgre
 
 
 interface MarketSale {
-  marketName: string;
-  secondarySales: number;
+  market: string;
+  salesAmount: number;
   month: number;
   year: number;
 }
@@ -28,7 +28,7 @@ const MarketSalesTable = () => {
   const [editingMarket, setEditingMarket] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
   const { toast } = useToast();
-  const feId =  Number(localStorage.getItem("feId")) || 1;// later from auth context
+  const feId =  Number(localStorage.getItem("feId")) || 2;// later from auth context
 const now = new Date();
 
 
@@ -46,8 +46,8 @@ useEffect(() => {
 
 
  const handleEdit = (market: MarketSale) => {
-    setEditingMarket(market.marketName);
-    setEditValue(market.secondarySales);
+    setEditingMarket(market.market);
+    setEditValue(market.salesAmount);
   };
 
   const handleCancel = () => {
@@ -58,14 +58,16 @@ useEffect(() => {
   const handleSave = async (market: MarketSale) => {
     try {
       const updated = await updateMarketSales(feId, {
-        marketName: market.marketName,
-        secondarySales: editValue,
+        market: market.market,
+        salesAmount: editValue,
        
       });
+      console.log("Data");
+      console.log(updated);
 
       setMarkets(prev =>
         prev.map(m =>
-          m.marketName === updated.marketName ? updated : m
+          m.market === updated.market ? updated : m
         )
       );
 
@@ -116,13 +118,13 @@ useEffect(() => {
             <TableBody>
               {markets.map((market, index) => (
                 <TableRow 
-                  key={market.marketName}
+                  key={market.market}
                   className="hover:bg-primary/5 transition-colors duration-200 border-b border-primary/10"
                 >
                   <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
-                  <TableCell className="font-medium">{market.marketName}</TableCell>
+                  <TableCell className="font-medium">{market.market}</TableCell>
                   <TableCell>
-                  {editingMarket === market.marketName ? (
+                  {editingMarket === market.market ? (
                     <Input
                       type="number"
                       min={0}
@@ -135,14 +137,14 @@ useEffect(() => {
                     />
                   ) : (
                     <span className="font-semibold text-green-600">
-                      ₹{market.secondarySales.toLocaleString()}
+                      ₹{market.salesAmount.toLocaleString()}
                     </span>
                   )}
                 </TableCell>
 
                 <TableCell>
                   <div className="flex justify-center gap-1">
-                    {editingMarket === market.marketName ? (
+                    {editingMarket === market.market ? (
                       <>
                         <Button
                           size="icon"
@@ -164,6 +166,9 @@ useEffect(() => {
                         size="icon"
                         variant="ghost"
                         onClick={() => handleEdit(market)}
+                        disabled={editingMarket !== null && editingMarket !== market.market}
+
+                        
                       >
                         <Pencil className="h-4 w-4 text-primary" />
                       </Button>
