@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Package, Tag, Megaphone, Calendar, Users, Gift } from "lucide-react";
 import { format } from "date-fns";
 
-export interface Promotion {
+export interface PromotionApi {
   id: string;
   type: "New Product" | "Offer" | "Campaign";
   status: "Active" | "Upcoming" | "Expired";
@@ -18,8 +18,8 @@ export interface Promotion {
 }
 
 interface PromotionListProps {
-  promotions: Promotion[];
-  onUsePromotion: (promotion: Promotion) => void;
+  promotions: PromotionApi[];
+  onUsePromotion: (promotion: PromotionApi) => void;
 }
 
 const PromotionList = ({ promotions, onUsePromotion }: PromotionListProps) => {
