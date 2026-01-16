@@ -121,3 +121,23 @@ export const fetchVisitComplianceData = async (fieldExecutiveId: number, week: s
   });
     return response.data;
 }
+
+export const fetchMonthlyProgressData = async (fieldExecutiveId: number, ) => {
+  const response = await API.get(`/visit/monthly-doctor-progress/${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+} 
+
+export const deleteVisitById = async (visitId: number) => {
+  const response = await API.delete(`/visit/${visitId}`, { 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}

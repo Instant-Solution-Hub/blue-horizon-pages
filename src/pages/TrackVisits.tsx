@@ -101,6 +101,7 @@ export default function TrackVisits() {
     try {
 
       let response = await markStockistVisit(obj);
+      getCompletedVisits();
       toast({
         title: "Visit Marked",
         description: "Your visit has been marked successfully.",
@@ -133,6 +134,7 @@ const handleAddVisit = async (data: any) => {
 
   try {
     await markVisit(newVisit);
+      getCompletedVisits();
     toast({
       title: "Visit Marked",
       description: "Your visit has been marked successfully.",

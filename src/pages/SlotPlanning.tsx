@@ -10,11 +10,13 @@ import { AddSlotModal } from "@/components/slot-planning/AddSlotModal";
 import { RequestUpdateModal } from "@/components/slot-planning/RequestUpdateModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Send } from "lucide-react";
+import { AlertTriangle, Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
+import { deleteVisitById, fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
 import { set } from "date-fns";
 import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCard";
+import { PharmacistSlotTable } from "@/components/slot-planning/PharmicistSlotTable";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 /* ---------------- MOCK DATA ---------------- */
 
@@ -89,17 +91,17 @@ export default function SlotPlanning() {
 
   const feID = parseInt(sessionStorage.getItem("feID") || "0");
 
-  useEffect(() => { 
-   getPlannedDoctorVisits();
-   getPlannedPharmacyVisits();
+  useEffect(() => {
+    getPlannedDoctorVisits();
+    getPlannedPharmacyVisits();
   }, [selectedWeek, selectedDay]);
 
-  const getPlannedDoctorVisits = async ()=>{
+  const getPlannedDoctorVisits = async () => {
     const response = await fetchPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
     setDoctorSlots(response);
   };
 
-  const getPlannedPharmacyVisits = async ()=>{
+  const getPlannedPharmacyVisits = async () => {
     const response = await fetchPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
     setPharmacistSlots(response);
   };
@@ -117,7 +119,7 @@ export default function SlotPlanning() {
 
   /* ---------------- HANDLERS ---------------- */
 
-  const handleAddSlot = (slot: {
+  const handleAddSlot = async (slot: {
     type: "doctor" | "pharmacist";
     id: number;
     week: number;
@@ -125,34 +127,61 @@ export default function SlotPlanning() {
     pharmacist?: any;
   }) => {
 
-    let obj = {
-      "fieldExecutiveId": parseInt(sessionStorage.getItem("feID") || "0"),
-      "doctorId": slot.type == "doctor" ? slot.id : null,
-      "pharmacistId": slot.type == "pharmacist" ? slot.id : null,
-      "weekNumber": slot.week,
-      "dayOfWeek": slot.day,
-      "visitType": slot.type === "doctor" ? "DOCTOR" : "PHARMACIST",
-      "pharmacyName": slot.pharmacist?.pharmacyName || "",
-      "contactPerson": slot.pharmacist?.contactPerson || "",
-      "contactNumber": slot.pharmacist?.contactNumber || "",
-      "stockistType": "NONE",
-      "stockistName": ""
+    try {
+      let obj = {
+        "fieldExecutiveId": parseInt(sessionStorage.getItem("feID") || "0"),
+        "doctorId": slot.type == "doctor" ? slot.id : null,
+        "pharmacistId": slot.type == "pharmacist" ? slot.id : null,
+        "weekNumber": slot.week,
+        "dayOfWeek": slot.day,
+        "visitType": slot.type === "doctor" ? "DOCTOR" : "PHARMACIST",
+        "pharmacyName": slot.pharmacist?.pharmacyName || "",
+        "contactPerson": slot.pharmacist?.contactPerson || "",
+        "contactNumber": slot.pharmacist?.contactNumber || "",
+        "stockistType": "NONE",
+        "stockistName": ""
+      }
+      let response = await planVisit(obj);
+      console.log("Plan Visit Response: ", response);
+      getPlannedDoctorVisits();
+      getPlannedPharmacyVisits();
+      toast({
+        title: "Slot Added",
+        description: `${slot.type === "doctor" ? "Doctor" : "Pharmacist"
+          } visit scheduled for Week ${slot.week}, Day ${slot.day}`,
+      });
+    } catch (error) {
+      console.log("Error in adding slot: ", error);
+      toast({
+        title: "Failed to Add Slot",
+        description: error.response.data.message,
+        variant: "destructive",
+      });
+
     }
-    let response = planVisit(obj);
-    console.log("Plan Visit Response: ", response);
-    toast({
-      title: "Slot Added",
-      description: `${slot.type === "doctor" ? "Doctor" : "Pharmacist"
-        } visit scheduled for Week ${slot.week}, Day ${slot.day}`,
-    });
+
+
   };
 
-  const handleDeleteSlot = (id: number) => {
-    // setSlots((prev) => prev.filter((slot) => slot.id !== id));
-    toast({
-      title: "Slot Removed",
-      description: "The visit has been removed from your schedule.",
-    });
+  const handleDeleteSlot = async (id: number) => {
+    console.log("Deleting Slot with id: ", id);
+    try {
+      const response = await deleteVisitById(id);
+      console.log("Delete Visit Response: ", response);
+      getPlannedDoctorVisits();
+      getPlannedPharmacyVisits();
+      toast({
+        title: "Slot Removed",
+        description: "The visit has been removed from your schedule.",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Remove Slot",
+        description: "The visit could not be removed from your schedule.",
+        variant: "destructive",
+      });
+    }
+
   };
 
   /**
@@ -190,8 +219,7 @@ export default function SlotPlanning() {
               <h1 className="text-2xl font-bold">Slot Planning</h1>
               <p className="text-muted-foreground">{currentMonthName}</p>
             </div>
-
-            <MonthlyTargetProgress />
+            {!isFirstOfMonth && <MonthlyTargetProgress />}
             <WarningSection isFirstOfMonth={isFirstOfMonth} />
 
             <Card>
@@ -219,10 +247,17 @@ export default function SlotPlanning() {
 
                 {isFirstOfMonth ? (
                   <>
-                    <Button onClick={() => setIsAddModalOpen(true)}>
+                    {!(selectedWeek == 1 && selectedDay == 2) ? (<Button onClick={() => setIsAddModalOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add New Slot
-                    </Button>
+                    </Button>) : (<Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10">
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                      <AlertTitle className="text-amber-700 font-semibold">Slot Planning Notice</AlertTitle>
+                      <AlertDescription className="text-amber-600">
+                        Slot planning for Week 1, Day 2 is locked. Since it's the day for planning slots.
+                      </AlertDescription>
+                    </Alert>)}
+
 
                     {/* Doctor Slots */}
                     <div className="space-y-3">
@@ -238,10 +273,10 @@ export default function SlotPlanning() {
                         <div className="grid gap-3 md:grid-cols-2">
                           {doctorSlots.map((slot) => (
                             <SlotCard
-                              key={slot.id}
+                              key={slot.visitId}
                               {...slot}
                               canDelete
-                              onDelete={handleDeleteSlot}
+                              onDelete={() => handleDeleteSlot(slot.visitId)}
                             />
                           ))}
                         </div>
@@ -262,10 +297,10 @@ export default function SlotPlanning() {
                         <div className="grid gap-3 md:grid-cols-2">
                           {pharmacistSlots.map((slot) => (
                             <PharmacistSlotCard
-                              key={slot.id}
+                              key={slot.visitId}
                               {...slot}
                               canDelete
-                              onDelete={handleDeleteSlot}
+                              onDelete={() => handleDeleteSlot(slot.visitId)}
                             />
                           ))}
                         </div>
@@ -275,7 +310,7 @@ export default function SlotPlanning() {
                 ) : (
                   <>
                     <SlotTable title="Doctor Visits" visits={doctorSlots} />
-                    <SlotTable
+                    <PharmacistSlotTable
                       title="Pharmacist Visits"
                       visits={pharmacistSlots}
                     />
