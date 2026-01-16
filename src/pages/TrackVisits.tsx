@@ -47,7 +47,7 @@ export default function TrackVisits() {
       const response = await fetchAllProducts();
       console.log("All Products:", response);
       setAllProducts(response.data);
-    } catch (error) {   
+    } catch (error) {
     }
   }
 
@@ -74,7 +74,7 @@ export default function TrackVisits() {
 
   const getCompletedVisits = async () => {
     if (!feID) return;
-    try { 
+    try {
       const data = await fetchCompletedVisits(Number(feID));
       setVisits(adaptBackendVisits(data))
       console.log("Completed Visits:", data);
@@ -90,7 +90,7 @@ export default function TrackVisits() {
       "fieldExecutiveId": feID ? Number(feID) : 0,
       "stockistId": data.stockistId,
       "stockistType": data.stockistType,
-      "weekNumber": Math.ceil((new Date().getDate())/7),
+      "weekNumber": Math.ceil((new Date().getDate()) / 7),
       "dayOfWeek": ((new Date().getDay() + 6) % 7) + 1,
       "status": "COMPLETED",
       "notes": data.notes,
@@ -111,29 +111,44 @@ export default function TrackVisits() {
   };
 
 
-  const handleAddVisit = async (data: any) => {
-    console.log("Adding Visit:", data);
-    if(data.visitType === "STOCKIST"){
-      await handleAddStockistVisit(data as StockistVisitData);
-      return;
-    }
-    const newVisit: Visit = {
-      ...data,
-      status: data.isMissed ? "MISSED" : "COMPLETED",
-    };
-    try {
-      const response = await markVisit(newVisit);
-      toast({
-        title: "Visit Marked",
-        description: "Your visit has been marked successfully.",
-      });
-    } catch (error) {
+const handleAddVisit = async (data: any) => {
+  console.log("Adding Visit:", data);
 
-    }
-    // setVisits((prev) => [newVisit, ...prev]);
-    console.log("New Visit Added:", newVisit);
+  if (data.visitType === "STOCKIST") {
+    await handleAddStockistVisit(data as StockistVisitData);
+    return;
+  }
 
+  const newVisit = {
+    visitId: data.visitId,
+    status: data.isMissed ? "MISSED" : "COMPLETED",
+    notes: data.notes,
+    latitude: data.location?.lat,
+    longitude: data.location?.lng,
+    // latitude: 10.588423,
+    // longitude: 76.686770,
+    activitiesPerformed: data.activitiesPerformed,
+    convertedProducts: data.convertedProducts,
   };
+
+  try {
+    await markVisit(newVisit);
+    toast({
+      title: "Visit Marked",
+      description: "Your visit has been marked successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: error.response.data.message,
+      description: "Failed to mark visit.",
+      variant: "destructive",
+    });
+  }
+
+  console.log("New Visit Added:", newVisit);
+};
+
 
   return (
     <div className="flex min-h-screen bg-background">

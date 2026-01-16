@@ -111,3 +111,13 @@ export const fetchDashboardMetrics = async (fieldExecutiveId: number) => {
   });
     return response.data;
 }
+
+export const fetchVisitComplianceData = async (fieldExecutiveId: number, week: string) => {
+  const response = await API.get(`/visit/get-compliance-record?fieldExecutiveId=${fieldExecutiveId}&week=${week}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
