@@ -50,7 +50,7 @@ export function VisitSearchBar({
         </Select>
         <Button onClick={onAddVisit} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Visit
+          Mark Visit
         </Button>
       </div>
     </div>

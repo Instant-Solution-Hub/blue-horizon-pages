@@ -23,9 +23,12 @@ interface AddVisitModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: DoctorVisitData | PharmacistVisitData | StockistVisitData) => void;
+  todaysVisits: any[];
+  stockists: any[];
+  products: any[];
 }
 
-export function AddVisitModal({ isOpen, onClose, onSubmit }: AddVisitModalProps) {
+export function AddVisitModal({ isOpen, onClose, onSubmit, todaysVisits, stockists, products }: AddVisitModalProps) {
   const [visitType, setVisitType] = useState<VisitType>("");
 
   const handleClose = () => {
@@ -42,7 +45,7 @@ export function AddVisitModal({ isOpen, onClose, onSubmit }: AddVisitModalProps)
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Visit</DialogTitle>
+          <DialogTitle>Mark Visit</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -61,15 +64,15 @@ export function AddVisitModal({ isOpen, onClose, onSubmit }: AddVisitModalProps)
           </div>
 
           {visitType === "doctor" && (
-            <DoctorVisitForm onSubmit={handleSubmit} onCancel={handleClose} />
+            <DoctorVisitForm onSubmit={handleSubmit} onCancel={handleClose} products={products} doctorVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "doctor")} />
           )}
 
           {visitType === "pharmacist" && (
-            <PharmacistVisitForm onSubmit={handleSubmit} onCancel={handleClose} />
+            <PharmacistVisitForm onSubmit={handleSubmit} onCancel={handleClose} pharmacistVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "pharmacist")} />
           )}
 
           {visitType === "stockist" && (
-            <StockistVisitForm onSubmit={handleSubmit} onCancel={handleClose} />
+            <StockistVisitForm onSubmit={handleSubmit} onCancel={handleClose} stockists={stockists} />
           )}
         </div>
       </DialogContent>

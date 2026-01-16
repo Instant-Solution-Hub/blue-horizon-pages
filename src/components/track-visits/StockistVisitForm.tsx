@@ -15,12 +15,14 @@ import {
 interface StockistVisitFormProps {
   onSubmit: (data: StockistVisitData) => void;
   onCancel: () => void;
+  stockists: any[];
 }
 
 export interface StockistVisitData {
-  visitType: "stockist";
+  visitType: "STOCKIST";
   stockistType: string;
   stockistName: string;
+  stockistId: string;
   contactPerson: string;
   contactNumber: string;
   activitiesPerformed: string[];
@@ -37,15 +39,10 @@ interface Stockist {
   type: string;
 }
 
-const mockStockists: Stockist[] = [
-  { id: "1", name: "MedSupply India", contactPerson: "Rajesh Kumar", contactNumber: "9876543210", type: "Super stockist" },
-  { id: "2", name: "PharmaDist Co", contactPerson: "Sunil Verma", contactNumber: "9876543211", type: "Substockist" },
-  { id: "3", name: "HealthCare Supplies", contactPerson: "Anil Sharma", contactNumber: "9876543212", type: "Super stockist" },
-];
 
 const activities = ["Sales Order", "Payment Collection", "Stock Check", "Scheme Discussion", "Other"];
 
-export function StockistVisitForm({ onSubmit, onCancel }: StockistVisitFormProps) {
+export function StockistVisitForm({ onSubmit, onCancel, stockists }: StockistVisitFormProps) {
   const [stockistType, setStockistType] = useState("");
   const [selectedStockist, setSelectedStockist] = useState<Stockist | null>(null);
   const [stockistSearch, setStockistSearch] = useState("");
@@ -53,14 +50,14 @@ export function StockistVisitForm({ onSubmit, onCancel }: StockistVisitFormProps
   const [orderValue, setOrderValue] = useState("");
   const [notes, setNotes] = useState("");
 
-  const filteredStockists = mockStockists.filter(
+  const filteredStockists = stockists.filter(
     (s) =>
       s.name.toLowerCase().includes(stockistSearch.toLowerCase()) &&
-      (stockistType ? s.type === stockistType : true)
+      (stockistType ? s.type.toLowerCase() === stockistType.toLowerCase() : true)
   );
 
   const handleStockistSelect = (stockistId: string) => {
-    const stockist = mockStockists.find((s) => s.id === stockistId);
+    const stockist = stockists.find((s) => s.id === stockistId);
     setSelectedStockist(stockist || null);
     if (stockist) {
       setStockistSearch(stockist.name);
@@ -88,8 +85,9 @@ export function StockistVisitForm({ onSubmit, onCancel }: StockistVisitFormProps
     navigator.geolocation.getCurrentPosition(
       (position) => {
         onSubmit({
-          visitType: "stockist",
+          visitType: "STOCKIST",
           stockistType,
+          stockistId: selectedStockist.id,
           stockistName: selectedStockist.name,
           contactPerson: selectedStockist.contactPerson,
           contactNumber: selectedStockist.contactNumber,
@@ -101,8 +99,9 @@ export function StockistVisitForm({ onSubmit, onCancel }: StockistVisitFormProps
       },
       () => {
         onSubmit({
-          visitType: "stockist",
+          visitType: "STOCKIST",
           stockistType,
+          stockistId: selectedStockist.id,
           stockistName: selectedStockist.name,
           contactPerson: selectedStockist.contactPerson,
           contactNumber: selectedStockist.contactNumber,
@@ -124,8 +123,8 @@ export function StockistVisitForm({ onSubmit, onCancel }: StockistVisitFormProps
             <SelectValue placeholder="Select stockist type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Substockist">Substockist</SelectItem>
-            <SelectItem value="Super stockist">Super Stockist</SelectItem>
+            <SelectItem value="SUB_STOCKIST">Substockist</SelectItem>
+            <SelectItem value="SUPER_STOCKIST">Super Stockist</SelectItem>
           </SelectContent>
         </Select>
       </div>

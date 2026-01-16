@@ -3,6 +3,8 @@ import Header from "@/components/dashboard/Header";
 import StatsCard from "@/components/dashboard/StatsCard";
 import ScheduleItem from "@/components/dashboard/ScheduleItem";
 import { Stethoscope, Building2, Package, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchDashboardMetrics, fetchTodaysVisits } from "@/services/VisitService";
 
 const scheduleData = [
   {
@@ -28,6 +30,41 @@ const scheduleData = [
 ];
 
 const Dashboard = () => {
+const [todaysVisits, setTodaysVisits] = useState<any[]>([]);  
+const feID = sessionStorage.getItem("feID");
+const [dashboardData, setDashboardData] = useState({
+  doctorVisits: 0,
+  pharmacyVisits: 0,
+  stockistVisits: 0,
+  targetProgress: "0%",
+});
+
+useEffect(() => {
+    getTodaysVisits();
+    getDashboardData();
+  }, []);
+
+const getTodaysVisits = async () => {
+    try {
+      const response = await fetchTodaysVisits(Number(feID));
+      console.log("Today's Visits:", response);
+      setTodaysVisits(response);
+    } catch (error) {
+      console.error("Error fetching today's visits:", error);
+    }
+  };
+
+const getDashboardData =async () => {
+   const response = await fetchDashboardMetrics(Number(feID));
+    setDashboardData({   
+      doctorVisits: response.doctorVisits,
+      pharmacyVisits: response.pharmacyVisits,
+      stockistVisits: response.stockistVisit,
+      targetProgress: response.doctorTargetProgress,
+    });
+  };
+
+
   return (
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar />
@@ -41,7 +78,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatsCard
                 title="Doctor Visits"
-                value={12}
+                value={dashboardData.doctorVisits}
                 icon={Stethoscope}
                 iconColor="text-primary"
                 iconBgColor="bg-primary/10"
@@ -50,7 +87,7 @@ const Dashboard = () => {
               />
               <StatsCard
                 title="Pharmacy Visits"
-                value={8}
+                value={dashboardData.pharmacyVisits}
                 icon={Building2}
                 iconColor="text-success"
                 iconBgColor="bg-success/10"
@@ -59,7 +96,7 @@ const Dashboard = () => {
               />
               <StatsCard
                 title="Stockist Visits"
-                value={5}
+                value={dashboardData.stockistVisits}
                 icon={Package}
                 iconColor="text-stockist"
                 iconBgColor="bg-stockist/10"
@@ -68,11 +105,11 @@ const Dashboard = () => {
               />
               <StatsCard
                 title="Target Progress"
-                value="68%"
+                value={dashboardData.targetProgress}
                 icon={TrendingUp}
                 iconColor="text-primary"
                 iconBgColor="bg-primary/10"
-                trend="+5% from last week"
+                // trend="+5% from last week"
                 className="animate-fade-in"
                 style={{ animationDelay: "0.4s" } as React.CSSProperties}
               />
@@ -92,12 +129,13 @@ const Dashboard = () => {
               </div>
               
               <div className="p-4 space-y-3">
-                {scheduleData.map((item, index) => (
+                {todaysVisits.map((item, index) => (
                   <ScheduleItem
                     key={index}
-                    name={item.name}
-                    time={item.time}
-                    type={item.type}
+                    // name="hello"
+                    name={item.visitType === "DOCTOR" ? item.doctorName +" - " + item.hospital : item.visitType === "PHARMACIST" ? item.pharmacyName +" - " + item.contactPerson : item.stockistName +" - " + item.stockistType}
+                    // time={item.time}
+                    type={item.visitType.toLowerCase()}
                   />
                 ))}
               </div>

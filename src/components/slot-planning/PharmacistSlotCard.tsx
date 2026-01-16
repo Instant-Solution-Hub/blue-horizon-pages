@@ -3,15 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2, User, Building2 } from "lucide-react";
 
-interface SlotCardProps {
+interface PharmacistSlotCardProps {
   id: number;
   visitType: "doctor" | "pharmacist";
-  doctorName: string;
-  category?: string;
-  practiceType?: string;
-  specialization?: string;
-  hospitalName: string;
-  visitTrack?: string;
+  pharmacyName: string;
+  contactPerson: string;
   canDelete: boolean;
   onDelete: (id: number) => void;
 }
@@ -28,18 +24,19 @@ const practiceTypeLabels: Record<string, string> = {
   NP: "Nursing Practice",
 };
 
-export function SlotCard({
+export function PharmacistSlotCard({
   id,
   visitType,
-  doctorName,
-  category,
-  practiceType,
-  specialization,
-  hospitalName,
-  visitTrack,
+  pharmacyName,
+  contactPerson,
+//   category,
+//   practiceType,
+//   specialization,
+//   hospitalName,
+//   visitTrack,
   canDelete,
   onDelete,
-}: SlotCardProps) {
+}: PharmacistSlotCardProps) {
   return (
     <Card className="relative overflow-hidden">
       <div
@@ -51,29 +48,15 @@ export function SlotCard({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              {visitType.toLowerCase() === "doctor" ? (
-                <User className="h-4 w-4 text-primary" />
-              ) : (
                 <Building2 className="h-4 w-4 text-violet-500" />
-              )}
-              <span className="font-semibold">{doctorName}</span>
-              {category && (
-                <Badge
-                  variant="outline"
-                  className={categoryColors[category] || ""}
-                >
-                  {category === "A_PLUS" ? "A+" : category}
-                </Badge>
-              )}
+              <span className="font-semibold">{pharmacyName}</span>
             </div>
 
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-              {specialization && <span>{specialization}</span>}
-              {specialization && hospitalName && <span>•</span>}
-              <span>{hospitalName}</span>
+              <span>{contactPerson}</span>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            {/* <div className="flex flex-wrap gap-2">
               {practiceType && (
                 <Badge variant="secondary" className="text-xs">
                   {practiceTypeLabels[practiceType] || practiceType}
@@ -84,7 +67,7 @@ export function SlotCard({
                   {visitTrack}
                 </Badge>
               )}
-            </div>
+            </div> */}
           </div>
 
           {canDelete && (

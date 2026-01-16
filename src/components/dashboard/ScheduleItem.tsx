@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface ScheduleItemProps {
   name: string;
-  time: string;
+  // time: string | null;
   type: "doctor" | "pharmacy" | "stockist";
   description?: string;
 }
@@ -14,8 +14,8 @@ const typeConfig = {
     label: "doctor",
     className: "bg-primary/10 text-primary border-primary/20",
   },
-  pharmacy: {
-    label: "pharmacy",
+  pharmacist: {
+    label: "pharmacist",
     className: "bg-success/10 text-success border-success/20",
   },
   stockist: {
@@ -24,7 +24,7 @@ const typeConfig = {
   },
 };
 
-const ScheduleItem = ({ name, time, type, description }: ScheduleItemProps) => {
+const ScheduleItem = ({ name, type, description }: ScheduleItemProps) => {
   const config = typeConfig[type];
 
   return (
@@ -38,7 +38,7 @@ const ScheduleItem = ({ name, time, type, description }: ScheduleItemProps) => {
         {description && (
           <p className="text-sm text-muted-foreground truncate">{description}</p>
         )}
-        <p className="text-xs text-muted-foreground mt-1">{time}</p>
+        {/* <p className="text-xs text-muted-foreground mt-1">{time}</p> */}
       </div>
 
       <Badge variant="outline" className={cn("capitalize flex-shrink-0", config.className)}>
