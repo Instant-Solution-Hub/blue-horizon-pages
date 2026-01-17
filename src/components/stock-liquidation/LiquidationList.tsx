@@ -5,13 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, X, Package } from "lucide-react";
 import { LiquidationPlan } from "./AddLiquidationModal";
+import { ProductStock } from "./StockUpdateTab";
 
 interface LiquidationListProps {
   plans: LiquidationPlan[];
   onUpdate: (id: string, data: Partial<LiquidationPlan>) => void;
+  stockData: ProductStock[];
 }
 
-const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
+const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) => {
+  // Helper to get current stock for a product
+  const getProductStock = (productName: string) => {
+    const stock = stockData.find((s) => s.productName === productName);
+    return stock?.availableQty ?? 0;
+  };
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<LiquidationPlan>>({});
 
@@ -90,7 +97,7 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground">Available Qty</label>
-                          <p className="font-medium">{plan.quantity}</p>
+                          <p className="font-medium">{getProductStock(plan.product)}</p>
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground">Target Liquidation</label>
@@ -163,7 +170,7 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Available Qty</p>
-                          <p className="font-medium text-sm">{plan.quantity}</p>
+                          <p className="font-medium text-sm">{getProductStock(plan.product)}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Target</p>

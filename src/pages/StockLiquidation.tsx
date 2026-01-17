@@ -159,7 +159,7 @@ const StockLiquidation = () => {
               <StatsCards plans={plans} />
 
               {/* Liquidation Plans List */}
-              <LiquidationList plans={plans} onUpdate={handleUpdatePlan} />
+              <LiquidationList plans={plans} onUpdate={handleUpdatePlan} stockData={stockData} />
             </TabsContent>
 
             <TabsContent value="update" className="mt-6">
@@ -174,6 +174,7 @@ const StockLiquidation = () => {
           onClose={handleCloseModal}
           onSubmit={handleAddPlan}
           editData={editingPlan}
+          stockData={stockData}
         />
       </main>
     </div>
