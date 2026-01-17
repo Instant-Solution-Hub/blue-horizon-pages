@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, UserRound, Pill, CalendarCheck, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { StatsCards } from "@/components/visit-compliance/StatsCards";
 import { WeekFilter } from "@/components/visit-compliance/WeekFilter";
 import { ComplianceTable, ComplianceRecord } from "@/components/visit-compliance/ComplianceTable";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Mock data for compliance records
 const mockRecords: ComplianceRecord[] = [
@@ -33,6 +33,14 @@ const mockRecords: ComplianceRecord[] = [
   { id: "18", doctorName: "Dr. Bose", category: "A+", scheduledDate: new Date(2026, 0, 30), status: "completed", week: 4 },
 ];
 
+// Mock stats for doctor and pharmacist visits
+const mockStats = {
+  doctorVisits: 18,
+  doctorCompleted: 14,
+  pharmacistVisits: 12,
+  pharmacistCompleted: 10,
+};
+
 const VisitCompliance = () => {
   const [selectedWeek, setSelectedWeek] = useState("all");
 
@@ -45,11 +53,20 @@ const VisitCompliance = () => {
 
   // Calculate stats
   const stats = useMemo(() => {
-    const scheduled = filteredRecords.length;
-    const completed = filteredRecords.filter((r) => r.status === "completed").length;
-    const missed = filteredRecords.filter((r) => r.status === "missed").length;
+    const scheduled = filteredRecords.length + mockStats.pharmacistVisits;
+    const completed = filteredRecords.filter((r) => r.status === "completed").length + mockStats.pharmacistCompleted;
+    const missed = filteredRecords.filter((r) => r.status === "missed").length + (mockStats.pharmacistVisits - mockStats.pharmacistCompleted);
     const complianceRate = scheduled > 0 ? Math.round((completed / scheduled) * 100) : 0;
-    return { scheduled, completed, missed, complianceRate };
+    return { 
+      scheduled, 
+      completed, 
+      missed, 
+      complianceRate,
+      doctorVisits: mockStats.doctorVisits,
+      doctorCompleted: mockStats.doctorCompleted,
+      pharmacistVisits: mockStats.pharmacistVisits,
+      pharmacistCompleted: mockStats.pharmacistCompleted,
+    };
   }, [filteredRecords]);
 
   return (
@@ -62,7 +79,7 @@ const VisitCompliance = () => {
           <div>
             <h1 className="text-2xl font-bold">Visit Compliance</h1>
             <p className="text-muted-foreground">
-              Track and compare your scheduled visits with actual activities.
+              Track and compare your scheduled visits (Doctors & Pharmacists) with actual activities.
             </p>
           </div>
 
@@ -74,13 +91,89 @@ const VisitCompliance = () => {
             </AlertDescription>
           </Alert>
 
-          {/* Stats Cards */}
-          <StatsCards
-            scheduled={stats.scheduled}
-            completed={stats.completed}
-            missed={stats.missed}
-            complianceRate={stats.complianceRate}
-          />
+          {/* Stats Overview */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Overall Compliance</h2>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <UserRound className="h-4 w-4" />
+                  Doctor Visits
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Pill className="h-4 w-4" />
+                  Pharmacist Visits
+                </div>
+              </div>
+            </div>
+
+            {/* Combined Stats Card */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {/* Total Scheduled */}
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-50">
+                      <CalendarCheck className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total Scheduled</p>
+                      <p className="text-xl font-bold">{stats.scheduled}</p>
+                    </div>
+                  </div>
+
+                  {/* Completed */}
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-50">
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Completed</p>
+                      <p className="text-xl font-bold">{stats.completed}</p>
+                    </div>
+                  </div>
+
+                  {/* Missed */}
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-red-50">
+                      <XCircle className="h-5 w-5 text-red-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Missed</p>
+                      <p className="text-xl font-bold">{stats.missed}</p>
+                    </div>
+                  </div>
+
+                  {/* Compliance Rate */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${stats.complianceRate >= 80 ? 'bg-green-50' : 'bg-amber-50'}`}>
+                        <TrendingUp className={`h-5 w-5 ${stats.complianceRate >= 80 ? 'text-green-500' : 'text-amber-500'}`} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Compliance Rate</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xl font-bold">{stats.complianceRate}%</p>
+                          <span className={`text-xs ${stats.complianceRate >= 80 ? 'text-green-600' : 'text-red-600'}`}>
+                            {stats.complianceRate >= 80 ? '✓ Meets requirement' : '✗ Below 80%'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${stats.complianceRate >= 80 ? 'bg-green-500' : 'bg-red-500'}`}
+                          style={{ width: `${Math.min(stats.complianceRate, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-right">Target: 80%</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Week Filter */}
           <div className="space-y-2">
@@ -90,7 +183,12 @@ const VisitCompliance = () => {
 
           {/* Compliance Table */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Detailed Comparison</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">All Visits</h3>
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredRecords.length} visit{filteredRecords.length !== 1 ? 's' : ''} across all professionals
+              </p>
+            </div>
             <ComplianceTable records={filteredRecords} />
           </div>
         </main>
