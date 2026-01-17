@@ -45,22 +45,18 @@ export interface LiquidationPlan {
   createdAt: Date;
 }
 
+export interface ProductStockData {
+  productName: string;
+  availableQty: number;
+}
+
 interface AddLiquidationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: Omit<LiquidationPlan, "id" | "createdAt">) => void;
   editData?: LiquidationPlan | null;
+  stockData: ProductStockData[];
 }
-
-// Mock data - replace with actual API calls
-const mockProducts = [
-  { name: "Paracetamol 500mg", stock: 1500 },
-  { name: "Amoxicillin 250mg", stock: 800 },
-  { name: "Omeprazole 20mg", stock: 1200 },
-  { name: "Metformin 500mg", stock: 2000 },
-  { name: "Atorvastatin 10mg", stock: 950 },
-  { name: "Ciprofloxacin 500mg", stock: 600 },
-];
 
 const mockDoctors = [
   "Dr. Rajesh Kumar",
@@ -76,6 +72,7 @@ const AddLiquidationModal = ({
   onClose,
   onSubmit,
   editData,
+  stockData,
 }: AddLiquidationModalProps) => {
   const { toast } = useToast();
   const [product, setProduct] = useState("");
@@ -101,11 +98,11 @@ const AddLiquidationModal = ({
 
   useEffect(() => {
     // Auto-fill quantity when product is selected
-    const selectedProduct = mockProducts.find((p) => p.name === product);
+    const selectedProduct = stockData.find((p) => p.productName === product);
     if (selectedProduct) {
-      setQuantity(selectedProduct.stock);
+      setQuantity(selectedProduct.availableQty);
     }
-  }, [product]);
+  }, [product, stockData]);
 
   const resetForm = () => {
     setProduct("");
@@ -180,9 +177,9 @@ const AddLiquidationModal = ({
                 <SelectValue placeholder="Select a product" />
               </SelectTrigger>
               <SelectContent>
-                {mockProducts.map((p) => (
-                  <SelectItem key={p.name} value={p.name}>
-                    {p.name}
+                {stockData.map((p) => (
+                  <SelectItem key={p.productName} value={p.productName}>
+                    {p.productName}
                   </SelectItem>
                 ))}
               </SelectContent>
