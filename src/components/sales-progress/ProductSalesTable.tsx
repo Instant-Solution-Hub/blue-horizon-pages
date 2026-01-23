@@ -33,7 +33,7 @@ const ProductSalesTable = () => {
 
   const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
 
- const feId = Number(localStorage.getItem("feId")) || 2;
+ const feId = Number(localStorage.getItem("feId")) || 3;
 
   useEffect(() => {
   const loadData = async () => {

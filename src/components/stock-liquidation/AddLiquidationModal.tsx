@@ -35,6 +35,14 @@ import { fetchDoctorsByFE } from "@/services/DoctorService";
 import { getFEProductStock } from "@/services/StockService";
 import { getProducts } from "@/services/ProductService";
 import { createLiquidationPlan } from "@/services/LiquidationService";
+import { getAllocatedProducts } from "@/services/StockService";
+
+export interface ProductStockData {
+   id: number;
+  name: string;
+  totalQty: number;
+  availableQty: number;
+}
 
 
 export interface LiquidationPlan {
@@ -78,6 +86,8 @@ interface AddLiquidationModalProps {
   ) => Promise<void>;
   editData?: LiquidationPlan | null;
   feId: number;
+  plans : LiquidationPlan[]
+    stockData: ProductStockData[];
 }
 
 
@@ -90,7 +100,8 @@ const AddLiquidationModal = ({
   onClose,
   onSubmit,
   editData,
-  feId
+  feId,
+  plans
 }: AddLiquidationModalProps) => {
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(0);
@@ -98,7 +109,7 @@ const AddLiquidationModal = ({
   const [marketName, setMarketName] = useState("");
   const [medicalShopName, setMedicalShopName] = useState("");
   const [doctorOpen, setDoctorOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+const [products, setProducts] = useState<FEProductStock[]>([]);
 const [doctors, setDoctors] = useState<Doctor[]>([]);
 const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 const [selectedDoctorId, setSelectedDoctorId] = useState<number | null>(null);
@@ -109,6 +120,19 @@ const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
 
 const deadline = tomorrow.toISOString().replace("Z", "");
+
+const getExistingTotalForProduct = () => {
+  if (!selectedProductId) return 0;
+
+  return plans
+    .filter(
+      (p) =>
+        p.productId === selectedProductId 
+    )
+    .reduce((sum, p) => sum + p.targetLiquidation, 0);
+};
+
+
 
 
 
@@ -143,16 +167,17 @@ useEffect(() => {
 useEffect(() => {
   if (!isOpen) return;
 
-  getProducts()
+  getAllocatedProducts(feId)
     .then(setProducts)
     .catch(() =>
       toast({
         title: "Error",
-        description: "Failed to load products",
+        description: "Failed to load allocated products",
         variant: "destructive",
       })
     );
 }, [isOpen, feId]);
+
 
   const resetForm = () => {
     setProductName("");
@@ -175,27 +200,34 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (Number(targetLiquidation) > quantity) {
+  const entered = Number(targetLiquidation);
+  const existingTotal = getExistingTotalForProduct();
+
+  if (existingTotal + entered > quantity) {
     toast({
-      title: "Error",
-      description: "Target liquidation cannot exceed available quantity",
+      title: "Invalid quantity",
+      description: "Total liquidation exceeds available stock",
       variant: "destructive",
     });
     return;
   }
 
-  await onSubmit({
-    productId: selectedProductId,
-    doctorId: selectedDoctorId,
-    marketName,
-    medicalShopName: medicalShopName || undefined,
-    targetLiquidation: Number(targetLiquidation),
-    deadline,
-    strategy: "",
-  } , quantity);
+  await onSubmit(
+    {
+      productId: selectedProductId,
+      doctorId: selectedDoctorId,
+      marketName,
+      medicalShopName: medicalShopName || undefined,
+      targetLiquidation: entered,
+      deadline,
+      strategy: "",
+    },
+    quantity
+  );
 
   resetForm();
 };
+
 
 
   const handleClose = () => {
@@ -229,8 +261,8 @@ const handleSubmit = async () => {
               </SelectTrigger>
               <SelectContent>
                  {products.map((p) => (
-    <SelectItem key={p.id} value={p.id.toString()}>
-      {p.name}
+    <SelectItem key={p.productId} value={p.productId.toString()}>
+      {p.productName} 
     </SelectItem>
   ))}
               </SelectContent>
@@ -307,9 +339,23 @@ const handleSubmit = async () => {
               type="number"
               placeholder="Enter target quantity"
               value={targetLiquidation}
-              onChange={(e) => setTargetLiquidation(e.target.value)}
-              max={quantity}
-            />
+              onChange={(e) => {
+    const entered = Number(e.target.value);
+    const existingTotal = getExistingTotalForProduct();
+    const maxAllowed = quantity - existingTotal;
+
+    if (entered > maxAllowed) {
+      toast({
+        title: "Invalid quantity",
+        description: `You can allocate only ${maxAllowed} more units for this doctor.`,
+        variant: "destructive",
+      });
+      return; // 🚫 block typing
+    }
+
+    setTargetLiquidation(e.target.value);
+  }}
+/>
           </div>
 
           {/* Market Name */}

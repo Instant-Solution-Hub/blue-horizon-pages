@@ -5,15 +5,41 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, X, Package } from "lucide-react";
 import { LiquidationPlan } from "./AddLiquidationModal";
+import { useToast } from "@/hooks/use-toast";
+import { ProductStock } from "./StockUpdateTab";
+
 
 interface LiquidationListProps {
   plans: LiquidationPlan[];
   onUpdate: (plan : LiquidationPlan, data: Partial<LiquidationPlan>) => void;
+  stockData:ProductStock[];
 }
 
-const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
+
+const LiquidationList = ({ plans, onUpdate , stockData }: LiquidationListProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<LiquidationPlan>>({});
+  const {toast} = useToast();
+
+   const getProductStock = (productName: string) => {
+    const stock = stockData.find((s) => s.name === productName);
+    return stock?.availableQty ?? 0;
+  };
+
+  const getTotalTargetForProduct = (
+  doctorId: number,
+  product: string,
+  excludePlanId?: string
+) => {
+  return plans
+    .filter(
+      (p) =>
+        p.product === product &&
+        p.id !== excludePlanId
+    )
+    .reduce((sum, p) => sum + (p.targetLiquidation || 0), 0);
+};
+
 
   // Group plans by product
   const groupedPlans = plans.reduce((acc, plan) => {
@@ -36,11 +62,29 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
     });
   };
 
- const handleSave = (plan: LiquidationPlan) => {
+const handleSave = (plan: LiquidationPlan) => {
+  const existingTotal = getTotalTargetForProduct(
+    plan.doctorId,
+    plan.product,
+    plan.id
+  );
+
+  const newTarget = editValues.targetLiquidation ?? plan.targetLiquidation;
+
+  if (existingTotal + newTarget > plan.quantity) {
+    toast({
+      title: "Cannot save",
+      description: "Total target liquidation exceeds available stock.",
+      variant: "destructive",
+    });
+    return;
+  }
+
   onUpdate(plan, editValues);
   setEditingId(null);
   setEditValues({});
 };
+
 
 
   const handleCancel = () => {
@@ -98,14 +142,33 @@ const LiquidationList = ({ plans, onUpdate }: LiquidationListProps) => {
                           <Input
                             type="number"
                             value={editValues.targetLiquidation}
-                            onChange={(e) =>
-                              setEditValues({
-                                ...editValues,
-                                targetLiquidation: Number(e.target.value),
-                              })
-                            }
-                            className="mt-1"
-                          />
+                            onChange={(e) => {
+    const value = Number(e.target.value) || 0;
+
+    const existingTotal = getTotalTargetForProduct(
+      plan.doctorId,
+      plan.product,
+      plan.id
+    );
+
+    const maxAllowed = plan.quantity - existingTotal;
+
+    if (value > maxAllowed) {
+      toast({
+        title: "Invalid quantity",
+        description: `Maximum allowed for this doctor is ${maxAllowed}.`,
+        variant: "destructive",
+      });
+      return; // 🚫 block typing
+    }
+
+    setEditValues({
+      ...editValues,
+      targetLiquidation: value,
+    });
+  }}
+  className="mt-1"
+/>
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground">Market Name</label>
