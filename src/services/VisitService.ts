@@ -60,6 +60,16 @@ export const markVisit = async (visitData: any) => {
     return response.data;
 }
 
+export const reMarkVisit = async (visitData: any) => {
+  const response = await API.post(`/visit/re-mark`, visitData, {
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
 export const markStockistVisit = async (visitData: any) => {
   const response = await API.post(`/visit/mark-stockist`, visitData, {
     headers: {    
@@ -90,6 +100,17 @@ export const fetchCompletedVisits = async (fieldExecutiveId: number) => {
   });
     return response.data;
 }
+
+export const fetchMissedVisits = async (fieldExecutiveId: number) => {
+  const response = await API.get(`/visit/missed-visits?fieldExecutiveId=${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
 
 export const fetchAllProducts = async () => {
   const response = await API.get(`/products`, { 

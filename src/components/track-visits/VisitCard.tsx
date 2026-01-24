@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
+import { Button } from "../ui/button";
 
 interface BaseVisit {
   id: string;

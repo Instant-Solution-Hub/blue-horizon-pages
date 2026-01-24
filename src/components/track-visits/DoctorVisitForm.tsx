@@ -19,6 +19,8 @@ interface ScheduledDoctor {
   category: string;
   practiceType: string;
   visitId: string;
+  isMissed: boolean;
+  status: string;
 }
 
 interface DoctorVisitFormProps {
@@ -51,6 +53,7 @@ export interface DoctorVisitData {
   category: string;
   practiceType: string;
   isMissed: boolean;
+  isPreviouslyMissed: boolean;
   activitiesPerformed: string[];
   notes: string;
   location: { lat: number; lng: number } | null;
@@ -143,6 +146,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           category: selectedVisit.category,
           practiceType: selectedVisit.practiceType,
           isMissed,
+          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
           activitiesPerformed: selectedActivities,
           notes,
           location: { lat: position.coords.latitude, lng: position.coords.longitude },
@@ -160,6 +164,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           category: selectedVisit.category,
           practiceType: selectedVisit.practiceType,
           isMissed,
+          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
           activitiesPerformed: selectedActivities,
           notes,
           location: null,
@@ -221,7 +226,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           <SelectContent>
             {doctorVisits.map((visit) => (
               <SelectItem key={visit.visitId} value={visit.visitId}>
-                {visit.doctorName} - {visit.hospital}
+                {visit.doctorName} - {visit.hospital} {visit.status === "MISSED" ? "- Missed" : ""}
               </SelectItem>
             ))}
           </SelectContent>

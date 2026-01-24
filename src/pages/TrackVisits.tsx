@@ -5,11 +5,13 @@ import { VisitSearchBar } from "@/components/track-visits/VisitSearchBar";
 import { AddVisitModal } from "@/components/track-visits/AddVisitModal";
 import { VisitList } from "@/components/track-visits/VisitList";
 import { useToast } from "@/hooks/use-toast";
-import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchTodaysVisits, markStockistVisit, markVisit } from "@/services/VisitService";
+import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchMissedVisits, fetchTodaysVisits, markStockistVisit, markVisit, reMarkVisit } from "@/services/VisitService";
 import { set } from "date-fns";
 import { get } from "http";
 import { StockistVisitData } from "@/components/track-visits/StockistVisitForm";
 import { adaptBackendVisits } from "@/lib/utils";
+import { on } from "events";
+import { ReMarkVisitModal } from "@/components/track-visits/ReMarkVisitModal";
 
 interface Visit {
   id: string;
@@ -27,7 +29,10 @@ export default function TrackVisits() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReMarkModalOpen, setIsReMarkModalOpen] = useState(false);
   const [visits, setVisits] = useState<Visit[]>([]);
+  const [missedVisits, setMissedVisits] = useState<Visit[]>([]);
+  const [selectedMissedVisit, setSelectedMissedVisit] = useState<Visit | null>(null);
   const [todaysVisits, setTodaysVisits] = useState<any[]>([]);
   const [allStockists, setAllStockists] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -38,6 +43,7 @@ export default function TrackVisits() {
     getTodaysVisits();
     getAllStockists();
     getCompletedVisits();
+    getMissedVisits();
     getAllProducts();
   }, []);
 
@@ -76,10 +82,22 @@ export default function TrackVisits() {
     if (!feID) return;
     try {
       const data = await fetchCompletedVisits(Number(feID));
-      setVisits(adaptBackendVisits(data))
+      setVisits(adaptBackendVisits(data, false));
       console.log("Completed Visits:", data);
     } catch (error) {
       console.error("Error fetching completed visits:", error);
+    }
+
+  };
+
+  const getMissedVisits = async () => {
+    if (!feID) return;
+    try {
+      const data = await fetchMissedVisits(Number(feID));
+      // setMissedVisits(data);
+      console.log("Missed Visits:", data);
+    } catch (error) {
+      console.error("Error fetching missed visits:", error);
     }
 
   };
@@ -111,45 +129,91 @@ export default function TrackVisits() {
     }
   };
 
-
-const handleAddVisit = async (data: any) => {
-  console.log("Adding Visit:", data);
-
-  if (data.visitType === "STOCKIST") {
-    await handleAddStockistVisit(data as StockistVisitData);
-    return;
-  }
-
-  const newVisit = {
-    visitId: data.visitId,
-    status: data.isMissed ? "MISSED" : "COMPLETED",
-    notes: data.notes,
-    latitude: data.location?.lat,
-    longitude: data.location?.lng,
-    // latitude: 10.588423,
-    // longitude: 76.686770,
-    activitiesPerformed: data.activitiesPerformed,
-    convertedProducts: data.convertedProducts,
+  const handleReMarkVisit = async (data: any) => {
+    console.log("Re-Marking Visit with data:", data);
+    const newVisit = {
+      visitId: data.visitId,
+      status: data.isMissed ? "MISSED" : "COMPLETED",
+      notes: data.notes,
+      latitude: data.location?.lat,
+      longitude: data.location?.lng,
+      activitiesPerformed: data.activitiesPerformed,
+      convertedProducts: data.convertedProducts,
+    };
+    try {
+      await reMarkVisit(newVisit);
+      getCompletedVisits();
+      getMissedVisits();
+      getTodaysVisits();
+      toast({
+        title: "Visit Re-Marked",
+        description: "Your visit has been re-marked successfully.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({ 
+        title: error.response.data.message,
+        description: "Failed to re-mark visit.",
+        variant: "destructive",
+      });
+    }
+    console.log("Visit Re-Marked:", newVisit);
   };
 
-  try {
-    await markVisit(newVisit);
+
+  const handleAddVisit = async (data: any) => {
+    console.log("Adding Visit:", data);
+
+    if (data.visitType === "STOCKIST") {
+      await handleAddStockistVisit(data as StockistVisitData);
+      return;
+    }
+
+    if(data.isPreviouslyMissed){
+      handleReMarkVisit(data);
+      return;
+    }
+
+    const newVisit = {
+      visitId: data.visitId,
+      status: data.isMissed ? "MISSED" : "COMPLETED",
+      notes: data.notes,
+      latitude: data.location?.lat,
+      longitude: data.location?.lng,
+      // latitude: 10.588423,
+      // longitude: 76.686770,
+      activitiesPerformed: data.activitiesPerformed,
+      convertedProducts: data.convertedProducts,
+    };
+
+    try {
+      await markVisit(newVisit);
       getCompletedVisits();
+      getMissedVisits();
+      getTodaysVisits();
+      toast({
+        title: "Visit Marked",
+        description: "Your visit has been marked successfully.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: error.response.data.message,
+        description: "Failed to mark visit.",
+        variant: "destructive",
+      });
+    }
+
+    console.log("New Visit Added:", newVisit);
+  };
+
+  const onReMarkVisit = () => {
+    setIsReMarkModalOpen(true);
     toast({
-      title: "Visit Marked",
-      description: "Your visit has been marked successfully.",
-    });
-  } catch (error) {
-    console.error(error);
-    toast({
-      title: error.response.data.message,
-      description: "Failed to mark visit.",
-      variant: "destructive",
+      title: "Re-mark Visit",
+      description: "Functionality to re-mark visit goes here.",
     });
   }
-
-  console.log("New Visit Added:", newVisit);
-};
 
 
   return (
@@ -175,7 +239,8 @@ const handleAddVisit = async (data: any) => {
             />
 
             <VisitList
-              visits={visits}
+              completedVisits={visits}
+              missedVisits={missedVisits}
               searchQuery={searchQuery}
               filterType={filterType}
             />
@@ -184,10 +249,19 @@ const handleAddVisit = async (data: any) => {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSubmit={handleAddVisit}
-              todaysVisits={todaysVisits}
+              todaysVisits={todaysVisits.concat(missedVisits)}
               stockists={allStockists}
               products={allProducts}
             />
+
+            {/* <ReMarkVisitModal
+              isOpen={isReMarkModalOpen}
+              onClose={() => setIsReMarkModalOpen(false)}
+              onSubmit={handleAddVisit}
+              selectedVisit={selectedMissedVisit}
+              stockists={allStockists}
+              products={allProducts}
+            /> */}
           </div>
         </main>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,29 +16,26 @@ import { Label } from "@/components/ui/label";
 import { DoctorVisitForm, DoctorVisitData } from "./DoctorVisitForm";
 import { PharmacistVisitForm, PharmacistVisitData } from "./PharmacistVisitForm";
 import { StockistVisitForm, StockistVisitData } from "./StockistVisitForm";
+import { Visit } from "./VisitList";
 
 type VisitType = "doctor" | "pharmacist" | "stockist" | "";
 
-interface AddVisitModalProps {
+interface ReMarkVisitModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: DoctorVisitData | PharmacistVisitData | StockistVisitData) => void;
-  todaysVisits: any[];
+  selectedVisit: Visit;
   stockists: any[];
   products: any[];
 }
 
-export function AddVisitModal({ isOpen, onClose, onSubmit, todaysVisits, stockists, products }: AddVisitModalProps) {
+export function ReMarkVisitModal({ isOpen, onClose, onSubmit, selectedVisit, stockists, products }: ReMarkVisitModalProps) {
   const [visitType, setVisitType] = useState<VisitType>("");
 
   const handleClose = () => {
     setVisitType("");
     onClose();
   };
-
-  useEffect(() => {
-console.log("Todays Visits in AddVisitModal:", todaysVisits);
-    }, []);
 
   const handleSubmit = (data: DoctorVisitData | PharmacistVisitData | StockistVisitData) => {
     onSubmit(data);
@@ -55,7 +52,7 @@ console.log("Todays Visits in AddVisitModal:", todaysVisits);
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Visit Type</Label>
-            <Select value={visitType} onValueChange={(value) => setVisitType(value as VisitType)}>
+            <Select value={selectedVisit.visitType.toLowerCase()} onValueChange={(value) => setVisitType(value as VisitType)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select visit type" />
               </SelectTrigger>
@@ -67,13 +64,13 @@ console.log("Todays Visits in AddVisitModal:", todaysVisits);
             </Select>
           </div>
 
-          {visitType === "doctor" && (
+          {/* {visitType === "doctor" && (
             <DoctorVisitForm onSubmit={handleSubmit} onCancel={handleClose} products={products} doctorVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "doctor")} />
           )}
 
           {visitType === "pharmacist" && (
             <PharmacistVisitForm onSubmit={handleSubmit} onCancel={handleClose} pharmacistVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "pharmacist")} />
-          )}
+          )} */}
 
           {visitType === "stockist" && (
             <StockistVisitForm onSubmit={handleSubmit} onCancel={handleClose} stockists={stockists} />
