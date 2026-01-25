@@ -29,6 +29,7 @@ export const updateMonthlyProductSales = async (
 export const getMonthlyMarketSales = async (
   feId: number
 ) => {
+
   const res = await API.get(`/fe/market-sales/${feId}/current-month`);
   console.log(res);
   return res.data;
