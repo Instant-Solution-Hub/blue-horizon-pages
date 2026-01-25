@@ -74,6 +74,8 @@ export interface DoctorVisitData {
 const activities = [
   "Product Detailing",
   "Sample Distribution",
+  "Study Distribution",
+  "Stock Updates",
   "Product Conversion",
   "Prescription Review",
   "Follow-up Discussion",
@@ -237,9 +239,9 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
         <div className="bg-muted p-3 rounded-lg space-y-1 text-sm">
           <p><span className="font-medium">Name:</span> {selectedVisit.doctorName}</p>
           <p><span className="font-medium">Hospital:</span> {selectedVisit.hospital}</p>
-          <p><span className="font-medium">Designation:</span> {selectedVisit.designation}</p>
+          <p><span className="font-medium">Speciality:</span> {selectedVisit.designation}</p>
           <p><span className="font-medium">Category:</span> {selectedVisit.category}</p>
-          <p><span className="font-medium">Practice Type:</span> {selectedVisit.practiceType}</p>
+          <p><span className="font-medium">Prescription Type:</span> {selectedVisit.practiceType}</p>
         </div>
       )}
 

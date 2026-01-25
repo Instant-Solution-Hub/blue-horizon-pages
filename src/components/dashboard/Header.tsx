@@ -17,16 +17,18 @@ const Header = () => {
     hour: "2-digit",
     minute: "2-digit",
   });
-
+ 
+ const userName = sessionStorage.getItem("userName") || "";
+ const userRole = sessionStorage.getItem("userRole") || "";
   return (
     <header className="bg-card border-b border-border px-6 py-4 sticky top-0 z-10">
       <div className="flex items-center justify-between">
         {/* Welcome Message */}
         <div>
           <h1 className="text-xl font-display font-bold text-foreground">
-            Product Development Executive Dashboard
+            Business Development Executive Dashboard
           </h1>
-          <p className="text-sm text-muted-foreground">Welcome, John Doe</p>
+          <p className="text-sm text-muted-foreground">Welcome, {userName}</p>
         </div>
 
         {/* Right Section */}
@@ -52,8 +54,8 @@ const Header = () => {
               </AvatarFallback>
             </Avatar>
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-foreground">John Doe</p>
-              <p className="text-xs text-muted-foreground">Field Executive</p>
+              <p className="text-sm font-medium text-foreground">{userName}</p>
+              <p className="text-xs text-muted-foreground">{userRole=="FE" ? "Field Executive" : "Manager"}</p>
             </div>
           </div>
         </div>
