@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import Doctors from "./pages/Doctors";
 import SlotPlanning from "./pages/SlotPlanning";
 import TrackVisits from "./pages/TrackVisits";
@@ -40,6 +41,8 @@ const App = () => (
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
           <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
+          {/* Manager Dashboard Routes */}
+          <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
