@@ -20,6 +20,8 @@ import StockLiquidation from "./pages/StockLiquidation";
 
 import SalesProgress from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
+import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerTeamManagement from "./pages/ManagerTeamManagement";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,9 @@ const App = () => (
 
            <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
+           {/* Manager Dashboard Routes */}
+          <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+          <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
