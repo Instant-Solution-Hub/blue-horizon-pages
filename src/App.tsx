@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerTeamManagement from "./pages/ManagerTeamManagement";
 import Doctors from "./pages/Doctors";
 import SlotPlanning from "./pages/SlotPlanning";
 import TrackVisits from "./pages/TrackVisits";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+          <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
