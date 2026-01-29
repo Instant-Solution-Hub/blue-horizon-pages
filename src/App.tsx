@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerTeamManagement from "./pages/ManagerTeamManagement";
+import ManagerTargetPlan from "./pages/ManagerTargetPlan";
 import Doctors from "./pages/Doctors";
 import SlotPlanning from "./pages/SlotPlanning";
 import TrackVisits from "./pages/TrackVisits";
@@ -45,6 +46,7 @@ const App = () => (
           {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
+          <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
