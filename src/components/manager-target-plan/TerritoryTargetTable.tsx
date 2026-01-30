@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,7 +9,8 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Pencil, Check, X } from "lucide-react";
 
 interface TerritoryData {
   territory: string;
@@ -25,6 +27,13 @@ interface TerritoryTargetTableProps {
 }
 
 const TerritoryTargetTable = ({ data, onUpdateData }: TerritoryTargetTableProps) => {
+  const [editingTerritory, setEditingTerritory] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{
+    weeklyPrimarySale: number;
+    weeklySecondarySale: number;
+    totalSubstockistStock: number;
+  } | null>(null);
+
   const formatCurrency = (amount: number) => {
     if (amount >= 100000) {
       return `₹${(amount / 100000).toFixed(1)}L`;
@@ -45,6 +54,30 @@ const TerritoryTargetTable = ({ data, onUpdateData }: TerritoryTargetTableProps)
       return <Badge variant="destructive" className="text-[10px] px-1.5">Critical</Badge>;
     }
     return <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 text-[10px] px-1.5">Behind</Badge>;
+  };
+
+  const handleEditClick = (row: TerritoryData) => {
+    setEditingTerritory(row.territory);
+    setEditValues({
+      weeklyPrimarySale: row.weeklyPrimarySale,
+      weeklySecondarySale: row.weeklySecondarySale,
+      totalSubstockistStock: row.totalSubstockistStock,
+    });
+  };
+
+  const handleSave = (territory: string) => {
+    if (editValues) {
+      onUpdateData(territory, "weeklyPrimarySale", editValues.weeklyPrimarySale);
+      onUpdateData(territory, "weeklySecondarySale", editValues.weeklySecondarySale);
+      onUpdateData(territory, "totalSubstockistStock", editValues.totalSubstockistStock);
+    }
+    setEditingTerritory(null);
+    setEditValues(null);
+  };
+
+  const handleCancel = () => {
+    setEditingTerritory(null);
+    setEditValues(null);
   };
 
   if (data.length === 0) {
@@ -68,12 +101,14 @@ const TerritoryTargetTable = ({ data, onUpdateData }: TerritoryTargetTableProps)
             <TableHead className="font-semibold text-right whitespace-nowrap px-2 md:px-4">Pri. Deficit</TableHead>
             <TableHead className="font-semibold text-right whitespace-nowrap px-2 md:px-4">Sec. Deficit</TableHead>
             <TableHead className="font-semibold text-right whitespace-nowrap px-2 md:px-4">Sub. Stock</TableHead>
+            <TableHead className="font-semibold text-center whitespace-nowrap px-2 md:px-4 w-16">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((row) => {
-            const primaryDeficit = calculateDeficit(row.primaryTarget, row.weeklyPrimarySale);
-            const secondaryDeficit = calculateDeficit(row.secondaryTarget, row.weeklySecondarySale);
+            const isEditing = editingTerritory === row.territory;
+            const primaryDeficit = calculateDeficit(row.primaryTarget, isEditing && editValues ? editValues.weeklyPrimarySale : row.weeklyPrimarySale);
+            const secondaryDeficit = calculateDeficit(row.secondaryTarget, isEditing && editValues ? editValues.weeklySecondarySale : row.weeklySecondarySale);
 
             return (
               <TableRow key={row.territory}>
@@ -92,24 +127,32 @@ const TerritoryTargetTable = ({ data, onUpdateData }: TerritoryTargetTableProps)
                   {formatCurrency(row.secondaryTarget)}
                 </TableCell>
                 <TableCell className="text-right px-2 md:px-4">
-                  <Input
-                    type="number"
-                    value={row.weeklyPrimarySale}
-                    onChange={(e) =>
-                      onUpdateData(row.territory, "weeklyPrimarySale", parseFloat(e.target.value) || 0)
-                    }
-                    className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
-                  />
+                  {isEditing && editValues ? (
+                    <Input
+                      type="number"
+                      value={editValues.weeklyPrimarySale}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, weeklyPrimarySale: parseFloat(e.target.value) || 0 })
+                      }
+                      className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
+                    />
+                  ) : (
+                    <span className="font-medium">{formatCurrency(row.weeklyPrimarySale)}</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right px-2 md:px-4">
-                  <Input
-                    type="number"
-                    value={row.weeklySecondarySale}
-                    onChange={(e) =>
-                      onUpdateData(row.territory, "weeklySecondarySale", parseFloat(e.target.value) || 0)
-                    }
-                    className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
-                  />
+                  {isEditing && editValues ? (
+                    <Input
+                      type="number"
+                      value={editValues.weeklySecondarySale}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, weeklySecondarySale: parseFloat(e.target.value) || 0 })
+                      }
+                      className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
+                    />
+                  ) : (
+                    <span className="font-medium">{formatCurrency(row.weeklySecondarySale)}</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right px-2 md:px-4">
                   <div className="flex items-center justify-end gap-1">
@@ -128,14 +171,49 @@ const TerritoryTargetTable = ({ data, onUpdateData }: TerritoryTargetTableProps)
                   </div>
                 </TableCell>
                 <TableCell className="text-right px-2 md:px-4">
-                  <Input
-                    type="number"
-                    value={row.totalSubstockistStock}
-                    onChange={(e) =>
-                      onUpdateData(row.territory, "totalSubstockistStock", parseFloat(e.target.value) || 0)
-                    }
-                    className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
-                  />
+                  {isEditing && editValues ? (
+                    <Input
+                      type="number"
+                      value={editValues.totalSubstockistStock}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, totalSubstockistStock: parseFloat(e.target.value) || 0 })
+                      }
+                      className="w-16 md:w-20 ml-auto text-right text-xs h-8 px-1.5"
+                    />
+                  ) : (
+                    <span className="font-medium">{formatCurrency(row.totalSubstockistStock)}</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-center px-2 md:px-4">
+                  {isEditing ? (
+                    <div className="flex items-center justify-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-100"
+                        onClick={() => handleSave(row.territory)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={handleCancel}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 text-muted-foreground hover:text-primary"
+                      onClick={() => handleEditClick(row)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             );
