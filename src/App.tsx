@@ -22,6 +22,7 @@ import SalesProgress from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerTeamManagement from "./pages/ManagerTeamManagement";
+import ManagerSlotPlanning from "./pages/ManagerSlotPlanning";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
            {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
+          <Route path="/manager-dashboard/slot-planning" element={<ManagerSlotPlanning />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

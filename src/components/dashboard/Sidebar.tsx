@@ -16,7 +16,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavItem {
@@ -25,7 +25,7 @@ interface NavItem {
   href: string;
 }
 
-const navItems: NavItem[] = [
+const defaultNavItems: NavItem[] = [
   { icon: Home, label: "Home", href: "/dashboard" },
   { icon: Calendar, label: "Slot Planning", href: "/dashboard/slot-planning" },
   { icon: MapPin, label: "Track Visits", href: "/dashboard/track-visits" },
@@ -39,11 +39,28 @@ const navItems: NavItem[] = [
   { icon: BarChart3, label: "Sales Progress", href: "/dashboard/sales-progress" },
 ];
 
+
 const Sidebar = () => {
+  const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const userRole = sessionStorage.getItem("userRole").toLowerCase();
 
+  useEffect(() => {
+    // If user is a manager, add manager-specific nav items
+    if (userRole === "manager") {
+      setNavItems([
+        { icon: Home, label: "Home", href: "/manager-dashboard" },
+        { icon: Users, label: "Team Management", href: "/manager-dashboard/team" },
+        { icon: Calendar, label: "Slot Planning", href: "/manager-dashboard/slot-planning" }
+      ]);
+    } else {
+      setNavItems(defaultNavItems);
+    }
+    console.log(navItems);
+
+  }, []);
   const handleLogout = () => {
     navigate("/");
   };
