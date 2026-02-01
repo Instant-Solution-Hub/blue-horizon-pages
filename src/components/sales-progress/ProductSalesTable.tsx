@@ -32,8 +32,7 @@ const ProductSalesTable = () => {
   const { toast } = useToast();
 
   const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
-
- const feId = Number(localStorage.getItem("feId")) || 3;
+ const feId = Number(sessionStorage.getItem("feID")) || 2;
 
   useEffect(() => {
   const loadData = async () => {

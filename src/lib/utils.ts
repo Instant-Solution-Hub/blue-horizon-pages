@@ -8,14 +8,14 @@ export function cn(...inputs: ClassValue[]) {
 
 import type { Visit } from "../components/track-visits/VisitList";
 
-export function adaptBackendVisits(data: any[]): Visit[] {
+export function adaptBackendVisits(data: any[], isMissed: boolean): Visit[] {
   return data.map((v) => {
     const base = {
       id: String(v.visitId),
       dateTime: new Date(v.actualVisitTime),
       notes: v.notes ?? "",
       activitiesPerformed: v.activitiesPerformed ?? [],
-      isMissed: false,
+      isMissed: isMissed,
     };
 
     switch (v.visitType) {

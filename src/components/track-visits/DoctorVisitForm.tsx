@@ -19,6 +19,8 @@ interface ScheduledDoctor {
   category: string;
   practiceType: string;
   visitId: string;
+  isMissed: boolean;
+  status: string;
 }
 
 interface DoctorVisitFormProps {
@@ -51,6 +53,7 @@ export interface DoctorVisitData {
   category: string;
   practiceType: string;
   isMissed: boolean;
+  isPreviouslyMissed: boolean;
   activitiesPerformed: string[];
   notes: string;
   location: { lat: number; lng: number } | null;
@@ -71,6 +74,8 @@ export interface DoctorVisitData {
 const activities = [
   "Product Detailing",
   "Sample Distribution",
+  "Study Distribution",
+  "Stock Updates",
   "Product Conversion",
   "Prescription Review",
   "Follow-up Discussion",
@@ -143,6 +148,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           category: selectedVisit.category,
           practiceType: selectedVisit.practiceType,
           isMissed,
+          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
           activitiesPerformed: selectedActivities,
           notes,
           location: { lat: position.coords.latitude, lng: position.coords.longitude },
@@ -160,6 +166,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           category: selectedVisit.category,
           practiceType: selectedVisit.practiceType,
           isMissed,
+          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
           activitiesPerformed: selectedActivities,
           notes,
           location: null,
@@ -221,7 +228,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
           <SelectContent>
             {doctorVisits.map((visit) => (
               <SelectItem key={visit.visitId} value={visit.visitId}>
-                {visit.doctorName} - {visit.hospital}
+                {visit.doctorName} - {visit.hospital} {visit.status === "MISSED" ? "- Missed" : ""}
               </SelectItem>
             ))}
           </SelectContent>
@@ -232,9 +239,9 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
         <div className="bg-muted p-3 rounded-lg space-y-1 text-sm">
           <p><span className="font-medium">Name:</span> {selectedVisit.doctorName}</p>
           <p><span className="font-medium">Hospital:</span> {selectedVisit.hospital}</p>
-          <p><span className="font-medium">Designation:</span> {selectedVisit.designation}</p>
+          <p><span className="font-medium">Speciality:</span> {selectedVisit.designation}</p>
           <p><span className="font-medium">Category:</span> {selectedVisit.category}</p>
-          <p><span className="font-medium">Practice Type:</span> {selectedVisit.practiceType}</p>
+          <p><span className="font-medium">Prescription Type:</span> {selectedVisit.practiceType}</p>
         </div>
       )}
 

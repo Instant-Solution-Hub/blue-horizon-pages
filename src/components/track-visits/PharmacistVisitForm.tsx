@@ -22,6 +22,7 @@ export interface PharmacistVisitData {
   location: { lat: number; lng: number } | null;
   notes: string;
   isMissed: boolean;
+  isPreviouslyMissed: boolean;
 }
 
 const activities = ["Offer", "Expiry", "Other"];
@@ -58,6 +59,7 @@ export function PharmacistVisitForm({ onSubmit, onCancel, pharmacistVisits }: Ph
       location: { lat: position.coords.latitude, lng: position.coords.longitude },
       notes,
       isMissed,
+      isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
     });}, ()=>{
       onSubmit({
       visitId: selectedVisit ? selectedVisit.visitId : "",
@@ -69,6 +71,7 @@ export function PharmacistVisitForm({ onSubmit, onCancel, pharmacistVisits }: Ph
       location: null,
       notes,
       isMissed,
+      isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
     })
     });
   };

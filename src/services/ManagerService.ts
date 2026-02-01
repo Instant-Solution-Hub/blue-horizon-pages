@@ -162,3 +162,78 @@ export const deleteVisitById = async (visitId: number) => {
   });
     return response.data;
 }
+
+
+export const fetchVisits = async (managerId: number, week: number, day: number) => {
+  const response = await API.get(`/visit/manager/${managerId}/scheduled-visits?weekNumber=${week}&dayOfWeek=${day}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const assignManagerToVisit = async (visitId: number, managerId: number, managerName: string) => {
+  const response = await API.post(`/visit/assign-manager/${visitId}`, {
+    managerId,
+    managerName
+  }, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const fetchPriorityFieldExecutives = async (managerId: number, week: number, day: number) => {
+  const response = await API.get(`/field-executives/manager/${managerId}/a-priority-field-executives?weekNumber=${week}&dayOfWeek=${day}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+
+export const assignManagerToFieldExecutive = async (obj:any ) => {
+  const response = await API.post(`/manager-visits/assign`, obj, { 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerDashboardStats = async (managerId: number) => {
+  const response = await API.get(`/managers/stats/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerTodaysSchedule = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/today-schedule/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",     
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerTeamPerformance = async (managerId: number) => {
+  const response = await API.get(`/managers/team-performance/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",     
+    },
+  });
+    return response.data;
+}

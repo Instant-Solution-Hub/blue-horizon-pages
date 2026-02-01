@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
+import { Button } from "../ui/button";
 
 interface BaseVisit {
   id: string;
@@ -72,7 +73,7 @@ export function VisitCard({ visit }: VisitCardProps) {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm mt-3">
-        <p><span className="text-muted-foreground">Practice Type:</span> {v.practiceType}</p>
+        <p><span className="text-muted-foreground">Prescription Type:</span> {v.practiceType}</p>
         <p><span className="text-muted-foreground">Hospital:</span> {v.hospital}</p>
       </div>
       {v.location && (

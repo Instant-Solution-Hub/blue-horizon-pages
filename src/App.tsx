@@ -15,11 +15,18 @@ import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import StockLiquidation from "./pages/StockLiquidation";
+
+
+
 import SalesProgress from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
+import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerTeamManagement from "./pages/ManagerTeamManagement";
+import ManagerSlotPlanning from "./pages/ManagerSlotPlanning";
 import ManagerTargetPlan from "./pages/ManagerTargetPlan";
 import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
+
 
 const queryClient = new QueryClient();
 
@@ -41,8 +48,13 @@ const App = () => (
           <Route path="/dashboard/promotions" element={<Promotions />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
+
            <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
+           {/* Manager Dashboard Routes */}
+          <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+          <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
+          <Route path="/manager-dashboard/slot-planning" element={<ManagerSlotPlanning />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           {/* Manager Dashboard Routes */}
            <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />

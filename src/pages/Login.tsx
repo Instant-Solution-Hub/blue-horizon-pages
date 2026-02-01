@@ -24,6 +24,7 @@ const Login = () => {
       console.log("Login Response: ", response);
       setIsLoading(false);
       if(response.success){
+        sessionStorage.setItem("userID", response.data.id);
         sessionStorage.setItem("feID", response.data.id);
         sessionStorage.setItem("userName", response.data.name);
         sessionStorage.setItem("userEmail", response.data.email);

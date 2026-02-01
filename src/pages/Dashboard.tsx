@@ -133,6 +133,7 @@ const getDashboardData =async () => {
                   <ScheduleItem
                     key={index}
                     // name="hello"
+                    status={item.status}
                     name={item.visitType === "DOCTOR" ? item.doctorName +" - " + item.hospital : item.visitType === "PHARMACIST" ? item.pharmacyName +" - " + item.contactPerson : item.stockistName +" - " + item.stockistType}
                     // time={item.time}
                     type={item.visitType.toLowerCase()}

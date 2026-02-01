@@ -28,7 +28,9 @@ const MarketSalesTable = () => {
   const [editingMarket, setEditingMarket] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
   const { toast } = useToast();
-  const feId =  Number(localStorage.getItem("feId")) || 7;// later from auth context
+  const feId = Number(sessionStorage.getItem("feID")) || 2;// later from auth context
+
+
 const now = new Date();
 
 
