@@ -207,3 +207,33 @@ export const assignManagerToFieldExecutive = async (obj:any ) => {
   });
     return response.data;
 }
+
+export const fetchManagerDashboardStats = async (managerId: number) => {
+  const response = await API.get(`/managers/stats/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerTodaysSchedule = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/today-schedule/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",     
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerTeamPerformance = async (managerId: number) => {
+  const response = await API.get(`/managers/team-performance/${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",     
+    },
+  });
+    return response.data;
+}

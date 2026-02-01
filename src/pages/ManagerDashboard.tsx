@@ -4,6 +4,8 @@ import ManagerStatsCard from "@/components/manager-dashboard/ManagerStatsCard";
 import ManagerScheduleItem from "@/components/manager-dashboard/ManagerScheduleItem";
 import TeamPerformanceTable from "@/components/manager-dashboard/TeamPerformanceTable";
 import { Stethoscope, TrendingUp, Users } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { fetchManagerDashboardStats, fetchManagerTeamPerformance, fetchManagerTodaysSchedule } from "@/services/ManagerService";
 
 const scheduleData = [
   {
@@ -41,10 +43,43 @@ const teamMembers = [
 ];
 
 const ManagerDashboard = () => {
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [todaysSchedule, setTodaysSchedule] = useState<any[]>([]);
+  const [teamMembersData, setTeamMembersData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const userId = Number(sessionStorage.getItem("userID"));
   const totalVisits = teamMembers.reduce((sum, member) => sum + member.totalVisitsToday, 0);
   const avgTargetProgress = Math.round(
     teamMembers.reduce((sum, member) => sum + member.targetAchieved, 0) / teamMembers.length
   );
+
+  useEffect(() => {
+    getDashboardData(); 
+    getTodaysSchedule();
+    getTeamMembersData();
+  }, []);
+
+  const getDashboardData = async () => {
+    setIsLoading(true);
+    let response = await fetchManagerDashboardStats(userId);
+    console.log("Dashboard Data:", response); 
+    setDashboardData(response.data);
+    setIsLoading(false);
+  }
+
+  const getTodaysSchedule =async () => {
+    setIsLoading(true);
+    let response = await fetchManagerTodaysSchedule(userId);
+    setTodaysSchedule(response.data);
+    setIsLoading(false);
+  }
+
+  const getTeamMembersData = async () => {
+    setIsLoading(true);
+    let response = await fetchManagerTeamPerformance(userId);
+    setTeamMembersData(response.data);
+    setIsLoading(false);
+  }
 
   return (
     <div className="flex min-h-screen bg-muted/30">
@@ -59,7 +94,7 @@ const ManagerDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <ManagerStatsCard
                 title="Total Visits"
-                value={totalVisits}
+                value={dashboardData?.totalVisits || 0}
                 icon={Stethoscope}
                 iconColor="text-primary"
                 iconBgColor="bg-primary/10"
@@ -68,17 +103,17 @@ const ManagerDashboard = () => {
               />
               <ManagerStatsCard
                 title="Team Target Progress"
-                value={`${avgTargetProgress}%`}
+                value={`${dashboardData?.targetProgress || 0}%`}
                 icon={TrendingUp}
                 iconColor="text-success"
                 iconBgColor="bg-success/10"
-                trend="+3% from last week"
+                trend={`${dashboardData?.trend || "0%"} from last week`}
                 className="animate-fade-in"
                 style={{ animationDelay: "0.2s" } as React.CSSProperties}
               />
               <ManagerStatsCard
                 title="Total Members"
-                value={teamMembers.length}
+                value={dashboardData?.totalMembers || 0}
                 icon={Users}
                 iconColor="text-primary"
                 iconBgColor="bg-primary/10"
@@ -101,12 +136,12 @@ const ManagerDashboard = () => {
               </div>
               
               <div className="p-4 space-y-3">
-                {scheduleData.map((item, index) => (
+                {todaysSchedule.map((item, index) => (
                   <ManagerScheduleItem
                     key={index}
                     name={item.name}
                     time={item.time}
-                    type={item.type}
+                    type={item.type.toLowerCase() as "doctor" | "pharmacy" | "stockist"}
                     feName={item.feName}
                   />
                 ))}
@@ -116,7 +151,7 @@ const ManagerDashboard = () => {
 
           {/* Team Performance Overview */}
           <section className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <TeamPerformanceTable teamMembers={teamMembers} />
+            <TeamPerformanceTable teamMembers={teamMembersData} />
           </section>
         </main>
       </div>
