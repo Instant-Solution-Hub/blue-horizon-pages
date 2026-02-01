@@ -3,6 +3,19 @@ import axios from "axios";
 export type LeaveType = "CASUAL_LEAVE" | "SICK_LEAVE" | "EARNED_LEAVE";
 export type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export interface LeaveRequest {
+  id: number;
+  leaveType: string;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  appliedDate:string;
+    feCode: string;
+    feName: string;
+  };
+
+
 export interface ManagerLeave {
   id: string;
   leaveType: LeaveType;
@@ -51,4 +64,33 @@ export const fetchMonthlyConfirmedLeaves = async (
   console.log(data);
   return data;
 };
+
+
+export const fetchTeamLeaveRequests = async (managerId: number) => {
+  const res = await API.get(
+    `/managers/${managerId}/fe-leaves`
+  );
+  console.log(res);
+  return res.data.data as LeaveRequest[];
+};
+
+export const approveLeaveRequest = async (
+  leaveId: number
+): Promise<LeaveRequest> => {
+  const res = await API.put(
+    `/leaves/${leaveId}/approve-leave`
+  );
+  console.log(res);
+  return res.data.data;
+};
+
+export const rejectLeaveRequest = async (
+  leaveId: number
+): Promise<LeaveRequest> => {
+  const res = await API.put(
+    `/leaves/${leaveId}/reject-leave`
+  );
+  return res.data.data;
+};
+
 

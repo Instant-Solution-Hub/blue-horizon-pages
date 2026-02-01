@@ -19,6 +19,7 @@ import SalesProgress from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
 import ManagerTargetPlan from "./pages/ManagerTargetPlan";
 import ManagerProfile from "./pages/ManagerProfile";
+import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           {/* Manager Dashboard Routes */}
            <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
             <Route path="/manager-dashboard/profile" element={<ManagerProfile />} />
+            <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
