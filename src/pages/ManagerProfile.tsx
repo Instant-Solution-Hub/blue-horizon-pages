@@ -6,7 +6,9 @@ import LeaveList, { Leave } from "@/components/profile/LeaveList";
 import ManagerContactDetails from "@/components/manager-profile/ManagerContactDetails";
 import CompanyPolicies from "@/components/profile/CompanyPolicies";
 import LogoutConfirmation from "@/components/profile/LogoutConfirmation";
+import LeaveRequestsTab from "@/components/manager-profile/LeaveRequestsTab";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus } from "lucide-react";
 
 const ManagerProfile = () => {
@@ -61,39 +63,53 @@ const ManagerProfile = () => {
           {/* Stats Cards */}
           <ManagerProfileStatsCards />
 
-          {/* Leave Application Section */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                Leave Application
-              </h2>
-              <Button
-                onClick={() => setIsLeaveModalOpen(true)}
-                size="sm"
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Apply for Leave
-              </Button>
-            </div>
-            <LeaveList leaves={leaves} />
-          </div>
+          {/* Tabs */}
+          <Tabs defaultValue="my-profile" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="my-profile">My Profile</TabsTrigger>
+              <TabsTrigger value="leave-requests">Leave Requests</TabsTrigger>
+            </TabsList>
 
-          {/* Contact Details Section */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">
-              Contact Details
-            </h2>
-            <ManagerContactDetails />
-          </div>
+            <TabsContent value="my-profile" className="space-y-6">
+              {/* Leave Application Section */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Leave Application
+                  </h2>
+                  <Button
+                    onClick={() => setIsLeaveModalOpen(true)}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Apply for Leave
+                  </Button>
+                </div>
+                <LeaveList leaves={leaves} />
+              </div>
 
-          {/* Company Policies Section */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">
-              Company Policies
-            </h2>
-            <CompanyPolicies />
-          </div>
+              {/* Contact Details Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-4">
+                  Contact Details
+                </h2>
+                <ManagerContactDetails />
+              </div>
+
+              {/* Company Policies Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-4">
+                  Company Policies
+                </h2>
+                <CompanyPolicies />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="leave-requests">
+              <LeaveRequestsTab />
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
 
