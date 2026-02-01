@@ -1,0 +1,54 @@
+import axios from "axios";
+
+export type LeaveType = "CASUAL_LEAVE" | "SICK_LEAVE" | "EARNED_LEAVE";
+export type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface ManagerLeave {
+  id: string;
+  leaveType: LeaveType;
+  status: LeaveStatus;
+  fromDate: string;
+  toDate: string;
+  reason?: string;
+}
+
+export interface ApplyManagerLeavePayload {
+  leaveType: LeaveType;
+  fromDate: string;
+  toDate: string;
+  reason?: string;
+  managerId: number;
+}
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export const applyManagerLeave = async (
+  payload: ApplyManagerLeavePayload
+): Promise<ManagerLeave> => {
+  const res = await API.post("/managers/leaves/apply", payload);
+  return res.data;
+};
+
+export const getManagerLeaves = async (
+  managerId: number
+): Promise<ManagerLeave[]> => {
+  const res = await API.get(`/managers/leaves/${managerId}`);
+  console.log(res);
+  return res.data;
+};
+
+export const fetchMonthlyConfirmedLeaves = async (
+  managerId: number
+): Promise<number> => {
+  const { data } = await API.get(
+    `/managers/leaves/${managerId}/confirmed-leaves/current-month`
+  );
+  console.log(data);
+  return data;
+};
+

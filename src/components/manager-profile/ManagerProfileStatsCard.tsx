@@ -1,25 +1,39 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, Users, Umbrella } from "lucide-react";
+import { Calendar, Users, Umbrella, Target } from "lucide-react";
 
-const ManagerProfileStatsCards = () => {
-  const attendanceData = {
-    present: 22,
-    total: 26,
-    rate: Math.round((22 / 26) * 100),
-  };
 
-  const teamTargetData = {
-    monthly: 750000,
-    achieved: 562500,
-    rate: Math.round((562500 / 750000) * 100),
-    teamSize: 5,
-  };
+interface ProfileStatsCardsProps {
+  stats: {
+    targetAchieved: number;
+    targetSet: number;
+    casualLeaves: number;
+    approvedCasualLeaves: number;
+    sickLeaves: number;
+    approvedSickLeaves: number;
+  } | null;
 
-  const leaveData = {
-    casualLeave: { used: 2, total: 12 },
-    sickLeave: { used: 1, total: 10 },
-  };
+  monthlyLeavesTaken: number
+  
+}
+
+const ManagerProfileStatsCards = ({ stats , monthlyLeavesTaken }: ProfileStatsCardsProps ) => {
+
+
+  if (!stats) return null;
+const targetRate =
+  stats.targetSet > 0
+    ? Math.round((stats.targetAchieved / stats.targetSet) * 100)
+    : 0;
+
+
+    const totalWorkingDays = 26; // can later come from backend
+const presentDays = totalWorkingDays - monthlyLeavesTaken;
+const attendanceRate = Math.round(
+  (presentDays / totalWorkingDays) * 100
+);
+
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -38,42 +52,42 @@ const ManagerProfileStatsCards = () => {
           <div className="space-y-3">
             <div className="flex items-baseline justify-between">
               <span className="text-2xl font-bold text-foreground">
-                {attendanceData.present}/{attendanceData.total}
+                {presentDays}/{totalWorkingDays}
               </span>
               <span className="text-sm font-medium text-primary">
-                {attendanceData.rate}%
+                {attendanceRate}%
               </span>
             </div>
-            <Progress value={attendanceData.rate} className="h-2" />
+            <Progress value={attendanceRate} className="h-2" />
             <p className="text-xs text-muted-foreground">Attendance Rate</p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Team Target Achieved Card */}
+      {/* Target Achieved Card */}
       <Card className="border-border/50 shadow-sm">
         <CardContent className="p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-green-600" />
+              <Target className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Team Target Achieved</p>
-              <p className="text-xs text-muted-foreground/70">{teamTargetData.teamSize} Members</p>
+              <p className="text-sm text-muted-foreground">Target Achieved</p>
+              <p className="text-xs text-muted-foreground/70">Monthly</p>
             </div>
           </div>
           <div className="space-y-3">
             <div className="flex items-baseline justify-between">
               <span className="text-lg font-semibold text-foreground">
-                ₹{(teamTargetData.achieved / 100000).toFixed(1)}L
+                ₹{(stats.targetAchieved / 1000).toFixed(1)}K
               </span>
               <span className="text-sm text-muted-foreground">
-                / ₹{(teamTargetData.monthly / 100000).toFixed(1)}L
+                / ₹{(stats.targetSet / 1000).toFixed(0)}K
               </span>
             </div>
-            <Progress value={teamTargetData.rate} className="h-2 [&>div]:bg-green-500" />
+            <Progress value={targetRate} className="h-2 [&>div]:bg-green-500" />
             <p className="text-xs text-muted-foreground">
-              {teamTargetData.rate}% of monthly team target
+              {targetRate}% of monthly target
             </p>
           </div>
         </CardContent>
@@ -97,11 +111,11 @@ const ManagerProfileStatsCards = () => {
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground">Casual Leave</span>
                 <span className="text-xs font-medium text-foreground">
-                  {leaveData.casualLeave.used}/{leaveData.casualLeave.total}
+                  {stats.approvedCasualLeaves}/{stats.casualLeaves}
                 </span>
               </div>
               <Progress 
-                value={(leaveData.casualLeave.used / leaveData.casualLeave.total) * 100} 
+                value={(stats.approvedCasualLeaves/ stats.casualLeaves) * 100} 
                 className="h-2 [&>div]:bg-blue-500" 
               />
             </div>
@@ -110,11 +124,11 @@ const ManagerProfileStatsCards = () => {
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground">Sick Leave</span>
                 <span className="text-xs font-medium text-foreground">
-                  {leaveData.sickLeave.used}/{leaveData.sickLeave.total}
+                  {stats.approvedSickLeaves}/{stats.sickLeaves}
                 </span>
               </div>
               <Progress 
-                value={(leaveData.sickLeave.used / leaveData.sickLeave.total) * 100} 
+                value={(stats.approvedSickLeaves / stats.sickLeaves) * 100} 
                 className="h-2 [&>div]:bg-amber-500" 
               />
             </div>
