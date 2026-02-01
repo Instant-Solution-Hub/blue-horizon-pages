@@ -23,6 +23,9 @@ import VisitCompliance from "./pages/VisitCompliance";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerTeamManagement from "./pages/ManagerTeamManagement";
 import ManagerSlotPlanning from "./pages/ManagerSlotPlanning";
+import ManagerTargetPlan from "./pages/ManagerTargetPlan";
+import ManagerProfile from "./pages/ManagerProfile";
+
 
 const queryClient = new QueryClient();
 
@@ -52,6 +55,9 @@ const App = () => (
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
           <Route path="/manager-dashboard/slot-planning" element={<ManagerSlotPlanning />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Manager Dashboard Routes */}
+           <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
+            <Route path="/manager-dashboard/profile" element={<ManagerProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

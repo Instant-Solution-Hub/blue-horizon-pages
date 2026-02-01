@@ -13,8 +13,22 @@ export interface FEContactUpdateRequest {
   emergencyContact: string;
 }
 
+export interface ManagerContactUpdateRequest {
+  phone: string;
+  email: string;
+  emergencyContact: string;
+}
+
 export interface FEContactResponse {
   feId: number;
+  phone: string;
+  email: string;
+  emergencyContact: string;
+  name:string;
+}
+
+export interface ManagerContactResponse {
+  managerId: number;
   phone: string;
   email: string;
   emergencyContact: string;
@@ -45,3 +59,54 @@ export const fetchFEContactDetails = async (
 
   return res.data.data;
 };
+
+export const fetchManagerContactDetails = async (
+  managerId: number,
+): Promise<ManagerContactResponse> => {
+  const res = await API.get(
+    `/managers/${managerId}/contact`,
+   
+  );
+  console.log("result: ");
+  console.log(res);
+
+  return res.data.data;
+};
+
+export const updateManagerContactDetails = async (
+  managerId: number,
+  payload: ManagerContactUpdateRequest
+): Promise<ManagerContactResponse> => {
+  const res = await API.put(
+    `/managers/${managerId}/contact/basic`,
+    payload
+  );
+
+  return res.data.data;
+};
+
+
+
+export const fetchAdminContact = async () => {
+  const { data } = await API.get("/admin/contact");
+  console.log(data);
+  return data.data;
+};
+
+
+export const fetchSuperAdminContact = async () => {
+  const { data } = await API.get("/super-admin/contact");
+  console.log(data);
+  return data.data;
+};
+
+/* ================= TEAM (FEs under manager) ================= */
+export const fetchFEContactsUnderManager = async (managerId: number) => {
+  const res = await API.get(
+    `/managers/${managerId}/field-executives/contacts`
+  );
+  console.log(res);
+  return res.data.data;
+};
+
+

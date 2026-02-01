@@ -10,7 +10,8 @@ import {
   Pill,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Target
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -26,6 +27,7 @@ const navItems: NavItem[] = [
   { icon: Calendar, label: "Slot Planning", href: "/manager-dashboard/slot-planning" },
   { icon: MapPin, label: "Track Visits", href: "/manager-dashboard/track-visits" },
   { icon: Users, label: "Team Management", href: "/manager-dashboard/team" },
+  { icon: Target, label: "Target Plan", href: "/manager-dashboard/target-plan" },
   { icon: ClipboardCheck, label: "Compliance Visit", href: "/manager-dashboard/visit-compliance" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/manager-dashboard/sales-progress" },
