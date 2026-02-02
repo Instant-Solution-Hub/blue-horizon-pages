@@ -26,6 +26,7 @@ import ManagerSlotPlanning from "./pages/ManagerSlotPlanning";
 import ManagerTargetPlan from "./pages/ManagerTargetPlan";
 import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
+import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
            <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
             <Route path="/manager-dashboard/profile" element={<ManagerProfile />} />
             <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
+            <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

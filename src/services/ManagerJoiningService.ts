@@ -1,5 +1,6 @@
 import { JoiningFormData } from "@/components/manager-joining/RecordJoiningModal";
 import axios from "axios";
+import { ManagerJoiningRecord } from "@/components/manager-joining/ManagerJoiningView";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -58,4 +59,15 @@ export const addNewRecord = async (
 
   const response = await API.post("/manager-joinings", payload);
   return response.data;
+};
+
+
+export const fetchCurrentMonthManagerJoinings = async (
+  managerId: number
+): Promise<ManagerJoiningRecord[]> => {
+  const res = await API.get(
+    `/manager-joinings/manager/${managerId}/current-month`
+  );
+
+  return res.data;
 };
