@@ -1,6 +1,5 @@
 import { useState } from "react";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
-import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import StockTable, { StockEntry } from "@/components/manager-stock/StockTable";
 import AddStockModal from "@/components/manager-stock/AddStockModal";
 import UpdateStockModal from "@/components/manager-stock/UpdateStockModal";
@@ -93,7 +92,6 @@ const ManagerStockUpdate = () => {
     <div className="flex min-h-screen bg-background">
       <ManagerSidebar />
       <div className="flex-1 flex flex-col">
-        <ManagerHeader />
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Header with Add Button */}
