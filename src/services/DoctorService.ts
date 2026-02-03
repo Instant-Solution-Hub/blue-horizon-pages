@@ -18,3 +18,10 @@ export const fetchDoctorsByFE = async (feId: number): Promise<Doctor[]> => {
 
   return res.data.data; // ApiResponseDto → data
 };
+
+export const fetchAllDoctors = async (): Promise<Doctor[]> => {
+  const res = await API.get(
+    `/doctors/all`
+  );  
+  return res.data.data; // ApiResponseDto → data
+}

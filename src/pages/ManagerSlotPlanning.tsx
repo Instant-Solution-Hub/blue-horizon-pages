@@ -246,7 +246,7 @@ export default function ManagerSlotPlanning() {
                     ) : (
                       <>
                         <UserPlus className="h-4 w-4 mr-2" />
-                        Assign to FE
+                        Assign Visits
                       </>
                     )}
                   </Button>
