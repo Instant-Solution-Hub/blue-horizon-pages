@@ -65,7 +65,12 @@ const ApplyLeaveModal = ({ open, onOpenChange, onApply , leaveBalance }: ApplyLe
   // Calculate selected days
   const selectedDays = useMemo(() => {
     if (fromDate && toDate) {
-      return differenceInDays(toDate, fromDate) + 1;
+      // Normalize dates to midnight to avoid timezone issues
+      const from = new Date(fromDate);
+      from.setHours(0, 0, 0, 0);
+      const to = new Date(toDate);
+      to.setHours(0, 0, 0, 0);
+      return differenceInDays(to, from) + 1;
     }
     return 0;
   }, [fromDate, toDate]);
@@ -106,8 +111,8 @@ const ApplyLeaveModal = ({ open, onOpenChange, onApply , leaveBalance }: ApplyLe
 
    onApply({
   leaveType: leaveType as LeaveType,
-  fromDate: fromDate!.toISOString(),
-  toDate: toDate!.toISOString(),
+  fromDate: format(fromDate!, "yyyy-MM-dd'T'HH:mm:ss"),
+  toDate: format(toDate!, "yyyy-MM-dd'T'HH:mm:ss"),
   reason,
 });
 

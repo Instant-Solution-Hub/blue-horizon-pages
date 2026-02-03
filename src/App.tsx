@@ -28,6 +28,7 @@ import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import ManagerStockUpdate from "./pages/ManagerStockUpdate";
+import AdminProfile from "./pages/AdminProfile";
 
 
 const queryClient = new QueryClient();
@@ -64,6 +65,8 @@ const App = () => (
             <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
               <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+     {/* Admin Dashboard Routes */}
+              <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
