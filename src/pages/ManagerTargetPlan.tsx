@@ -198,13 +198,13 @@ const handleUpdateTerritoryData = async (
   const totalSecondaryTarget = feTargets.reduce((sum, t) => sum + t.secondaryTarget, 0);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <ManagerSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <ManagerHeader />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card>

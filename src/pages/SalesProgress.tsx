@@ -3,11 +3,12 @@ import ProductSalesTable from "@/components/sales-progress/ProductSalesTable";
 import MarketSalesTable from "@/components/sales-progress/MarketSalesTable";
 import { BarChart3 } from "lucide-react";
 
-const SalesProgress = () => {
+export const SalesProgress = () => {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 p-6 overflow-y-auto">
         <div className="p-6 space-y-6">
           {/* Page Title */}
           <div className="animate-fade-in">
@@ -33,6 +34,7 @@ const SalesProgress = () => {
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 };

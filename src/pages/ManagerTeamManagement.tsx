@@ -106,13 +106,13 @@ const ManagerTeamManagement = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="h-screen flex bg-background overflow-hidden">
       <ManagerSidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <ManagerHeader />
         
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           {/* Page Header */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-1">

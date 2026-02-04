@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format , parseISO } from "date-fns";
-import { Clock, User, Building2, Calendar, FileText, Users } from "lucide-react";
+import { format, parseISO } from "date-fns";
+// Added UserCheck to imports
+import { Clock, User, Building2, Calendar, FileText, Users, UserCheck } from "lucide-react"; 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export interface ManagerJoiningRecord {
@@ -14,6 +15,7 @@ export interface ManagerJoiningRecord {
   scheduledTime: string;
   joiningTime: string;
   notes: string;
+  managerName?: string;
   status: "ON_TIME" | "EARLY" | "LATE";
 }
 
@@ -33,7 +35,6 @@ const getStatusBadge = (status: ManagerJoiningRecord["status"]) => {
 };
 
 const ManagerJoiningView = ({ joinings }: ManagerJoiningViewProps) => {
-  // Group joinings by Field Executive
   const groupedByFE = joinings.reduce((acc, joining) => {
     if (!acc[joining.feId]) {
       acc[joining.feId] = {
@@ -59,7 +60,7 @@ const ManagerJoiningView = ({ joinings }: ManagerJoiningViewProps) => {
   }
 
   return (
-    <Accordion type="multiple"  defaultValue={feGroups.map(g => g.feId.toString())}className="space-y-3">
+    <Accordion type="multiple" defaultValue={feGroups.map(g => g.feId.toString())} className="space-y-3">
       {feGroups.map((group) => (
         <AccordionItem key={group.feId} value={group.feId.toString()} className="border rounded-lg bg-card">
           <AccordionTrigger className="px-4 hover:no-underline">
@@ -82,36 +83,49 @@ const ManagerJoiningView = ({ joinings }: ManagerJoiningViewProps) => {
                   <CardContent className="p-4">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="space-y-2">
+                        {/* Row 1: Doctor & Status */}
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-medium">{joining.doctorName}</span>
+                          <span className="font-medium text-lg">{joining.doctorName}</span>
                           {getStatusBadge(joining.status)}
                         </div>
-                        
+
+                        {/* Row 2: Manager (Conditional) - ADDED HERE */}
+                        {joining.managerName && (
+                          <div className="flex items-center gap-2 text-sm bg-slate-50 w-fit px-2 py-1 rounded-md border border-slate-100">
+                            <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
+                            <span className="text-muted-foreground text-xs uppercase tracking-wide font-medium">Accompanied by:</span>
+                            <span className="font-medium text-slate-700">{joining.managerName}</span>
+                          </div>
+                        )}
+
+                        {/* Row 3: Hospital */}
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Building2 className="w-4 h-4" />
                           <span>{joining.hospital}</span>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        {/* Row 4: Dates & Times */}
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-1">
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{format(joining.date, "dd MMM yyyy")}</span>
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{format(parseISO(joining.joiningTime), "dd MMM yyyy")}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>Scheduled: {format(parseISO(joining.scheduledTime), "dd MMM yyyy, hh:mm ")}</span>
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>Scheduled: {format(parseISO(joining.scheduledTime), "hh:mm a")}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>Joined: {format(parseISO(joining.joiningTime), "dd MMM yyyy, hh:mm ")}</span>
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>Joined: {format(parseISO(joining.joiningTime), "hh:mm a")}</span>
                           </div>
                         </div>
 
+                        {/* Row 5: Notes */}
                         {joining.notes && (
-                          <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <FileText className="w-4 h-4 mt-0.5" />
-                            <span>{joining.notes}</span>
+                          <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 p-2 rounded">
+                            <FileText className="w-4 h-4 mt-0.5 shrink-0" />
+                            <span className="italic">{joining.notes}</span>
                           </div>
                         )}
                       </div>

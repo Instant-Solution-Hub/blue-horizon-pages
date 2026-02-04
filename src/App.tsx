@@ -14,11 +14,11 @@ import CompetitiveBrands from "./pages/CompetitiveBrands";
 import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
-import StockLiquidation from "./pages/StockLiquidation";
+import { StockLiquidation } from "./pages/StockLiquidation";
 
 
 
-import SalesProgress from "./pages/SalesProgress";
+import { SalesProgress } from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerTeamManagement from "./pages/ManagerTeamManagement";
@@ -30,6 +30,8 @@ import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import ManagerStockUpdate from "./pages/ManagerStockUpdate";
 import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
+import AdminCompetetiveBrands from "./pages/AdminCompetetiveBrands";
+import AdminManagerJoining from "./pages/AdminManagerJoining";
 
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => (
      {/* Admin Dashboard Routes */}
               <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
               <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
+              <Route path="/admin-dashboard/competitive-brands" element={<AdminCompetetiveBrands />} />
+              <Route path="/admin-dashboard/manager-joining" element={<AdminManagerJoining />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

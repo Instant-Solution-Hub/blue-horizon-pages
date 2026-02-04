@@ -71,3 +71,11 @@ export const fetchCurrentMonthManagerJoinings = async (
 
   return res.data;
 };
+
+export const fetchAllCurrentMonthManagerJoinings = async (): Promise<ManagerJoiningRecord[]> => {
+  const res = await API.get(
+    `/manager-joinings/current-month`
+  );
+ console.log(res);
+  return res.data;
+};

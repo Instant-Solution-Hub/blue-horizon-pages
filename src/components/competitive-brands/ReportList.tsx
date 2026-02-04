@@ -122,14 +122,16 @@ const ReportList = ({ reports, onEdit }: ReportListProps) => {
             )}
 
             {/* EDIT */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(report)}
-              className="absolute top-3 right-3 text-slate-400 hover:text-slate-700"
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
+           {onEdit && (
+  <Button
+    variant="ghost"
+    size="icon"
+    onClick={() => onEdit(report)}
+    className="absolute top-3 right-3 text-slate-400 hover:text-slate-700"
+  >
+    <Edit className="w-4 h-4" />
+  </Button>
+)}
           </CardContent>
         </Card>
       ))}

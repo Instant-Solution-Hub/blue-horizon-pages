@@ -57,13 +57,13 @@ const Doctors = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="h-screen bg-muted/30 flex overflow-hidden">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">

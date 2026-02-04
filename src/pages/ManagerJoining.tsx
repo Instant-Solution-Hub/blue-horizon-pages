@@ -114,9 +114,10 @@ const ManagerJoining = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
-      <main className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-6">
           <div>
             <h1 className="text-2xl font-bold">Manager Joining</h1>
@@ -151,7 +152,10 @@ const ManagerJoining = () => {
       <RecordJoiningModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleRecordJoining} feId={feId}      />
+        onSubmit={handleRecordJoining}
+        feId={feId}
+      />
+      </div>
     </div>
   );
 };

@@ -56,3 +56,12 @@ export const fetchCompetitiveReportsByFE = async (feId: number) => {
   // assuming ApiResponseDto structure
   return res.data.data;
 };
+
+export const fetchCompetitiveReports = async () => {
+  const res = await API.get(
+    `/competitive-reports`
+  );
+   console.log(res);
+  // assuming ApiResponseDto structure
+  return res.data.data;
+};
