@@ -17,11 +17,41 @@ export interface Promotion {
   active: boolean;
 }
 
+export interface PromotionRequestDto {
+  name: string;
+  description?: string;
+  type: "NEW_PRODUCT" | "CAMPAIGN" | "OFFER";
+  startDate: string;
+  endDate: string;
+  status: "UPCOMING" | "ACTIVE" | "COMPLETED";
+  product: string;
+  benefits: string[];
+  targetAudience: string[];
+}
+
 export const getAllPromotions = async (): Promise<Promotion[]> => {
   const res = await API.get("/promotions");
+  console.log(res);
   return res.data.data; // ApiResponseDto unwrap
 };
 
+export const addPromotion = async (payload: PromotionRequestDto): Promise<Promotion> => {
+  const res = await API.post("/promotions", payload);
+  console.log(res);
+  return res.data.data; // ApiResponseDto unwrap
+};
+
+export const updatePromotion = async (id: number, payload: PromotionRequestDto): Promise<Promotion> => {
+  const res = await API.put(`/promotions/${id}`, payload);
+  console.log(res);
+  return res.data.data; // ApiResponseDto unwrap
+};
+
+export const deletePromotion = async (id: number): Promise<Promotion> => {
+  const res = await API.delete(`/promotions/${id}`);
+  console.log(res);
+  return res.data.data; // ApiResponseDto unwrap
+};
 
 import { PromotionApi } from "@/components/promotions/PromotionList";
 
