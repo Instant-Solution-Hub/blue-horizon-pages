@@ -13,6 +13,7 @@ import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import ManagerStockUpdate from "./pages/ManagerStockUpdate";
 import AdminProfile from "./pages/AdminProfile";
+import AdminPromotions from "./pages/AdminPromotions";
 import Doctors from "./pages/Doctors";
 import SlotPlanning from "./pages/SlotPlanning";
 import TrackVisits from "./pages/TrackVisits";
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
           {/* Admin Dashboard Routes */}
           <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
+          <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
