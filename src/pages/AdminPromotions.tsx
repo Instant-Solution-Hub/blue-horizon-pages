@@ -93,11 +93,18 @@ const AdminPromotions = () => {
   const activeCount = promotions.filter((p) => p.status === "Active").length;
   const upcomingCount = promotions.filter((p) => p.status === "Upcoming").length;
 
+  const calculateStatus = (startDate: Date, endDate: Date): "Active" | "Upcoming" | "Expired" => {
+    const now = new Date();
+    if (endDate < now) return "Expired";
+    if (startDate > now) return "Upcoming";
+    return "Active";
+  };
+
   const handleAddPromotion = (formData: PromotionFormData) => {
     const newPromotion: Promotion = {
       id: Date.now().toString(),
       type: formData.type,
-      status: formData.active ? "Active" : "Upcoming",
+      status: calculateStatus(formData.startDate, formData.endDate),
       name: formData.name,
       description: formData.description,
       productName: formData.product,
@@ -125,7 +132,7 @@ const AdminPromotions = () => {
           ? {
               ...p,
               type: formData.type,
-              status: formData.active ? "Active" : "Upcoming",
+              status: calculateStatus(formData.startDate, formData.endDate),
               name: formData.name,
               description: formData.description,
               productName: formData.product,
@@ -150,13 +157,7 @@ const AdminPromotions = () => {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-6 overflow-auto">
           {/* Page Heading */}
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl font-display font-semibold text-foreground">Promotions</h1>
-            <Button onClick={() => setAddModalOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Promotion
-            </Button>
-          </div>
+          <h1 className="text-2xl font-display font-semibold text-foreground mb-2">Promotions</h1>
           {/* Subheading */}
           <p className="text-sm text-muted-foreground mb-6">
             Manage company promotions, new product launches, and special offers for field executives.
@@ -174,6 +175,14 @@ const AdminPromotions = () => {
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
           />
+
+          {/* Add Button */}
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => setAddModalOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Promotion
+            </Button>
+          </div>
 
           {/* Promotion List */}
           <AdminPromotionList

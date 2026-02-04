@@ -22,7 +22,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -40,7 +39,6 @@ export interface PromotionFormData {
   type: "New Product" | "Offer" | "Campaign";
   startDate: Date;
   endDate: Date;
-  active: boolean;
   product: string;
   benefits: string[];
   targetAudience: string[];
@@ -77,7 +75,6 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
     type: "New Product",
     startDate: new Date(),
     endDate: new Date(),
-    active: true,
     product: "",
     benefits: [],
     targetAudience: [],
@@ -100,7 +97,6 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
       type: "New Product",
       startDate: new Date(),
       endDate: new Date(),
-      active: true,
       product: "",
       benefits: [],
       targetAudience: [],
@@ -270,16 +266,6 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
-
-          {/* Active Switch */}
-          <div className="flex items-center justify-between">
-            <Label htmlFor="active">Active</Label>
-            <Switch
-              id="active"
-              checked={formData.active}
-              onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
-            />
           </div>
 
           {/* Benefits */}
