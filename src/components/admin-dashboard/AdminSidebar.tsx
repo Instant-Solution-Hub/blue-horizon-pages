@@ -13,6 +13,7 @@ import {
   Package,
   UserPlus,
   Megaphone,
+   ShoppingBag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const AdminSidebar = () => {
     { icon: Home, label: "Home", path: "/admin-dashboard" },
     { icon: Users, label: "Managers", path: "/admin-dashboard/managers" },
     { icon: Users, label: "Field Executives", path: "/admin-dashboard/field-executives" },
+    { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
     { icon: Target, label: "Target Plan", path: "/admin-dashboard/target-plan" },
     { icon: FileText, label: "Leave Requests", path: "/admin-dashboard/leave-requests" },
     { icon: UserPlus, label: "Manager Joining", path: "/admin-dashboard/manager-joining" },
