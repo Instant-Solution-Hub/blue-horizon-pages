@@ -67,9 +67,9 @@ const VisitCompliance = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-background">
+      <div className="h-screen bg-background flex overflow-hidden">
         <Sidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 p-4 md:p-6 flex items-center justify-center">
             <div className="text-center">Loading visit compliance data...</div>
@@ -81,11 +81,11 @@ const VisitCompliance = () => {
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-background">
+      <div className="h-screen bg-background flex overflow-hidden">
         <Sidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 p-4 md:p-6">
+          <main className="flex-1 p-4 md:p-6 overflow-y-auto">
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
@@ -99,11 +99,11 @@ const VisitCompliance = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 p-4 md:p-6 space-y-6">
+        <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
           {/* Page Title */}
           <div>
             <h1 className="text-2xl font-bold">Visit Compliance</h1>

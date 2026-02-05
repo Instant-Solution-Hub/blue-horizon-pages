@@ -3,11 +3,11 @@ import LeaveRequestsTab from "@/components/leave-requests/LeaveRequests";
 
 const ManagerLeaveRequests = () => {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex overflow-hidden">
       <ManagerSidebar />
 
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 p-6 overflow-y-auto">
           {/* Page Heading */}
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-display font-semibold text-foreground">

@@ -82,13 +82,13 @@ const ManagerDashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="h-screen bg-muted/30 flex overflow-hidden">
       <ManagerSidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <ManagerHeader />
         
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           {/* Stats Section */}
           <section className="mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

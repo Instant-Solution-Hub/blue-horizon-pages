@@ -45,7 +45,7 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const userRole = sessionStorage.getItem("userRole").toLowerCase();
+  const userRole = sessionStorage.getItem("userRole")?.toLowerCase() || "user";
 
   useEffect(() => {
     // If user is a manager, add manager-specific nav items

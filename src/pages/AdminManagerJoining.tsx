@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerJoiningView, { ManagerJoiningRecord } from "@/components/manager-joining/ManagerJoiningView";
 import ManagerJoiningStats from "@/components/manager-joining/ManagerJoiningStats";
 import { format } from "date-fns";
-import { fetchCurrentMonthManagerJoinings } from "@/services/ManagerJoiningService";
+import { fetchAllCurrentMonthManagerJoinings } from "@/services/ManagerJoiningService";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 
-const ManagerJoiningViewPage = () => {
+const AdminManagerJoining = () => {
   // Mock data - joinings from all FEs under this manager
   const [joinings , setJoinings] = useState<ManagerJoiningRecord[]>([]);
 
   // Calculate stats
   const uniqueFEs = new Set(joinings.map(j => j.feId)).size;
-  const managerId = Number(localStorage.getItem("managerId")) || 1;
   const [loading , setLoading] = useState(true);
   const stats = {
     totalJoinings: joinings.length,
@@ -27,7 +26,7 @@ const ManagerJoiningViewPage = () => {
   useEffect(() => {
     const loadJoinings = async () => {
       try {
-        const data = await fetchCurrentMonthManagerJoinings(managerId);
+        const data = await fetchAllCurrentMonthManagerJoinings();
         setJoinings(data);
       } catch (err) {
         toast.error("Failed to load manager joinings");
@@ -37,11 +36,11 @@ const ManagerJoiningViewPage = () => {
     };
 
     loadJoinings();
-  }, [managerId]);
+  }, []);
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
-      <ManagerSidebar />
+      <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-6">
@@ -73,4 +72,4 @@ const ManagerJoiningViewPage = () => {
   );
 };
 
-export default ManagerJoiningViewPage;
+export default AdminManagerJoining;

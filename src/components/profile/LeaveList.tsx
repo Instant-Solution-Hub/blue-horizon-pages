@@ -56,53 +56,79 @@ const LeaveList = ({ leaves }: LeaveListProps) => {
 
   return (
     <div className="space-y-3">
-      {leaves.map((leave) => (
-        <Card key={leave.id} className="border-border/50 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h4 className="font-semibold text-foreground">
-                    {getLeaveTypeLabel(leave.leaveType)}
-                  </h4>
-                  <Badge
-                    variant="outline"
-                    className={getStatusColor(leave.status)}
-                  >
-                    {leave.status}
-                  </Badge>
+      {leaves.map((leave) => {
+        // Safely format dates
+        const safeFormatDate = (date: Date): string => {
+          try {
+            if (!(date instanceof Date) || isNaN(date.getTime())) {
+              return "Invalid date";
+            }
+            return format(date, "dd MMM yyyy");
+          } catch (err) {
+            console.error("Date format error:", err);
+            return "Invalid date";
+          }
+        };
+
+        return (
+          <Card key={leave.id} className="border-border/50 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h4 className="font-semibold text-foreground">
+                      {getLeaveTypeLabel(leave.leaveType)}
+                    </h4>
+                    <Badge
+                      variant="outline"
+                      className={getStatusColor(leave.status)}
+                    >
+                      {leave.status}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">From: </span>
+                      <span className="font-medium">
+                        {safeFormatDate(leave.fromDate)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">To: </span>
+                      <span className="font-medium">
+                        {safeFormatDate(leave.toDate)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Duration: </span>
+                      <span className="font-medium text-primary">
+                        {(() => {
+                          try {
+                            if ((leave.fromDate instanceof Date && !isNaN(leave.fromDate.getTime())) &&
+                                (leave.toDate instanceof Date && !isNaN(leave.toDate.getTime()))) {
+                              return calculateDays(leave.fromDate, leave.toDate);
+                            }
+                            return 0;
+                          } catch (err) {
+                            console.error("Days calculation error:", err);
+                            return 0;
+                          }
+                        })()} day(s)
+                      </span>
+                    </div>
+                  </div>
+                  {leave.reason && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <span className="font-medium">Reason: </span>
+                      {leave.reason}
+                    </p>
+                  )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">From: </span>
-                    <span className="font-medium">
-                      {format(leave.fromDate, "dd MMM yyyy")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">To: </span>
-                    <span className="font-medium">
-                      {format(leave.toDate, "dd MMM yyyy")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Duration: </span>
-                    <span className="font-medium text-primary">
-                      {calculateDays(new Date(leave.fromDate), new Date(leave.toDate))} day(s)
-                    </span>
-                  </div>
-                </div>
-                {leave.reason && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    <span className="font-medium">Reason: </span>
-                    {leave.reason}
-                  </p>
-                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };

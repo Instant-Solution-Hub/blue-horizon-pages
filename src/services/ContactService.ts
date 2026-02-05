@@ -19,6 +19,12 @@ export interface ManagerContactUpdateRequest {
   emergencyContact: string;
 }
 
+export interface AdminContactUpdateRequest {
+  phone: string;
+  email: string;
+  emergencyContact: string;
+}
+
 export interface FEContactResponse {
   feId: number;
   phone: string;
@@ -29,6 +35,14 @@ export interface FEContactResponse {
 
 export interface ManagerContactResponse {
   managerId: number;
+  phone: string;
+  email: string;
+  emergencyContact: string;
+  name:string;
+}
+
+export interface AdminContactResponse {
+  adminId: number;
   phone: string;
   email: string;
   emergencyContact: string;
@@ -85,6 +99,19 @@ export const updateManagerContactDetails = async (
   return res.data.data;
 };
 
+export const updateAdminContactDetails = async (
+  adminId: number,
+  payload: AdminContactUpdateRequest
+): Promise<AdminContactResponse> => {
+  const res = await API.put(
+    `/admin/${adminId}/contact/basic`,
+    payload
+  );
+
+  return res.data.data;
+};
+
+
 
 
 export const fetchAdminContact = async () => {
@@ -108,5 +135,23 @@ export const fetchFEContactsUnderManager = async (managerId: number) => {
   console.log(res);
   return res.data.data;
 };
+
+export const fetchFEContacts = async () => {
+  const res = await API.get(
+    `/field-executives/contact`
+  );
+  console.log(res);
+  return res.data.data;
+};
+
+export const fetchManagerContacts = async () => {
+  const res = await API.get(
+    `/managers/contact`
+  );
+  console.log(res);
+  return res.data.data;
+};
+
+
 
 

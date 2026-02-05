@@ -14,11 +14,11 @@ import CompetitiveBrands from "./pages/CompetitiveBrands";
 import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
-import StockLiquidation from "./pages/StockLiquidation";
+import { StockLiquidation } from "./pages/StockLiquidation";
 
 
 
-import SalesProgress from "./pages/SalesProgress";
+import { SalesProgress } from "./pages/SalesProgress";
 import VisitCompliance from "./pages/VisitCompliance";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerTeamManagement from "./pages/ManagerTeamManagement";
@@ -28,6 +28,11 @@ import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import TrackVisitsManager from "./pages/TrackVisitsManager";
+import ManagerStockUpdate from "./pages/ManagerStockUpdate";
+import AdminProfile from "./pages/AdminProfile";
+import AdminPromotions from "./pages/AdminPromotions";
+import AdminCompetetiveBrands from "./pages/AdminCompetetiveBrands";
+import AdminManagerJoining from "./pages/AdminManagerJoining";
 
 
 const queryClient = new QueryClient();
@@ -64,6 +69,12 @@ const App = () => (
             <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
+              <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+     {/* Admin Dashboard Routes */}
+              <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
+              <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
+              <Route path="/admin-dashboard/competitive-brands" element={<AdminCompetetiveBrands />} />
+              <Route path="/admin-dashboard/manager-joining" element={<AdminManagerJoining />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

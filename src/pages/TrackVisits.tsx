@@ -217,11 +217,11 @@ export default function TrackVisits() {
 
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-5xl mx-auto space-y-6">
             <div>
               <h1 className="text-2xl font-bold">Track Visits</h1>

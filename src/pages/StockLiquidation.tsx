@@ -24,7 +24,7 @@ interface FEProductStockDto {
 }
 
 
-const StockLiquidation = () => {
+export const StockLiquidation = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [plans, setPlans] = useState<LiquidationPlan[]>([]);
@@ -249,9 +249,10 @@ useEffect(() => {
   
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
-      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -313,6 +314,7 @@ useEffect(() => {
           editData={editingPlan}
           stockData={stockData} feId={feId} plans={plans}        />
       </main>
+      </div>
     </div>
   );
 };
