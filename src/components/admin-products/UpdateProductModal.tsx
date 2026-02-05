@@ -60,6 +60,9 @@
  
    const handleSubmit = (e: React.FormEvent) => {
      e.preventDefault();
+    if (!formData.category) {
+      return;
+    }
      onUpdate(formData);
      onOpenChange(false);
    };
@@ -91,9 +94,8 @@
                onValueChange={(value) =>
                  setFormData({ ...formData, category: value })
                }
-               required
              >
-               <SelectTrigger>
+                <SelectTrigger className={!formData.category ? "border-destructive" : ""}>
                  <SelectValue placeholder="Select category" />
                </SelectTrigger>
                <SelectContent>
@@ -107,7 +109,7 @@
            </div>
  
            <div className="space-y-2">
-             <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description (Optional)</Label>
              <Textarea
                id="description"
                value={formData.description}
