@@ -54,7 +54,8 @@ const Sidebar = () => {
         { icon: Home, label: "Home", href: "/manager-dashboard" },
         { icon: Users, label: "Team Management", href: "/manager-dashboard/team" },
         { icon: Calendar, label: "Slot Planning", href: "/manager-dashboard/slot-planning" },
-        { icon: MapPin, label: "Track Visits", href: "/manager-dashboard/track-visits" }
+        { icon: MapPin, label: "Track Visits", href: "/manager-dashboard/track-visits" },
+        { icon: ClipboardCheck, label: "Visit Compliance", href: "/manager-dashboard/visit-compliance" },
         
       ]);
     } else {

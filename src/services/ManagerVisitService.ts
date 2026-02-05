@@ -172,3 +172,24 @@ export const createUnscheduledVisit = async (visitData: any) => {
   });
     return response.data;
 }
+
+
+// services/VisitService.ts
+export interface ManagerComplianceParams {
+  week?: string;
+  doctorName?: string;
+  fieldExecutiveId?: number;
+}
+
+export const fetchManagerVisitComplianceData = async (
+  managerId: number,
+  week: string = "all",
+): Promise<any> => {
+ const response = await API.get(`/manager-visits/get-manager-compliance-record?managerId=${managerId}&week=${week}`, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+};

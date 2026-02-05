@@ -33,6 +33,7 @@ import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminCompetetiveBrands from "./pages/AdminCompetetiveBrands";
 import AdminManagerJoining from "./pages/AdminManagerJoining";
+import ManagerVisitCompliance from "./pages/ManagerVisitCompliance";
 
 
 const queryClient = new QueryClient();
@@ -69,7 +70,9 @@ const App = () => (
             <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
-              <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+            <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+            <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
+
      {/* Admin Dashboard Routes */}
               <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
               <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
