@@ -32,6 +32,7 @@ import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminCompetetiveBrands from "./pages/AdminCompetetiveBrands";
 import AdminManagerJoining from "./pages/AdminManagerJoining";
+import AdminProducts from "./pages/AdminProducts";
 
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
               <Route path="/admin-dashboard/competitive-brands" element={<AdminCompetetiveBrands />} />
               <Route path="/admin-dashboard/manager-joining" element={<AdminManagerJoining />} />
+               <Route path="/admin-dashboard/products" element={<AdminProducts />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
