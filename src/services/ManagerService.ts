@@ -237,3 +237,13 @@ export const fetchManagerTeamPerformance = async (managerId: number) => {
   });
     return response.data;
 }
+
+export const fetchManagerTeamMembers = async (managerId: number) => {
+  const response = await  API.get(`/managers/members?managerId=${managerId}`, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
