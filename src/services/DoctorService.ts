@@ -15,9 +15,11 @@ export const fetchDoctorsByFE = async (feId: number): Promise<Doctor[]> => {
   const res = await API.get(
     `/field-executives/${feId}/doctors`
   );
+  console.log(res);
 
   return res.data.data; // ApiResponseDto → data
 };
+
 
 export const fetchAllDoctors = async (): Promise<Doctor[]> => {
   const res = await API.get(
