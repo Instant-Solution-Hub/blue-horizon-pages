@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import type { FieldExecutive } from "./FieldExecutiveTable";
+import type { FieldExecutive } from "./FieldExecutiveList";
 import type { Manager } from "./ManagerList";
 
 interface AddFieldExecutiveModalProps {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ManagerList, { type Manager } from "@/components/admin-user-management/ManagerList";
 import AddManagerModal from "@/components/admin-user-management/AddManagerModal";
 import UpdateManagerModal from "@/components/admin-user-management/UpdateManagerModal";
-import FieldExecutiveTable, { type FieldExecutive } from "@/components/admin-user-management/FieldExecutiveTable";
+import FieldExecutiveList, { type FieldExecutive } from "@/components/admin-user-management/FieldExecutiveList";
 import AddFieldExecutiveModal from "@/components/admin-user-management/AddFieldExecutiveModal";
 import UpdateFieldExecutiveModal from "@/components/admin-user-management/UpdateFieldExecutiveModal";
 
@@ -138,7 +138,7 @@ const AdminUserManagement = () => {
                 Add Field Executive
               </Button>
             </div>
-            <FieldExecutiveTable fieldExecutives={fieldExecutives} onEdit={handleEditFE} />
+            <FieldExecutiveList fieldExecutives={fieldExecutives} onEdit={handleEditFE} />
           </section>
         </div>
       </main>
