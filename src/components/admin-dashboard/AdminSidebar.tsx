@@ -15,6 +15,7 @@ import {
   Megaphone,
   ShoppingBag,
   HeartHandshake,
+  UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,8 +25,7 @@ const AdminSidebar = () => {
 
   const menuItems = [
     { icon: Home, label: "Home", path: "/admin-dashboard" },
-    { icon: Users, label: "Managers", path: "/admin-dashboard/managers" },
-    { icon: Users, label: "Field Executives", path: "/admin-dashboard/field-executives" },
+    { icon: UsersRound, label: "User Management", path: "/admin-dashboard/user-management" },
     { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
     { icon: Target, label: "Target Plan", path: "/admin-dashboard/target-plan" },
     { icon: FileText, label: "Leave Requests", path: "/admin-dashboard/leave-requests" },
