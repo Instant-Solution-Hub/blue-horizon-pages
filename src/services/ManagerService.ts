@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Manager } from "@/components/admin-user-management/ManagerList";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -6,6 +7,36 @@ const API = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+export interface UpdateManagerReq {
+  name: string;
+  employeeCode: string;
+  phone: string;
+  department: string;
+  designation: string;
+}
+
+
+export const fetchManagerInfos = async () : Promise<Manager[]> => {
+  const res = await API.get(`/managers/info`);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
+export const updateManager = async (id:number,managerData: UpdateManagerReq) : Promise<Manager> => {
+  console.log(managerData);
+  const res = await API.put(`/managers/${id}`, managerData);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
+export const addManager = async (managerData: any) : Promise<Manager> => {
+  console.log(managerData);
+  const res = await API.post(`/managers`, managerData);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
 
 // plan visit
 export const planVisit = async (visitData: any) => {
