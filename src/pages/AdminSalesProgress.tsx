@@ -58,14 +58,14 @@ const AdminSalesProgress = () => {
       <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
           {/* Page Title */}
-          <div className="animate-fade-in">
+          <div className="animate-fade-in bg-primary rounded-xl p-6 shadow-md">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 bg-primary/10 rounded-xl">
-                <TrendingUp className="h-6 w-6 text-primary" />
+              <div className="p-2.5 bg-white/20 rounded-xl">
+                <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Sales Progress</h1>
+              <h1 className="text-2xl font-bold text-white">Sales Progress</h1>
             </div>
-            <p className="text-muted-foreground ml-14">
+            <p className="text-white/80 ml-14">
               View territory-wise target and sales overview across all regions
             </p>
           </div>
