@@ -28,6 +28,7 @@ import Profile from "./pages/Profile";
 import StockLiquidation from "./pages/StockLiquidation";
 import VisitCompliance from "./pages/VisitCompliance";
 import SalesProgress from "./pages/SalesProgress";
+import AdminSalesProgress from "./pages/AdminSalesProgress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/admin-dashboard/products" element={<AdminProducts />} />
           <Route path="/admin-dashboard/doctor-conversions" element={<AdminDoctorConversions />} />
           <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
+          <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
