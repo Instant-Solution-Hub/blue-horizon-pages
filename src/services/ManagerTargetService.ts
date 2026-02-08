@@ -7,6 +7,8 @@ const API = axios.create({
   },
 });
 
+
+
 export const getFEMonthlyTargets = async (
   managerId: number,
   month: number,
@@ -64,4 +66,20 @@ export const updateTerritoryTarget = async (
   console.log(res);
   return res.data.data;
 };
+
+export const getTerritoryOverview = async (
+  month: number,
+  year: number
+) => {
+  const res = await API.get(
+    `/managers/territories/overview`,
+    {
+      params: { month, year },
+    }
+  );
+
+  console.log(res);
+  return res.data.data;
+};
+
 

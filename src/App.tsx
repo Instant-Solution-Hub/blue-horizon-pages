@@ -37,6 +37,7 @@ import ManagerVisitCompliance from "./pages/ManagerVisitCompliance";
 import AdminProducts from "./pages/AdminProducts";
 import AdminDoctorConversions from "./pages/AdminDoctorConversions";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminSalesProgress from "./pages/AdminSalesprogress";
 
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const App = () => (
               <Route path="/admin-dashboard/manager-joining" element={<AdminManagerJoining />} />
                <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
                <Route path="/admin-dashboard/products" element={<AdminProducts />} />
+               <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>
