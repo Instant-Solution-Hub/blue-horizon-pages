@@ -23,7 +23,7 @@ const Login = () => {
       const response = await login(email, password);
       console.log("Login Response: ", response);
       setIsLoading(false);
-      if(response.success){
+      if (response.success) {
         sessionStorage.setItem("userID", response.data.id);
         sessionStorage.setItem("feID", response.data.id);
         sessionStorage.setItem("userName", response.data.name);
@@ -33,9 +33,18 @@ const Login = () => {
           title: "Login Successful",
           description: ``,
         });
+        console.log("User Type: ", response.data.userType);
+        if (response.data.userType.toLowerCase() === "manager") {
+          navigate("/manager-dashboard");
+          return;
+        }
+        if (response.data.userType.toLowerCase() === "admin") {
+          navigate("/admin-dashboard/profile");
+          return;
+        }
         navigate("/dashboard");
       }
-      
+
     } catch (error) {
       setIsLoading(false);
       console.error("Login failed:", error);
@@ -52,11 +61,11 @@ const Login = () => {
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
-        
+
         {/* Decorative circles */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary-foreground/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl" />
-        
+
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
           <div className="flex items-center gap-3 mb-8 animate-fade-in">
             <div className="w-16 h-16 bg-primary-foreground rounded-2xl flex items-center justify-center">
@@ -67,13 +76,13 @@ const Login = () => {
               <p className="text-primary-foreground/80 text-sm">Field Force Management</p>
             </div>
           </div>
-          
+
           <div className="max-w-md text-center space-y-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <h2 className="text-2xl font-semibold">
               Streamline Your Field Operations
             </h2>
             <p className="text-primary-foreground/70 leading-relaxed">
-              Manage doctor visits, track pharmacy interactions, plan slots efficiently, 
+              Manage doctor visits, track pharmacy interactions, plan slots efficiently,
               and monitor your team's performance - all in one powerful platform.
             </p>
           </div>

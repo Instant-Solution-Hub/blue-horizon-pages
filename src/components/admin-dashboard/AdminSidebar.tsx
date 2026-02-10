@@ -16,6 +16,7 @@ import {
   ShoppingBag,
   HeartHandshake,
   UsersRound,
+  CalendarRange,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const AdminSidebar = () => {
 
   const menuItems = [
     { icon: Home, label: "Home", path: "/admin-dashboard" },
+    { icon: CalendarRange, label: "Slots", path: "/admin-dashboard/slots" },
     { icon: UsersRound, label: "User Management", path: "/admin-dashboard/user-management" },
     { icon: Users, label: "Managers", path: "/admin-dashboard/managers" },
     { icon: Users, label: "Field Executives", path: "/admin-dashboard/field-executives" },

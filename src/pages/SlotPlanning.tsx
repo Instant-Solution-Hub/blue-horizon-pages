@@ -17,6 +17,7 @@ import { set } from "date-fns";
 import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCard";
 import { PharmacistSlotTable } from "@/components/slot-planning/PharmicistSlotTable";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { slotChangeRequest } from "@/services/SlotRequestService";
 
 /* ---------------- MOCK DATA ---------------- */
 
@@ -74,6 +75,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SlotPlanning() {
   const { toast } = useToast();
+  const { currentWeek, currentDay } = getCurrentWeekAndDay();
 
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [selectedDay, setSelectedDay] = useState(1);
@@ -109,8 +111,8 @@ export default function SlotPlanning() {
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  // const isFirstOfMonth = today.getDate() === 1;
-  const isFirstOfMonth = true;
+  const isFirstOfMonth = today.getDate() === 1;
+  // const isFirstOfMonth = true;
 
   const currentMonthName = today.toLocaleString("default", {
     month: "long",
@@ -187,16 +189,58 @@ export default function SlotPlanning() {
   /**
    * 🔥 UPDATED: single visit instead of array
    */
-  const handleRequestUpdate = (data: {
+  const handleRequestUpdate = async (data: {
     visitType: string;
     visitId: number;
+    selectedWeek: number;
+    selectedDay: number;
     notes: string;
   }) => {
-    toast({
-      title: "Request Sent",
-      description: `Your slot update request for the selected ${data.visitType} visit has been sent to your manager for approval.`,
-    });
+    console.log("Requesting update with data: ", data);
+    let obj = {
+      "visitId": data.visitId,
+      "userId": parseInt(sessionStorage.getItem("feID") || "0"),
+      "managerVisitId": 0,
+      "requestedWeekNumber": data.selectedWeek,
+      "requestedDayOfWeek": data.selectedDay,
+      "reason": data.notes,
+      "userType": "field_executive"
+    }
+    try {
+      const response = await slotChangeRequest(obj);
+      toast({
+        title: "Request Sent",
+        description: `Your slot update request for the selected ${data.visitType} visit has been sent to your admin for approval.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Request Failed",
+        description: `Your slot update request for the selected ${data.visitType} visit could not be sent.`,
+      });
+    }
+
   };
+
+  function getCurrentWeekAndDay() {
+    const today = new Date();
+
+    // Day of week: Mon = 1, Sun = 7
+    const jsDay = today.getDay(); // 0 = Sun
+    const currentDay = jsDay === 0 ? 7 : jsDay;
+
+    // Week of month (1–4/5)
+    const firstDayOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    ).getDay();
+
+    const offset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+    const currentWeek = Math.ceil((today.getDate() + offset) / 7);
+
+    return { currentWeek, currentDay };
+  }
+
 
   /* ---------------- FILTERS ---------------- */
 
@@ -241,6 +285,9 @@ export default function SlotPlanning() {
                 <WeekDaySelector
                   selectedWeek={selectedWeek}
                   selectedDay={selectedDay}
+                  currentWeek={currentWeek}
+                  currentDay={currentDay}
+                  isPastDisabled={false}
                   onWeekChange={setSelectedWeek}
                   onDayChange={setSelectedDay}
                 />
@@ -335,13 +382,13 @@ export default function SlotPlanning() {
         open={isRequestModalOpen}
         onOpenChange={setIsRequestModalOpen}
         doctorVisits={doctorSlots.map((s) => ({
-          id: s.id,
-          name: s.name,
+          id: s.visitId,
+          name: s.doctorName,
           type: "doctor",
         }))}
         pharmacistVisits={pharmacistSlots.map((s) => ({
-          id: s.id,
-          name: s.name,
+          id: s.visitId,
+          name: s.pharmacyName,
           type: "pharmacist",
         }))}
         onSubmit={handleRequestUpdate}

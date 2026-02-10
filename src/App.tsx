@@ -38,6 +38,7 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminDoctorConversions from "./pages/AdminDoctorConversions";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminSalesProgress from "./pages/AdminSalesprogress";
+import AdminSlots from "./pages/AdminSlots";
 
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
                <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
                <Route path="/admin-dashboard/products" element={<AdminProducts />} />
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
+               <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>
