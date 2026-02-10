@@ -15,6 +15,19 @@ export interface LeaveRequest {
     feName: string;
   };
 
+  export interface ManagerLeaveRequest {
+  id: number;
+  leaveType: string;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  appliedDate:string;
+    managerCode: string;
+    managerName: string;
+
+  };
+
 
 export interface ManagerLeave {
   id: string;
@@ -74,6 +87,14 @@ export const fetchTeamLeaveRequests = async (managerId: number) => {
   return res.data.data as LeaveRequest[];
 };
 
+export const fetchManagerLeaveRequests = async () => {
+  const res = await API.get(
+    `/managers/manager-leaves`
+  );
+  console.log(res);
+  return res.data.data as ManagerLeaveRequest[];
+};
+
 export const approveLeaveRequest = async (
   leaveId: number
 ): Promise<LeaveRequest> => {
@@ -89,6 +110,25 @@ export const rejectLeaveRequest = async (
 ): Promise<LeaveRequest> => {
   const res = await API.put(
     `/leaves/${leaveId}/reject-leave`
+  );
+  return res.data.data;
+};
+
+export const approveManagerLeaveRequest = async (
+  leaveId: number
+): Promise<ManagerLeaveRequest> => {
+  const res = await API.put(
+    `/leaves/${leaveId}/manager/approve-leave`
+  );
+  console.log(res);
+  return res.data.data;
+};
+
+export const rejectManagerLeaveRequest = async (
+  leaveId: number
+): Promise<ManagerLeaveRequest> => {
+  const res = await API.put(
+    `/leaves/${leaveId}/manager/reject-leave`
   );
   return res.data.data;
 };

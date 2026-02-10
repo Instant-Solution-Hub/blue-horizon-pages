@@ -39,6 +39,8 @@ import AdminDoctorConversions from "./pages/AdminDoctorConversions";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminSalesProgress from "./pages/AdminSalesprogress";
 import AdminSlots from "./pages/AdminSlots";
+import AdminLeaveRequests from "./pages/AdminLeaveRequests";
+
 
 
 const queryClient = new QueryClient();
@@ -86,6 +88,7 @@ const App = () => (
               <Route path="/admin-dashboard/manager-joining" element={<AdminManagerJoining />} />
                <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
                <Route path="/admin-dashboard/products" element={<AdminProducts />} />
+               <Route path="/admin-dashboard/leave-requests" element={<AdminLeaveRequests />} />
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                
