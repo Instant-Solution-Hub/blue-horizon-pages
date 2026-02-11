@@ -7,12 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Eye, EyeOff, Mail, Lock, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/services/AuthenticationService";
-
+import { checkPortalStatus } from "@/services/PortalService";
+import PortalLockedPage from "./PortalLockedPage";
+type InitState = "loading" | "locked" | "ready";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState<InitState>("loading");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -29,6 +32,8 @@ const Login = () => {
         sessionStorage.setItem("userName", response.data.name);
         sessionStorage.setItem("userEmail", response.data.email);
         sessionStorage.setItem("userRole", response.data.userType);
+        await checkPortalStatusBeforeNavigating();
+
         toast({
           title: "Login Successful",
           description: ``,
@@ -55,6 +60,26 @@ const Login = () => {
       });
     }
   };
+
+  const checkPortalStatusBeforeNavigating = async () => {
+    try {
+      const res = await checkPortalStatus();
+      if (res.isLocked) {
+        setState("locked");
+      } else {
+        setState("ready");
+      }
+    } catch (err) {
+      console.error("Portal status check failed", err);
+      // optional: allow app or show error page
+      setState("ready");
+    }
+  };
+
+  if (state === "locked") {
+    return <PortalLockedPage />;
+  }
+
 
   return (
     <div className="min-h-screen flex">

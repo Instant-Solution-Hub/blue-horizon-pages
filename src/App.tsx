@@ -40,6 +40,8 @@ import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminSalesProgress from "./pages/AdminSalesprogress";
 import AdminSlots from "./pages/AdminSlots";
 import AdminLeaveRequests from "./pages/AdminLeaveRequests";
+import AppInitializer from "./pages/AppInitializer";
+import AdminPortalRequests from "./pages/AdminPortalRequests";
 
 
 
@@ -51,6 +53,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+      <AppInitializer>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -91,9 +94,11 @@ const App = () => (
                <Route path="/admin-dashboard/leave-requests" element={<AdminLeaveRequests />} />
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
+               <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AppInitializer>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

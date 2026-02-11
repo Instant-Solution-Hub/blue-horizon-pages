@@ -17,6 +17,8 @@ import {
   HeartHandshake,
   UsersRound,
   CalendarRange,
+  BellDot,
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,7 @@ const AdminSidebar = () => {
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
      { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
+    { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
   ];
 
