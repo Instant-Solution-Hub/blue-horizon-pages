@@ -22,7 +22,7 @@ const SuperAdminSidebar = () => {
   return (
     <aside
       className={cn(
-        "h-screen bg-card border-r border-border flex flex-col transition-all duration-300",
+        "h-screen sticky top-0 bg-card border-r border-border flex flex-col transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
