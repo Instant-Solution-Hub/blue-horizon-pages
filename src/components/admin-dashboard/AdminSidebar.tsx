@@ -37,6 +37,7 @@ const AdminSidebar = () => {
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
+    { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
   ];
 

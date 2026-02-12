@@ -16,6 +16,7 @@ import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminProducts from "./pages/AdminProducts";
 import AdminDoctorConversions from "./pages/AdminDoctorConversions";
+import AdminMissedVisits from "./pages/AdminMissedVisits";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import Doctors from "./pages/Doctors";
 import SlotPlanning from "./pages/SlotPlanning";
@@ -71,7 +72,8 @@ const App = () => (
           <Route path="/admin-dashboard/products" element={<AdminProducts />} />
           <Route path="/admin-dashboard/doctor-conversions" element={<AdminDoctorConversions />} />
           <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
-          <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
+            <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
+            <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
           <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
           {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
