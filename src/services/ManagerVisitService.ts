@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Manager } from "@/components/admin-user-management/ManagerList";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -7,36 +6,6 @@ const API = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-export interface UpdateManagerReq {
-  name: string;
-  employeeCode: string;
-  phone: string;
-  department: string;
-  designation: string;
-}
-
-
-export const fetchManagerInfos = async () : Promise<Manager[]> => {
-  const res = await API.get(`/managers/info`);
-  console.log(res);
-  return res.data.data; // ApiResponseDto → data
-}
-
-export const updateManager = async (id:number,managerData: UpdateManagerReq) : Promise<Manager> => {
-  console.log(managerData);
-  const res = await API.put(`/managers/${id}`, managerData);
-  console.log(res);
-  return res.data.data; // ApiResponseDto → data
-}
-
-export const addManager = async (managerData: any) : Promise<Manager> => {
-  console.log(managerData);
-  const res = await API.post(`/managers`, managerData);
-  console.log(res);
-  return res.data.data; // ApiResponseDto → data
-}
-
 
 // plan visit
 export const planVisit = async (visitData: any) => {
@@ -71,8 +40,8 @@ export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekN
     return response.data;
 };
 
-export const fetchTodaysVisits = async (fieldExecutiveId: number) => {
-  const response = await API.get(`/visit/today-scheduled?fieldExecutiveId=${fieldExecutiveId}`, { 
+export const fetchTodaysVisits = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/today-scheduled?managerId=${managerId}`, { 
     headers: {
         "Content-Type": "application/json", 
         "Accept": "application/json",
@@ -82,7 +51,7 @@ export const fetchTodaysVisits = async (fieldExecutiveId: number) => {
 }
 
 export const markVisit = async (visitData: any) => {
-  const response = await API.post(`/visit/mark`, visitData, {
+  const response = await API.post(`/manager-visits/mark`, visitData, {
     headers: {    
         "Content-Type": "application/json", 
         "Accept": "application/json", 
@@ -92,7 +61,7 @@ export const markVisit = async (visitData: any) => {
 }
 
 export const reMarkVisit = async (visitData: any) => {
-  const response = await API.post(`/visit/re-mark`, visitData, {
+  const response = await API.post(`/manager-visits/re-mark`, visitData, {
     headers: {    
         "Content-Type": "application/json", 
         "Accept": "application/json", 
@@ -122,8 +91,8 @@ export const fetchAllStockists = async () => {
     return response.data;
 }
 
-export const fetchCompletedVisits = async (fieldExecutiveId: number) => {
-  const response = await API.get(`/visit/completed-visits?fieldExecutiveId=${fieldExecutiveId}`, { 
+export const fetchCompletedVisits = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/completed-visits?managerId=${managerId}`, { 
     headers: {
         "Content-Type": "application/json", 
         "Accept": "application/json", 
@@ -132,8 +101,8 @@ export const fetchCompletedVisits = async (fieldExecutiveId: number) => {
     return response.data;
 }
 
-export const fetchMissedVisits = async (fieldExecutiveId: number) => {
-  const response = await API.get(`/visit/missed-visits?fieldExecutiveId=${fieldExecutiveId}`, { 
+export const fetchMissedVisits = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/missed-visits?managerId=${managerId}`, { 
     headers: {
         "Content-Type": "application/json", 
         "Accept": "application/json", 
@@ -194,53 +163,8 @@ export const deleteVisitById = async (visitId: number) => {
     return response.data;
 }
 
-
-export const fetchVisits = async (managerId: number, week: number, day: number) => {
-  const response = await API.get(`/visit/manager/${managerId}/scheduled-visits?weekNumber=${week}&dayOfWeek=${day}`, { 
-    headers: {
-        "Content-Type": "application/json", 
-        "Accept": "application/json",
-    },
-  });
-    return response.data;
-}
-
-export const assignManagerToVisit = async (visitId: number, managerId: number, managerName: string) => {
-  const response = await API.post(`/visit/assign-manager/${visitId}`, {
-    managerId,
-    managerName
-  }, { 
-    headers: {
-        "Content-Type": "application/json", 
-        "Accept": "application/json",
-    },
-  });
-    return response.data;
-}
-
-export const fetchPriorityFieldExecutives = async (managerId: number, week: number, day: number) => {
-  const response = await API.get(`/field-executives/manager/${managerId}/a-priority-field-executives?weekNumber=${week}&dayOfWeek=${day}`, { 
-    headers: {
-        "Content-Type": "application/json", 
-        "Accept": "application/json",
-    },
-  });
-    return response.data;
-}
-
-
-export const assignManagerToFieldExecutive = async (obj:any ) => {
-  const response = await API.post(`/manager-visits/assign`, obj, { 
-    headers: {  
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-    },
-  });
-    return response.data;
-}
-
-export const fetchManagerDashboardStats = async (managerId: number) => {
-  const response = await API.get(`/managers/stats/${managerId}`, { 
+export const createUnscheduledVisit = async (visitData: any) => {
+  const response = await API.post(`/manager-visits/create-unscheduled`, visitData, {
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -249,31 +173,32 @@ export const fetchManagerDashboardStats = async (managerId: number) => {
     return response.data;
 }
 
-export const fetchManagerTodaysSchedule = async (managerId: number) => {
-  const response = await API.get(`/manager-visits/today-schedule/${managerId}`, { 
+
+// services/VisitService.ts
+export interface ManagerComplianceParams {
+  week?: string;
+  doctorName?: string;
+  fieldExecutiveId?: number;
+}
+
+export const fetchManagerVisitComplianceData = async (
+  managerId: number,
+  week: string = "all",
+): Promise<any> => {
+ const response = await API.get(`/manager-visits/get-manager-compliance-record?managerId=${managerId}&week=${week}`, {
     headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",     
+        "Accept": "application/json", 
     },
   });
     return response.data;
-}
+};
 
-export const fetchManagerTeamPerformance = async (managerId: number) => {
-  const response = await API.get(`/managers/team-performance/${managerId}`, { 
+export const fetchAllVisitsByWeekDay = async (managerId: number, week: number, day: number) => {
+  const response = await API.post(`/manager-visits/get-all-visits-by-week-day?managerId=${managerId}&weekNumber=${week}&dayOfWeek=${day}`, {
     headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",     
-    },
-  });
-    return response.data;
-}
-
-export const fetchManagerTeamMembers = async (managerId: number) => {
-  const response = await  API.get(`/managers/members?managerId=${managerId}`, {
-    headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        "Accept": "application/json", 
     },
   });
     return response.data;

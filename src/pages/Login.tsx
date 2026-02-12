@@ -7,12 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Eye, EyeOff, Mail, Lock, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/services/AuthenticationService";
-
+import { checkPortalStatus } from "@/services/PortalService";
+import PortalLockedPage from "./PortalLockedPage";
+type InitState = "loading" | "locked" | "ready";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState<InitState>("loading");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,7 +26,7 @@ const Login = () => {
       const response = await login(email, password);
       console.log("Login Response: ", response);
       setIsLoading(false);
-      if(response.success){
+      if (response.success) {
         sessionStorage.setItem("userID", response.data.id);
         sessionStorage.setItem("feID", response.data.id);
         sessionStorage.setItem("userName", response.data.name);
@@ -33,30 +36,67 @@ const Login = () => {
           title: "Login Successful",
           description: ``,
         });
+        console.log("User Type: ", response.data.userType);
+        if (response.data.userType.toLowerCase() === "manager") {
+          navigate("/manager-dashboard");
+          return;
+        }
+        if (response.data.userType.toLowerCase() === "admin") {
+          navigate("/admin-dashboard/profile");
+          return;
+        }
         navigate("/dashboard");
       }
-      
+
     } catch (error) {
       setIsLoading(false);
-      console.error("Login failed:", error);
+
+      if (error.response?.status === 423) {
+        const userIdentity = error.response.data.data;
+
+        sessionStorage.setItem("userID", userIdentity.userId);
+        sessionStorage.setItem("userRole", userIdentity.userType == "MANAGER" ? "Manager" : "FE");
+        navigate("/portal-locked");
+      }
+
       toast({
         title: "Login Failed",
-        description: error.response?.data?.message || "An unexpected error occurred. Please try again.",
+        description: error.response?.data?.message || "Invalid credentials",
         variant: "destructive",
       });
     }
   };
+
+  const checkPortalStatusBeforeNavigating = async () => {
+    try {
+      const res = await checkPortalStatus();
+      if (res.isLocked) {
+        setState("locked");
+      } else {
+        setState("ready");
+      }
+    } catch (err) {
+      console.error("Portal status check failed", err);
+      // optional: allow app or show error page
+      setState("ready");
+    }
+  };
+
+  if (state === "locked") {
+    return <PortalLockedPage />;
+  }
+
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
-        
+
         {/* Decorative circles */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary-foreground/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl" />
-        
+
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
           <div className="flex items-center gap-3 mb-8 animate-fade-in">
             <div className="w-16 h-16 bg-primary-foreground rounded-2xl flex items-center justify-center">
@@ -67,13 +107,13 @@ const Login = () => {
               <p className="text-primary-foreground/80 text-sm">Field Force Management</p>
             </div>
           </div>
-          
+
           <div className="max-w-md text-center space-y-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <h2 className="text-2xl font-semibold">
               Streamline Your Field Operations
             </h2>
             <p className="text-primary-foreground/70 leading-relaxed">
-              Manage doctor visits, track pharmacy interactions, plan slots efficiently, 
+              Manage doctor visits, track pharmacy interactions, plan slots efficiently,
               and monitor your team's performance - all in one powerful platform.
             </p>
           </div>

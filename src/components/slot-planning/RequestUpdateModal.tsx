@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Send } from "lucide-react";
+import { WeekDaySelector } from "./WeekDaySelector";
 
 interface Visit {
   id: number;
@@ -33,6 +34,8 @@ interface RequestUpdateModalProps {
   onSubmit: (data: {
     visitType: string;
     visitId: number;
+    selectedWeek: number;
+    selectedDay: number;
     notes: string;
   }) => void;
 }
@@ -47,12 +50,36 @@ export function RequestUpdateModal({
   const [visitType, setVisitType] = useState<string>("");
   const [selectedVisitId, setSelectedVisitId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedDay, setSelectedDay] = useState(1);
+  const { currentWeek, currentDay } = getCurrentWeekAndDay();
 
   const filteredVisits = useMemo(() => {
+    console.log("Filtering visits for type:", doctorVisits, pharmacistVisits, visitType);
     if (visitType === "doctor") return doctorVisits;
     if (visitType === "pharmacist") return pharmacistVisits;
     return [];
   }, [visitType, doctorVisits, pharmacistVisits]);
+
+  function getCurrentWeekAndDay() {
+    const today = new Date();
+
+    // Day of week: Mon = 1, Sun = 7
+    const jsDay = today.getDay(); // 0 = Sun
+    const currentDay = jsDay === 0 ? 7 : jsDay;
+
+    // Week of month (1–4/5)
+    const firstDayOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    ).getDay();
+
+    const offset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+    const currentWeek = Math.ceil((today.getDate() + offset) / 7);
+
+    return { currentWeek, currentDay };
+  }
 
   const resetForm = () => {
     setVisitType("");
@@ -66,6 +93,8 @@ export function RequestUpdateModal({
     onSubmit({
       visitType,
       visitId: selectedVisitId,
+      selectedWeek:selectedWeek,
+      selectedDay:selectedDay,
       notes,
     });
 
@@ -82,12 +111,12 @@ export function RequestUpdateModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Request Slot Update</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-2">
           {/* Visit Type */}
           <div className="space-y-2">
             <Label>Visit Type</Label>
@@ -147,6 +176,17 @@ export function RequestUpdateModal({
             </div>
           )}
 
+
+          <WeekDaySelector
+            selectedWeek={selectedWeek}
+            selectedDay={selectedDay}
+            currentWeek={currentWeek}
+            currentDay={currentDay}
+            isPastDisabled={false}
+            onWeekChange={setSelectedWeek}
+            onDayChange={setSelectedDay}
+          />
+
           {/* Notes */}
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
@@ -160,7 +200,7 @@ export function RequestUpdateModal({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="bottom-0 bg-background pt-4">
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>

@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getUserType } from "./userRoleUtils";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -16,19 +17,32 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    const userId = sessionStorage.getItem("userID");
+    const userType = getUserType();
+
+    if (userId) config.headers["X-User-Id"] = userId;
+    if (userType) config.headers["X-User-Type"] = userType;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error.response?.data?.message || error.message || "An error occurred";
-    return Promise.reject(new Error(message));
-  }
-);
+// apiClient.interceptors.response.use(
+//   (response) => {
+//     // Check if this response is portal status
+//     if (
+//       response.config.url?.includes("/portal/status") &&
+//       response.data?.isLocked === true
+//     ) {
+//       window.location.href = "/portal-locked";
+//     }
+
+//     return response;
+//   },
+//   // (error) => {
+//   //   return Promise.reject(error);
+//   // }
+// );
 
 export async function apiRequest<T>(
   endpoint: string,

@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
       { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/manager-dashboard/sales-progress" },
+  { icon: ClipboardCheck, label: "Visit Compliance", href: "/manager-dashboard/visit-compliance" }
 ];
 
 const ManagerSidebar = () => {
