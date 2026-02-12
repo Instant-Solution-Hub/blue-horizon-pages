@@ -45,6 +45,11 @@ const Login = () => {
           navigate("/admin-dashboard/profile");
           return;
         }
+         
+        if (response.data.userType.toLowerCase() === "super_admin") {
+          navigate("/super-admin-dashboard/sales-progress");
+          return;
+        }
         navigate("/dashboard");
       }
 
