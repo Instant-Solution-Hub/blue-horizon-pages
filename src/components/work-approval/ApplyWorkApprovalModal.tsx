@@ -74,6 +74,7 @@ const ApplyWorkApprovalModal = ({ open, onClose, onSubmit }: ApplyWorkApprovalMo
                   mode="single"
                   selected={date}
                   onSelect={setDate}
+                  disabled={(d) => d <= new Date()}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
