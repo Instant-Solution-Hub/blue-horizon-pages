@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   TrendingUp,
+  Package,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -13,6 +14,7 @@ const SuperAdminSidebar = () => {
 
   const menuItems = [
     { icon: TrendingUp, label: "Sales Progress", path: "/super-admin-dashboard/sales-progress" },
+    { icon: Package, label: "Products", path: "/super-admin-dashboard/products" },
   ];
 
   return (
