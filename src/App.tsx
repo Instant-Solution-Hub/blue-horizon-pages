@@ -30,6 +30,7 @@ import VisitCompliance from "./pages/VisitCompliance";
 import SalesProgress from "./pages/SalesProgress";
 import AdminSalesProgress from "./pages/AdminSalesProgress";
 import AdminSlots from "./pages/AdminSlots";
+import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -70,6 +71,8 @@ const App = () => (
           <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
           <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
           <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
+          {/* Super Admin Dashboard Routes */}
+          <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
