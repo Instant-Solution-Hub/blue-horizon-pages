@@ -1,6 +1,7 @@
 import SuperAdminSidebar from "@/components/super-admin-dashboard/SuperAdminSidebar";
 import AdminTerritoryTable from "@/components/admin-sales-progress/AdminTerritoryTable";
 import SuperAdminMarketSalesTable from "@/components/super-admin-sales-progress/SuperAdminMarketSalesTable";
+import CompanyTargetSection from "@/components/super-admin-sales-progress/CompanyTargetSection";
 import { TrendingUp, MapPin } from "lucide-react";
 
 const territoryData = [
@@ -70,8 +71,13 @@ const SuperAdminSalesProgress = () => {
             </p>
           </div>
 
-          {/* Territory Table Section */}
+          {/* Company Target Section */}
           <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <CompanyTargetSection />
+          </div>
+
+          {/* Territory Table Section */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="bg-card rounded-xl border border-border shadow-sm">
               <div className="p-5 border-b border-border">
                 <div className="flex items-center gap-3">
@@ -95,7 +101,7 @@ const SuperAdminSalesProgress = () => {
           </div>
 
           {/* Market Sales Section */}
-          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <SuperAdminMarketSalesTable />
           </div>
         </div>
