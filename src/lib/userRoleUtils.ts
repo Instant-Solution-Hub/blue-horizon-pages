@@ -9,6 +9,8 @@ export const getUserType = (): UserType => {
       return "MANAGER";
     case "Admin":
       return "ADMIN";
+    case "FE":
+        return "FIELD_EXECUTIVE";
     case "FieldExecutive":
     case "FIELD_EXECUTIVE":
       return "FIELD_EXECUTIVE";

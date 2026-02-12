@@ -27,13 +27,21 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
 // apiClient.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     const message = error.response?.data?.message || error.message || "An error occurred";
-//     return Promise.reject(new Error(message));
-//   }
+//   (response) => {
+//     // Check if this response is portal status
+//     if (
+//       response.config.url?.includes("/portal/status") &&
+//       response.data?.isLocked === true
+//     ) {
+//       window.location.href = "/portal-locked";
+//     }
+
+//     return response;
+//   },
+//   // (error) => {
+//   //   return Promise.reject(error);
+//   // }
 // );
 
 export async function apiRequest<T>(

@@ -25,6 +25,7 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           setState("locked");
         } else {
           setState("ready");
+          navigate("/dashboard");
         }
       } catch (err) {
         console.error("Portal status check failed", err);

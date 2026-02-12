@@ -42,6 +42,7 @@ import AdminSlots from "./pages/AdminSlots";
 import AdminLeaveRequests from "./pages/AdminLeaveRequests";
 import AppInitializer from "./pages/AppInitializer";
 import AdminPortalRequests from "./pages/AdminPortalRequests";
+import PortalLockedPage from "./pages/PortalLockedPage";
 
 
 
@@ -56,6 +57,7 @@ const App = () => (
       <AppInitializer>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/portal-locked" element={<PortalLockedPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
           <Route path="/dashboard/slot-planning" element={<SlotPlanning />} />

@@ -32,8 +32,6 @@ const Login = () => {
         sessionStorage.setItem("userName", response.data.name);
         sessionStorage.setItem("userEmail", response.data.email);
         sessionStorage.setItem("userRole", response.data.userType);
-        await checkPortalStatusBeforeNavigating();
-
         toast({
           title: "Login Successful",
           description: ``,
@@ -52,10 +50,18 @@ const Login = () => {
 
     } catch (error) {
       setIsLoading(false);
-      console.error("Login failed:", error);
+
+      if (error.response?.status === 423) {
+        const userIdentity = error.response.data.data;
+
+        sessionStorage.setItem("userID", userIdentity.userId);
+        sessionStorage.setItem("userRole", userIdentity.userType == "MANAGER" ? "Manager" : "FE");
+        navigate("/portal-locked");
+      }
+
       toast({
         title: "Login Failed",
-        description: error.response?.data?.message || "An unexpected error occurred. Please try again.",
+        description: error.response?.data?.message || "Invalid credentials",
         variant: "destructive",
       });
     }
