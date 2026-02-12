@@ -37,6 +37,7 @@ const navItems: NavItem[] = [
   { icon: ClipboardCheck, label: "Compliance Visit", href: "/dashboard/visit-compliance" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/dashboard/sales-progress" },
+  { icon: ClipboardCheck, label: "Work Approvals", href: "/dashboard/work-approvals" },
 ];
 
 const Sidebar = () => {
