@@ -52,7 +52,7 @@ export default function TrackVisitsManager() {
   const [filterType, setFilterType] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visits, setVisits] = useState<any[]>([]);
-  const [missedVisits, setMissedVisits] = useState<Visit[]>([]);
+  const [missedVisits, setMissedVisits] = useState<any[]>([]);
   const [todaysVisits, setTodaysVisits] = useState<any[]>([]);
   const [allDoctors, setAllDoctors] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -109,8 +109,8 @@ export default function TrackVisitsManager() {
   const getMissedVisits = async () => {
     if (!managerId) return;
     try {
-      const data = await fetchMissedVisits(Number(managerId));
-    //   setMissedVisits(adaptBackendVisits(data, true));
+      const data:any = await fetchMissedVisits(Number(managerId));
+      setMissedVisits(adaptBackendVisits(data, true));
     } catch (error) {
       console.error("Error fetching missed visits:", error);
     }
@@ -267,7 +267,7 @@ export default function TrackVisitsManager() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSubmit={handleAddVisit}
-              todaysVisits={todaysVisits.concat(missedVisits)}
+              todaysVisits={todaysVisits}
               doctors={allDoctors} // Passing doctors instead of stockists
               products={allProducts}
             />

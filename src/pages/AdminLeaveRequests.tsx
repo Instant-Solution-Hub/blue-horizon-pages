@@ -1,10 +1,11 @@
-import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
+
 import ManagerLeaveRequestsTab from "@/components/leave-requests/ManagerLeaveRequests";
+import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 
 const AdminLeaveRequests = () => {
   return (
     <div className="h-screen bg-background flex overflow-hidden">
-      <ManagerSidebar />
+      <AdminSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 p-6 overflow-y-auto">

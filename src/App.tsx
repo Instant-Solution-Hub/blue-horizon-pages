@@ -43,6 +43,7 @@ import AdminLeaveRequests from "./pages/AdminLeaveRequests";
 import AppInitializer from "./pages/AppInitializer";
 import AdminPortalRequests from "./pages/AdminPortalRequests";
 import PortalLockedPage from "./pages/PortalLockedPage";
+import AdminMissedVisits from "./pages/AdminMissedVisits";
 
 
 
@@ -97,7 +98,7 @@ const App = () => (
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
-               
+               <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AppInitializer>

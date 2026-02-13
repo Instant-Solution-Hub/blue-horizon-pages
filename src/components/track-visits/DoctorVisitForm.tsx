@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,6 +90,10 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
   const [conversionRows, setConversionRows] = useState<ConversionRow[]>([
     { productId: 0, quantity: 1, value: 0 },
   ]);
+
+  useEffect(() => {
+    console.log("Doctor Visits in DoctorVisitForm:", doctorVisits);
+  }, []);
 
   const handleDoctorChange = (visitId: string) => {
     const doctor = doctorVisits.find((d) => d.visitId === visitId);
@@ -226,9 +230,9 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits }: 
             <SelectValue placeholder="Select a doctor" />
           </SelectTrigger>
           <SelectContent>
-            {doctorVisits.map((visit) => (
+            {doctorVisits.map((visit, index) => (
               <SelectItem key={visit.visitId} value={visit.visitId}>
-                {visit.doctorName} - {visit.hospital} {visit.status === "MISSED" ? "- Missed" : ""}
+                {visit.doctorName} - {visit.hospital} {visit?.status === "MISSED" ? "- Missed" : ""}
               </SelectItem>
             ))}
           </SelectContent>

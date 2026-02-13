@@ -14,18 +14,28 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const init = async () => {
       try {
-    // if there is no userId or userType in sessionStorage, navigate to login
-    if (!sessionStorage.getItem("userID") || !sessionStorage.getItem("userRole")) {
-        navigate("/");
-        throw new Error("User not authenticated");
-    }
+        // if there is no userId or userType in sessionStorage, navigate to login
+        if (!sessionStorage.getItem("userID") || !sessionStorage.getItem("userRole")) {
+          navigate("/");
+          throw new Error("User not authenticated");
+        }
         const res = await checkPortalStatus();
 
         if (res.isLocked) {
           setState("locked");
         } else {
           setState("ready");
-          navigate("/dashboard");
+          let userRole = sessionStorage.getItem("userRole").toLowerCase();
+          if (userRole === "manager") {
+            navigate("/manager-dashboard");
+            return;
+          } else if (userRole === "admin") {
+            navigate("/admin-dashboard/profile");
+            return;
+          }else {
+             navigate("/dashboard");
+             return;
+          }
         }
       } catch (err) {
         console.error("Portal status check failed", err);
@@ -39,7 +49,7 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
 
   if (state === "loading") {
     return <div className="h-screen flex flex-col items-center justify-center text-center px-4">
-        <Spinner/>
+      <Spinner />
     </div>
   }
 
