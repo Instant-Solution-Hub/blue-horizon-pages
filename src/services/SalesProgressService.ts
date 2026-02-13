@@ -1,5 +1,12 @@
 import axios from "axios";
 
+export interface CompanyTarget {
+  targetAmount: number;
+  currentProgress: number;
+  year:number;
+  month:number;
+}
+
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: { "Content-Type": "application/json" },
@@ -46,3 +53,23 @@ export const updateMarketSales = async (
   console.log(res);
   return res.data;
 };
+
+export const fetchMonthlyMarketSales = async () => {
+  const res = await API.get(`/fe/market-sales/current-month/all`);
+  console.log(res);
+  return res.data;
+}
+
+export const fetchCompanyTarget=  async () => { 
+
+  const res = await API.get(`/super-admin/company-target/current-month`);
+  console.log(res); 
+  return res.data;
+}
+
+export const updateCompanyTarget=  async (payload:CompanyTarget) => { 
+
+  const res = await API.post(`/super-admin/company-target`, payload);
+  console.log(res); 
+  return res.data;
+}

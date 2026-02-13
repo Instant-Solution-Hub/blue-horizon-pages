@@ -34,6 +34,7 @@ const defaultNavItems: NavItem[] = [
   { icon: TrendingUp, label: "Competitive Brands", href: "/dashboard/competitive-brands" },
   { icon: Package, label: "Stock Liquidation", href: "/dashboard/stock-liquidation" },
   { icon: Gift, label: "Promotions", href: "/dashboard/promotions" },
+   { icon: ClipboardCheck, label: "Work Approvals", href: "/dashboard/work-approvals" },
   { icon: ClipboardCheck, label: "Visit Compliance", href: "/dashboard/visit-compliance" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/dashboard/sales-progress" },

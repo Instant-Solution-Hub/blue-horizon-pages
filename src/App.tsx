@@ -44,6 +44,11 @@ import AppInitializer from "./pages/AppInitializer";
 import AdminPortalRequests from "./pages/AdminPortalRequests";
 import PortalLockedPage from "./pages/PortalLockedPage";
 import AdminMissedVisits from "./pages/AdminMissedVisits";
+import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
+import SuperAdminProducts from "./pages/SuperAdminProducts";
+import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
+import WorkApprovalRequests from "./pages/WorkApprovalRequests";
+import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
 
 
 
@@ -69,6 +74,7 @@ const App = () => (
           <Route path="/dashboard/promotions" element={<Promotions />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
+          <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
 
            <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
@@ -84,7 +90,9 @@ const App = () => (
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
             <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+              <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
             <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
+             
 
      {/* Admin Dashboard Routes */}
               <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
@@ -99,6 +107,11 @@ const App = () => (
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
                <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
+             {/* Super Admin Dashboard Routes */}
+          <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
+          <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
+          <Route path="/super-admin-dashboard/work-approvals" element={<SuperAdminWorkApprovals />} />
+               
           <Route path="*" element={<NotFound />} />
         </Routes>
         </AppInitializer>

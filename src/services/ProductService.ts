@@ -36,6 +36,15 @@ export const getProducts = async ()  => {
   
 };
 
+export const fetchProductSummary = async ()  => {
+  const res = await API.get(`/fe/monthly-sales/previous-month/product-summary`);
+
+  console.log("Result");
+  console.log(res);
+  return res.data;
+  
+};
+
 export const createProduct = async (payload:ProductRequestDto) : Promise<Product>=> {
   const res = await API.post(`/products`, payload);
 
