@@ -49,6 +49,7 @@ import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
+import { VisualAidsPage } from "./pages/VisualAidsPage";
 
 
 
@@ -64,6 +65,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/portal-locked" element={<PortalLockedPage />} />
+          <Route path="/visual-aids" element={<VisualAidsPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
           <Route path="/dashboard/slot-planning" element={<SlotPlanning />} />
