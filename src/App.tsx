@@ -12,6 +12,7 @@ import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import ManagerStockUpdate from "./pages/ManagerStockUpdate";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminProducts from "./pages/AdminProducts";
@@ -71,6 +72,7 @@ const App = () => (
           <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
           <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
           {/* Admin Dashboard Routes */}
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
           <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
           <Route path="/admin-dashboard/products" element={<AdminProducts />} />
