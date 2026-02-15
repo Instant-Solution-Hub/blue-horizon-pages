@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
-  Package
+  Package,
+  PackageOpen
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { icon: FileText, label: "Leave Requests", href: "/manager-dashboard/leave-requests" },
   { icon: ClipboardCheck, label: "Manager Joining", href: "/manager-dashboard/manager-joining" },
   { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },
+  { icon: PackageOpen, label: "Stock Liquidation", href: "/manager-dashboard/stock-liquidation" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/manager-dashboard/sales-progress" },
   { icon: ClipboardCheck, label: "Work Approvals", href: "/manager-dashboard/work-approvals" },
