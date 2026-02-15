@@ -92,12 +92,8 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                   className="border rounded-lg p-4 bg-card hover:bg-accent/5 transition-colors"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 flex-1">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Submitted By</p>
-                        <p className="font-medium text-sm">{(plan as any).submittedBy || "FE User"}</p>
-                      </div>
-                      <div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 flex-1">
+                       <div>
                         <p className="text-xs text-muted-foreground">Doctor</p>
                         <p className="font-medium text-sm">{plan.doctor}</p>
                       </div>
