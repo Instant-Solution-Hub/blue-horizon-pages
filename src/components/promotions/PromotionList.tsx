@@ -126,16 +126,7 @@ const PromotionList = ({ promotions, onUsePromotion }: PromotionListProps) => {
                 </div>
               </div>
 
-              {/* Action Button */}
-              <div className="flex lg:flex-col items-center gap-2">
-                <Button
-                  onClick={() => onUsePromotion(promotion)}
-                  disabled={promotion.status === "Expired"}
-                  className="w-full lg:w-auto"
-                >
-                  Use This Promotion
-                </Button>
-              </div>
+           
             </div>
           </CardContent>
         </Card>

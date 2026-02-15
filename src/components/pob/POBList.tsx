@@ -116,8 +116,7 @@ const POBList = ({ orders, searchQuery, onEdit }: POBListProps) => {
 
                   {discountAmount > 0 && (
                     <div className="flex items-center gap-2 text-sm text-green-600">
-                      <Percent className="w-4 h-4" />
-                      <span>Discount Applied: ₹{discountAmount.toLocaleString()}</span>
+                      <span>Discount Applied: {discountAmount.toLocaleString()}%</span>
                     </div>
                   )}
 
@@ -148,17 +147,18 @@ const POBList = ({ orders, searchQuery, onEdit }: POBListProps) => {
                     </p>
                   </div>
                   
-                  {onEdit && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(order)}
-                      className="gap-2"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      Edit
-                    </Button>
-                  )}
+                {onEdit && order.status === "pending" && (
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={() => onEdit(order)}
+    className="gap-2"
+  >
+    <Pencil className="w-4 h-4" />
+    Edit
+  </Button>
+)}
+
                 </div>
               </div>
             </CardContent>

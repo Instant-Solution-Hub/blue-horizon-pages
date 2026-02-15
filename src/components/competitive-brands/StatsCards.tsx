@@ -23,13 +23,7 @@ const StatsCards = ({ totalReports, withImages, managerNotified }: StatsCardsPro
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
-    {
-      title: "Manager Notified",
-      value: managerNotified,
-      icon: Bell,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
+  
   ];
 
   return (
