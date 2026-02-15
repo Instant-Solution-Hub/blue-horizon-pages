@@ -162,3 +162,27 @@ export const deleteVisitById = async (visitId: number) => {
   });
     return response.data;
 }
+
+export const fetchDailyVisitStatReport = async () => {
+  const response = await API.get('/admin/daily-stats/all',{ 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+
+  return response.data;
+
+}
+
+export const fetchWeeklyVisitStatReport  = async () => {
+  const response = await API.get('/admin/weekly-stats/all',{ 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+
+  return response.data;
+
+}

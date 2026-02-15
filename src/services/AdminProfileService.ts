@@ -26,4 +26,9 @@ export const fetchAdminProfileStats = async (
   return data.data;
 };
 
+export const fetchUserCounts = async ():Promise<any> => {
+  const response = await API.get('/admin/counts');
+  return response.data;
+}
+
 

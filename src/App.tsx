@@ -50,6 +50,7 @@ import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
 import { VisualAidsPage } from "./pages/VisualAidsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 
 
@@ -97,6 +98,7 @@ const App = () => (
              
 
      {/* Admin Dashboard Routes */}
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
               <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
               <Route path="/admin-dashboard/competitive-brands" element={<AdminCompetetiveBrands />} />

@@ -62,8 +62,8 @@ export function VisualAidsPage() {
 
   const getFileEmbedUrl = (fileUrl: string) => {
     const extension = fileUrl.split('.').pop()?.toLowerCase();
-    // const fullPath = baseUrl+fileUrl;
-    const fullPath = 'https://file-examples.com/storage/fea398523f699077e9e34f7/2017/08/file_example_PPT_250kB.ppt';
+    const fullPath = baseUrl+fileUrl;
+    // const fullPath = 'https://file-examples.com/storage/fea398523f699077e9e34f7/2017/08/file_example_PPT_250kB.ppt';
     console.log(baseUrl+fileUrl)
     
     if (extension === 'ppt' || extension === 'pptx') {

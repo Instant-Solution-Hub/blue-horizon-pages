@@ -202,7 +202,7 @@ export default function AdminSlots() {
 
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className="h-screen bg-background flex overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
         <Header />
