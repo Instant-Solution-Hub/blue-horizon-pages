@@ -86,7 +86,7 @@ const AddPOBModal = ({ isOpen, onClose, onSubmit, editData }: AddPOBModalProps) 
   const [hospitalName, setHospitalName] = useState("");
   const [orderDate, setOrderDate] = useState<Date>();
   const [notes, setNotes] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [productsMaster, setProductsMaster] = useState<Product[]>([]);
 const [loadingProducts, setLoadingProducts] = useState(false);
@@ -142,7 +142,7 @@ const [loadingProducts, setLoadingProducts] = useState(false);
   setHospitalName(editData.institutionName);
   setOrderDate(editData.orderDate);
   setNotes(editData.notes);
-  setDiscount(editData.discount);
+  setDiscountPercent(editData.discount);
 
   setProducts(
     editData.items.map(item => ({
@@ -162,7 +162,7 @@ const [loadingProducts, setLoadingProducts] = useState(false);
     setHospitalName("");
     setOrderDate(undefined);
     setNotes("");
-    setDiscount(0);
+    setDiscountPercent(0);
     setProducts([]);
     setNewProduct("");
     setNewQty(1);
@@ -203,7 +203,10 @@ const addProductRow = () => {
   };
 
   const subtotal = products.reduce((sum, p) => sum + p.total, 0);
-  const totalOrderValue = subtotal - discount;
+
+const discountAmount = subtotal * (discountPercent / 100);
+
+const totalOrderValue = subtotal - discountAmount;
 
  
   const handleSubmit = () => {
@@ -221,7 +224,7 @@ onSubmit({
   contactPerson: doctorName,
   contactNumber: "9999999999",
   orderDate,
-  discount,
+  discount:discountPercent,
   totalAmount:totalOrderValue,
   notes,
   items: products.map(p => ({
@@ -440,15 +443,20 @@ const filteredProducts = productsMaster
 
           {/* Discount */}
           <div className="space-y-2">
-            <Label>Discount (₹)</Label>
-            <Input
-              type="number"
-              min="0"
-              max={subtotal}
-              value={discount}
-              onChange={(e) => setDiscount(Math.min(parseInt(e.target.value) || 0, subtotal))}
-              placeholder="Enter discount amount"
-            />
+           <Label>Discount (%)</Label>
+<Input
+  type="number"
+  min="0"
+  max="100"
+  value={discountPercent}
+  onChange={(e) =>
+    setDiscountPercent(
+      Math.min(parseFloat(e.target.value) || 0, 100)
+    )
+  }
+  placeholder="Enter discount percentage"
+/>
+
             {products.length > 0 && (
               <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
                 <span className="font-semibold">Final Total (after discount):</span>
