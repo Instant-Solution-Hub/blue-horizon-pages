@@ -27,6 +27,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ManagerRequestUpdateModal } from "@/components/manager-slot-planning/ManagerRequestUpdateModal";
 import { slotChangeRequest } from "@/services/SlotRequestService";
 import { fetchAllVisitsByWeekDay } from "@/services/ManagerVisitService";
+import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
+import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 
 /* ---------------- TYPES ---------------- */
 
@@ -65,7 +67,7 @@ export default function ManagerSlotPlanning() {
   const [selectedFE, setSelectedFE] = useState<number | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [managerVisits, setManagerVisits] = useState<any[]>([]);
-  
+
   const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -79,7 +81,7 @@ export default function ManagerSlotPlanning() {
     month: "long",
     year: "numeric",
   });
-  // const isFirstOfMonth = today.getDate() === 1;
+  // const isFirstOfMonth = today.getDate() === 2;
   const isFirstOfMonth = true; // For testing
 
   useEffect(() => {
@@ -87,6 +89,8 @@ export default function ManagerSlotPlanning() {
       if (isFirstOfMonth) {
         // First of month: Show FE assignment page
         fetchAllocatedFEsData();
+        fetchManagerVisitsByWeekDay();
+
       } else {
         // After first of month: Show manager's assigned visits
         fetchManagerVisitsByWeekDay();
@@ -127,6 +131,8 @@ export default function ManagerSlotPlanning() {
         selectedDay
       );
       setFieldExecutives(response);
+      console.log("fetched allocated fes", response);
+      // setAssignedFEs(prev => [...prev, response]);
 
       // Auto-select first FE if none selected
       if (response.length > 0 && !selectedFE) {
@@ -145,26 +151,37 @@ export default function ManagerSlotPlanning() {
   };
 
   const fetchManagerVisitsByWeekDay = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetchAllVisitsByWeekDay(
-        userId,
-        selectedWeek,
-        selectedDay
-      );
-      setManagerVisits(response.data);
-      console.log("Manager visits response:", response);
-    } catch (error) {
-      console.error("Error fetching manager visits:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load your visits",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  setIsLoading(true);
+  try {
+    const response = await fetchAllVisitsByWeekDay(
+      userId,
+      selectedWeek,
+      selectedDay
+    );
+
+    const visits = response.data;
+
+    setManagerVisits(visits);
+
+    const uniqueFeIds:any = Array.from(
+      new Set(visits.map(i => i.feId))
+    );
+
+    setAssignedFEs(uniqueFeIds);
+
+    console.log("unique FEs", uniqueFeIds);
+  } catch (error) {
+    console.error("Error fetching manager visits:", error);
+    toast({
+      title: "Error",
+      description: "Failed to load your visits",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   /* ---------------- HANDLERS ---------------- */
 
@@ -180,8 +197,10 @@ export default function ManagerSlotPlanning() {
       const response = await assignManagerToFieldExecutive(obj);
 
       if (response.success) {
+        fetchManagerVisitsByWeekDay();
+
         // Update local state to track assignment
-        setAssignedFEs(prev => [...prev, feId]);
+        // setAssignedFEs(prev => [...prev, feId]);
 
         toast({
           title: "Successfully Assigned",
@@ -322,8 +341,8 @@ export default function ManagerSlotPlanning() {
                 <div className="space-y-1">
                   <p className="text-sm font-medium">
                     {isAssignedToMe
-                      ? "✅ You are assigned to this FE's A+ and A visits"
-                      : "📋 Available for assignment to A+ and A visits"
+                      ? "You are assigned to this FE's A+ and A visits"
+                      : "Available for assignment to A+ and A visits"
                     }
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -374,11 +393,11 @@ export default function ManagerSlotPlanning() {
               <div>
                 <h3 className="font-semibold text-lg">{visit.doctor.doctorName}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge 
+                  <Badge
                     className={`
-                      ${visit.doctor.category === 'A+' ? 'bg-red-100 text-red-800 hover:bg-red-100' : 
-                        visit.doctor.category === 'A' ? 'bg-orange-100 text-orange-800 hover:bg-orange-100' : 
-                        'bg-blue-100 text-blue-800 hover:bg-blue-100'}
+                      ${visit.doctor.category === 'A+' ? 'bg-red-100 text-red-800 hover:bg-red-100' :
+                        visit.doctor.category === 'A' ? 'bg-orange-100 text-orange-800 hover:bg-orange-100' :
+                          'bg-blue-100 text-blue-800 hover:bg-blue-100'}
                     `}
                   >
                     {visit.doctor.category}
@@ -444,12 +463,12 @@ export default function ManagerSlotPlanning() {
             {/* Status and Actions */}
             <div className="border-t pt-4 flex justify-between items-center">
               <div>
-                <Badge 
+                <Badge
                   variant={visit.status === 'Confirmed' ? 'default' : 'secondary'}
                   className={
                     visit.status === 'Confirmed' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
-                    visit.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' :
-                    'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                      visit.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' :
+                        'bg-gray-100 text-gray-800 hover:bg-gray-100'
                   }
                 >
                   {visit.status}
@@ -472,10 +491,10 @@ export default function ManagerSlotPlanning() {
 
   return (
     <div className="h-screen bg-background flex w-full overflow-hidden">
-      <Sidebar />
+      <ManagerSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <ManagerHeader />
 
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
@@ -493,8 +512,8 @@ export default function ManagerSlotPlanning() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>
-                  {isFirstOfMonth 
-                    ? "Assign to Field Executive Visits" 
+                  {isFirstOfMonth
+                    ? "Assign to Field Executive Visits"
                     : "Your Assigned Visits"
                   }
                 </CardTitle>
@@ -519,12 +538,13 @@ export default function ManagerSlotPlanning() {
                     selectedDay={selectedDay}
                     currentWeek={currentWeek}
                     currentDay={currentDay}
+                    // currentMonth={new Date().getMonth()+1}
                     isPastDisabled={false}
                     onWeekChange={setSelectedWeek}
                     onDayChange={setSelectedDay}
                   />
                   <p className="text-sm text-muted-foreground mt-2">
-                    {isFirstOfMonth 
+                    {isFirstOfMonth
                       ? `Select field executives for Week ${selectedWeek}, Day ${selectedDay}`
                       : `Viewing your visits for Week ${selectedWeek}, Day ${selectedDay}`
                     }
@@ -670,9 +690,9 @@ export default function ManagerSlotPlanning() {
                           ) : (
                             <Alert>
                               <AlertTitle>Field Executive Not Found</AlertTitle>
-                              <AlertDescription>
+                              {/* <AlertDescription>
                                 The selected field executive is no longer available. Please select another one.
-                              </AlertDescription>
+                              </AlertDescription> */}
                             </Alert>
                           )
                         ) : (
@@ -702,8 +722,8 @@ export default function ManagerSlotPlanning() {
                                   <div
                                     key={fe.id}
                                     className={`cursor-pointer p-4 rounded-lg border transition-all hover:shadow-md ${assignedFEs.includes(fe.id)
-                                        ? 'border-green-300 bg-green-50'
-                                        : 'hover:border-blue-300 hover:bg-blue-50'
+                                      ? 'border-green-300 bg-green-50'
+                                      : 'hover:border-blue-300 hover:bg-blue-50'
                                       }`}
                                     onClick={() => setSelectedFE(fe.id)}
                                   >
@@ -735,7 +755,7 @@ export default function ManagerSlotPlanning() {
                       /* ========== AFTER FIRST OF MONTH: MANAGER VISITS PAGE ========== */
                       <>
                         {/* Visits Summary */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="bg-blue-50 p-4 rounded-lg border">
                             <p className="text-sm text-blue-700 font-medium">Total Visits</p>
                             <p className="text-2xl font-bold">{managerVisits.length}</p>
@@ -743,21 +763,21 @@ export default function ManagerSlotPlanning() {
                           <div className="bg-red-50 p-4 rounded-lg border">
                             <p className="text-sm text-red-700 font-medium">A+ Visits</p>
                             <p className="text-2xl font-bold">
-                              {managerVisits.filter(v => v.category === 'A+').length}
+                              {managerVisits.filter(v => v.doctor.category === 'A_PLUS').length}
                             </p>
                           </div>
                           <div className="bg-orange-50 p-4 rounded-lg border">
                             <p className="text-sm text-orange-700 font-medium">A Visits</p>
                             <p className="text-2xl font-bold">
-                              {managerVisits.filter(v => v.category === 'A').length}
+                              {managerVisits.filter(v => v.doctor.category === 'A').length}
                             </p>
                           </div>
-                          <div className="bg-green-50 p-4 rounded-lg border">
+                          {/* <div className="bg-green-50 p-4 rounded-lg border">
                             <p className="text-sm text-green-700 font-medium">Confirmed</p>
                             <p className="text-2xl font-bold">
                               {managerVisits.filter(v => v.status === 'Confirmed').length}
                             </p>
-                          </div>
+                          </div> */}
                         </div>
 
                         {/* Visits List */}
@@ -791,7 +811,7 @@ export default function ManagerSlotPlanning() {
                             <AlertTitle>No Visits Assigned</AlertTitle>
                             <AlertDescription>
                               You don't have any visits assigned for Week {selectedWeek}, Day {selectedDay}.
-                              {selectedWeek === currentWeek && selectedDay === currentDay && 
+                              {selectedWeek === currentWeek && selectedDay === currentDay &&
                                 " Check back later or contact your regional manager."
                               }
                             </AlertDescription>

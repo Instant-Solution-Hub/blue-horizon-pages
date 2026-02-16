@@ -175,8 +175,7 @@ export function RequestUpdateModal({
               </RadioGroup>
             </div>
           )}
-
-
+          <p className="text-sm text-muted-foreground">Re-Schedule to:</p>
           <WeekDaySelector
             selectedWeek={selectedWeek}
             selectedDay={selectedDay}

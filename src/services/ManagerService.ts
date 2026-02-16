@@ -250,7 +250,17 @@ export const fetchManagerDashboardStats = async (managerId: number) => {
 }
 
 export const fetchManagerTodaysSchedule = async (managerId: number) => {
-  const response = await API.get(`/manager-visits/today-schedule/${managerId}`, { 
+  const response = await API.get(`/manager-visits/today-scheduled?managerId=${managerId}`, { 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",     
+    },
+  });
+    return response.data;
+}
+
+export const fetchManagerTodaysScheduleVisitsOnly = async (managerId: number) => {
+  const response = await API.get(`/manager-visits/today-scheduled-only?managerId=${managerId}`, { 
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",     

@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { WeekFilter } from "@/components/visit-compliance/WeekFilter";
 import { ComplianceTable, ComplianceRecord } from "@/components/visit-compliance/ComplianceTable";
 import { fetchManagerVisitComplianceData } from "@/services/ManagerVisitService";
+import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
+import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 
 // API response types - Same structure as field executive but only doctor visits
 interface ComplianceStats {
@@ -99,9 +101,9 @@ const ManagerVisitCompliance = () => {
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
-      <Sidebar />
+      <ManagerSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <ManagerHeader />
         <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
           {/* Page Title */}
           <div>
