@@ -43,11 +43,14 @@ import AdminLeaveRequests from "./pages/AdminLeaveRequests";
 import AppInitializer from "./pages/AppInitializer";
 import AdminPortalRequests from "./pages/AdminPortalRequests";
 import PortalLockedPage from "./pages/PortalLockedPage";
+import AdminMissedVisits from "./pages/AdminMissedVisits";
 import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
+import { VisualAidsPage } from "./pages/VisualAidsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 
 
@@ -63,6 +66,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/portal-locked" element={<PortalLockedPage />} />
+          <Route path="/visual-aids" element={<VisualAidsPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
           <Route path="/dashboard/slot-planning" element={<SlotPlanning />} />
@@ -94,6 +98,7 @@ const App = () => (
              
 
      {/* Admin Dashboard Routes */}
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
               <Route path="/admin-dashboard/promotions" element={<AdminPromotions />} />
               <Route path="/admin-dashboard/competitive-brands" element={<AdminCompetetiveBrands />} />
@@ -105,7 +110,7 @@ const App = () => (
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
-
+               <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
              {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />

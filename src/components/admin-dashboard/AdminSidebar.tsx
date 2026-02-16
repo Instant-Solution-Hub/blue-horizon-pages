@@ -33,11 +33,14 @@ const AdminSidebar = () => {
     { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
     { icon: FileText, label: "Leave Requests", path: "/admin-dashboard/leave-requests" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+     { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
+    { icon: FileText, label: "Leave Requests", path: "/admin-dashboard/leave-requests" },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
-    { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
-    { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
+    // { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
+     { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
     { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
+    { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
   ];
 

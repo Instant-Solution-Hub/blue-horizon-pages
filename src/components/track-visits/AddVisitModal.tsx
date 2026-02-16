@@ -13,9 +13,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { DoctorVisitForm, DoctorVisitData } from "./DoctorVisitForm";
 import { PharmacistVisitForm, PharmacistVisitData } from "./PharmacistVisitForm";
 import { StockistVisitForm, StockistVisitData } from "./StockistVisitForm";
+import { useNavigate } from "react-router-dom";
 
 type VisitType = "doctor" | "pharmacist" | "stockist" | "";
 
@@ -29,20 +31,34 @@ interface AddVisitModalProps {
 }
 
 export function AddVisitModal({ isOpen, onClose, onSubmit, todaysVisits, stockists, products }: AddVisitModalProps) {
+  const navigate = useNavigate();
   const [visitType, setVisitType] = useState<VisitType>("");
+  const [selectedDoctorDesignation, setSelectedDoctorDesignation] = useState<string>("");
 
   const handleClose = () => {
     setVisitType("");
+    setSelectedDoctorDesignation("");
     onClose();
   };
 
   useEffect(() => {
-console.log("Todays Visits in AddVisitModal:", todaysVisits);
-    }, []);
+    console.log("Todays Visits in AddVisitModal:", todaysVisits);
+  }, []);
 
   const handleSubmit = (data: DoctorVisitData | PharmacistVisitData | StockistVisitData) => {
     onSubmit(data);
     handleClose();
+  };
+
+  const handleShowVisualAids = () => {
+    if (!selectedDoctorDesignation) {
+      alert("Please select a doctor designation first");
+      return;
+    }
+
+    // Close the modal and navigate to visual aids page
+    handleClose();
+    navigate(`/visual-aids?designation=${encodeURIComponent(selectedDoctorDesignation)}`);
   };
 
   return (
@@ -68,7 +84,34 @@ console.log("Todays Visits in AddVisitModal:", todaysVisits);
           </div>
 
           {visitType === "doctor" && (
-            <DoctorVisitForm onSubmit={handleSubmit} onCancel={handleClose} products={products} doctorVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "doctor")} />
+            
+            <div className="space-y-4">
+               <div className="flex justify-start">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleShowVisualAids}
+                  className="mt-2 flex items-center gap-2"
+                  disabled={!selectedDoctorDesignation}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                  Show Visual Aids {selectedDoctorDesignation ? `(${selectedDoctorDesignation})` : ''}
+                </Button>
+              </div>
+              <DoctorVisitForm 
+                onSubmit={handleSubmit} 
+                onCancel={handleClose} 
+                products={products} 
+                doctorVisits={todaysVisits.filter((visit) => visit.visitType.toLowerCase() === "doctor")}
+                onDesignationChange={setSelectedDoctorDesignation}
+              />
+              
+             
+            </div>
           )}
 
           {visitType === "pharmacist" && (

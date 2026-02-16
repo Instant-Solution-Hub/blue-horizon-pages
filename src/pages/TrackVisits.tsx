@@ -9,7 +9,7 @@ import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchMissedV
 import { set } from "date-fns";
 import { get } from "http";
 import { StockistVisitData } from "@/components/track-visits/StockistVisitForm";
-import { adaptBackendVisits } from "@/lib/utils";
+import { adaptBackendVisits, adaptBackendVisitsForMissed } from "@/lib/utils";
 import { on } from "events";
 import { ReMarkVisitModal } from "@/components/track-visits/ReMarkVisitModal";
 
@@ -31,7 +31,7 @@ export default function TrackVisits() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReMarkModalOpen, setIsReMarkModalOpen] = useState(false);
   const [visits, setVisits] = useState<Visit[]>([]);
-  const [missedVisits, setMissedVisits] = useState<Visit[]>([]);
+  const [missedVisits, setMissedVisits] = useState<any[]>([]);
   const [selectedMissedVisit, setSelectedMissedVisit] = useState<Visit | null>(null);
   const [todaysVisits, setTodaysVisits] = useState<any[]>([]);
   const [allStockists, setAllStockists] = useState<any[]>([]);
@@ -94,8 +94,9 @@ export default function TrackVisits() {
     if (!feID) return;
     try {
       const data = await fetchMissedVisits(Number(feID));
-      // setMissedVisits(data);
-      console.log("Missed Visits:", data);
+      console.log("Missed Visits Data from Backend:", data);
+      setMissedVisits(adaptBackendVisitsForMissed(data));
+      // console.log("Missed Visits:", adaptBackendVisitsForMissed(data, true));
     } catch (error) {
       console.error("Error fetching missed visits:", error);
     }
@@ -249,7 +250,7 @@ export default function TrackVisits() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSubmit={handleAddVisit}
-              todaysVisits={todaysVisits.concat(missedVisits)}
+              todaysVisits={todaysVisits}
               stockists={allStockists}
               products={allProducts}
             />

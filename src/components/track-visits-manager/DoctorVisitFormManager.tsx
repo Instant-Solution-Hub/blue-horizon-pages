@@ -28,6 +28,7 @@ interface DoctorVisitFormProps {
   onCancel: () => void;
   doctorVisits: any[];
   products: any[];
+  onDesignationChange: (designation: string) => void;
 }
 
 interface Product {
@@ -76,7 +77,7 @@ const activities = [
   "New Product Introduction",
 ];
 
-export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVisits }: DoctorVisitFormProps) {
+export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVisits,onDesignationChange }: DoctorVisitFormProps) {
   const [selectedVisit, setSelectedVisit] = useState<ScheduledDoctor | null>(null);
   const [isMissed, setIsMissed] = useState(false);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
@@ -87,6 +88,8 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
 
   const handleDoctorChange = (visitId: string) => {
     const doctor = doctorVisits.find((d) => d.visitId === visitId);
+    console.log("doctor change", doctor)
+    onDesignationChange(doctor.designation);
     setSelectedVisit(doctor || null);
   };
 

@@ -27,3 +27,11 @@ export const fetchAllDoctors = async (): Promise<Doctor[]> => {
   );  
   return res.data.data; // ApiResponseDto → data
 }
+
+export const fetchDoctorVisualAidByCategory= async (category): Promise<any[]> => {
+  const res = await API.get(
+    `/visual-aids/category/${category}`
+  );  
+  return res.data; // ApiResponseDto → data
+}
+
