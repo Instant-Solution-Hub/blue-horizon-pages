@@ -23,8 +23,7 @@ interface LiquidationPlanWithMeta {
 }
 
 const ManagerStockLiquidation = () => {
-  const managerId =
-    Number(localStorage.getItem("managerId")) || 1;
+  const managerId = Number(sessionStorage.getItem("userID"));
 
   const [plans, setPlans] = useState<LiquidationPlanWithMeta[]>([]);
   const [employees, setEmployees] = useState<Person[]>([]);

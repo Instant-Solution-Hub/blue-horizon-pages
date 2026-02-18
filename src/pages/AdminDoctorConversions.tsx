@@ -21,7 +21,7 @@ const AdminDoctorConversions = () => {
   const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const feId = Number(localStorage.getItem("feId")) || 1;
+  const feId = parseInt(sessionStorage.getItem("feID") || "0");
 
   // Fetch all required data
   useEffect(() => {

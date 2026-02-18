@@ -21,8 +21,8 @@ interface ApplyWorkApprovalModalProps {
 
 const ApplyWorkApprovalModal = ({ open, onClose, onSubmit }: ApplyWorkApprovalModalProps) => {
 
-    const feId = localStorage.getItem("feId") || 1;
-  const managerId = localStorage.getItem("managerId");
+    const feId = parseInt(sessionStorage.getItem("feID") || "0");
+  const managerId = Number(sessionStorage.getItem("userID"));
   const { toast } = useToast();
   const [date, setDate] = useState<Date>();
   const [description, setDescription] = useState("");

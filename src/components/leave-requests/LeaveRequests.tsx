@@ -12,7 +12,7 @@ import { fetchTeamLeaveRequests , LeaveRequest , approveLeaveRequest , rejectLea
 const LeaveRequestsTab = () => {
 
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
-   const managerId = Number(localStorage.getItem("managerId")) || 1;
+   const managerId = Number(sessionStorage.getItem("userID"));
 
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);

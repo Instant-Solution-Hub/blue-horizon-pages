@@ -92,7 +92,7 @@ const ManagerContactDetails = ({
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
    const [editForm, setEditForm] = useState<ContactInfo | null>(null);
-   const managerId = Number(localStorage.getItem("managerId")) || 1;
+   const managerId = Number(sessionStorage.getItem("userID"));
    const [loading, setLoading] = useState(false);
 
      useEffect(() => {

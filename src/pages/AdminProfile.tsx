@@ -34,7 +34,7 @@ const AdminProfile = () => {
   const [feContacts, setFEContacts] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
 
-  const adminId = Number(localStorage.getItem("adminId")) || 1;
+  const adminId = Number(sessionStorage.getItem("userID"));
 
   useEffect(() => {
     const load = async () => {

@@ -45,7 +45,7 @@ const currentMonth = now.getMonth() + 1; // JS months are 0-based
 const currentYear = now.getFullYear();
 
 const ManagerTargetPlan = () => {
-    const managerId = Number(localStorage.getItem("managerId")) || 1; // from auth later
+    const managerId = Number(sessionStorage.getItem("userID"));
 const month = new Date().getMonth() + 1;
 const year = new Date().getFullYear();
   const [isSetTargetOpen, setIsSetTargetOpen] = useState(false);

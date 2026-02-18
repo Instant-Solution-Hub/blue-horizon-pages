@@ -31,7 +31,7 @@ export const StockLiquidation = () => {
   const [editingPlan, setEditingPlan] = useState<LiquidationPlan | null>(null);
    const [activeTab, setActiveTab] = useState("liquidation");
     const [stockData, setStockData] = useState<ProductStock[]>([]);
-  const feId =  Number(localStorage.getItem("feId")) || 1;
+  const feId = parseInt(sessionStorage.getItem("feID") || "0");
 
   const fetchStock = async () => {
   try {

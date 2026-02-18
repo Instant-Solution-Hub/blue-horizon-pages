@@ -13,7 +13,7 @@ const ManagerJoiningViewPage = () => {
 
   // Calculate stats
   const uniqueFEs = new Set(joinings.map(j => j.feId)).size;
-  const managerId = Number(localStorage.getItem("managerId")) || 1;
+  const managerId = Number(sessionStorage.getItem("userID"));
   const [loading , setLoading] = useState(true);
   const stats = {
     totalJoinings: joinings.length,

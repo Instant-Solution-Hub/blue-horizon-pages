@@ -22,7 +22,7 @@ const ManagerJoining = () => {
   const [loading, setLoading] = useState(false);
 
   // 🔹 Example: FE id from auth / localStorage
-  const feId = Number(localStorage.getItem("feId")) || 1;
+  const feId =  parseInt(sessionStorage.getItem("feID") || "0");
 
   const today = new Date();
   const month = today.getMonth() + 1;

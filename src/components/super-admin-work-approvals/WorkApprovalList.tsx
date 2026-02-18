@@ -23,7 +23,7 @@ interface WorkRequest {
 const WorkApprovalList = () => {
   const { toast } = useToast();
   const [requests, setRequests] = useState<WorkRequest[]>([]);
-  const adminId = Number(localStorage.getItem("superAdminId")) || 1;
+  const adminId = Number(sessionStorage.getItem("userID"));
 
   useEffect(() => {
     loadRequests();
