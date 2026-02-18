@@ -194,6 +194,21 @@ export const deleteVisitById = async (visitId: number) => {
     return response.data;
 }
 
+export const fetchEmployees = async (managerId:number) => {
+    const res = await API.get(
+      `/managers/${managerId}/field-executives/basic`
+    );
+
+    return res.data.data;
+  };
+
+  export const fetchLiquidationPlansForManager = async (managerId: number) => {
+    const res = await API.get(
+      `/managers/${managerId}/liquidation-plans/current-month`
+    );
+    return res.data.data;
+  }
+
 
 export const fetchVisits = async (managerId: number, week: number, day: number) => {
   const response = await API.get(`/visit/manager/${managerId}/scheduled-visits?weekNumber=${week}&dayOfWeek=${day}`, { 
