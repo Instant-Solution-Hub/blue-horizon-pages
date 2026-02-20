@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
       { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },
        { icon: PackageOpen, label: "Stock Liquidation", href: "/manager-dashboard/stock-liquidation" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
-  { icon: ClipboardCheck, label: "Visit Compliance", href: "/manager-dashboard/visit-compliance" }
+  
 ];
 
 const ManagerSidebar = () => {

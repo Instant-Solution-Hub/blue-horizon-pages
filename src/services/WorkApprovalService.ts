@@ -15,6 +15,7 @@ export interface CreateWorkApprovalRequest {
 }
 
 export const createWorkApproval = async (payload: CreateWorkApprovalRequest) => {
+  console.log(payload);
   const res = await API.post(`/approval-requests/raise`, payload);
   return res.data;
 };
@@ -22,6 +23,7 @@ export const fetchCurrentMonthWorkApprovals = async (
   fieldExecutiveId?: number | null,
   managerId?: number | null
 ) => {
+  console.log(fieldExecutiveId,managerId);
   const params: any = {};
 
   if (fieldExecutiveId) {

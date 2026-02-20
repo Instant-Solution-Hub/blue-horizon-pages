@@ -23,6 +23,8 @@ const ApplyWorkApprovalModal = ({ open, onClose, onSubmit }: ApplyWorkApprovalMo
 
     const feId = parseInt(sessionStorage.getItem("feID") || "0");
   const managerId = Number(sessionStorage.getItem("userID"));
+  const isFeValid = Number.isFinite(feId) && feId > 0;
+
   const { toast } = useToast();
   const [date, setDate] = useState<Date>();
   const [description, setDescription] = useState("");
@@ -41,8 +43,9 @@ const handleSubmit = async () => {
     await createWorkApproval({
   workDate: format(date, "yyyy-MM-dd"),
   description: description.trim(),
-  fieldExecutiveId: feId ? Number(feId) : null,
-  managerId: managerId ? Number(managerId) : null,
+  fieldExecutiveId: isFeValid ? Number(feId) : null,
+  managerId: isFeValid ? null : Number(managerId),
+
 });
 
 
