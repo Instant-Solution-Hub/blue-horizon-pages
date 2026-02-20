@@ -148,7 +148,7 @@ export default function TrackVisitsManager() {
       console.error("Error creating unscheduled visit:", error);
       toast({
         title: "Error",
-        description: "Failed to create unscheduled visit.",
+        description:error.response.data.message || "Failed to create unscheduled visit.",
         variant: "destructive",
       });
     }

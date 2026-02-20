@@ -111,8 +111,8 @@ export default function SlotPlanning() {
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  const isFirstOfMonth = today.getDate() === 2;
-  // const isFirstOfMonth = true;
+  // const isFirstOfMonth = today.getDate() === 2;
+  const isFirstOfMonth = true;
 
   const currentMonthName = today.toLocaleString("default", {
     month: "long",

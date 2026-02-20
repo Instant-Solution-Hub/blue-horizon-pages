@@ -12,7 +12,8 @@ import { AlertTriangle, UserPlus, Send, CalendarCheck, Phone, Mail, MapPin, Hash
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchPriorityFieldExecutives,
-  assignManagerToFieldExecutive
+  assignManagerToFieldExecutive,
+  unAssignManagerToFieldExecutive
 } from "@/services/ManagerService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +72,8 @@ export default function ManagerSlotPlanning() {
   const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [isUnAssigning, setIsUnAssigning] = useState(false);
+
   const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
 
   const userId = Number(sessionStorage.getItem("userID"));
@@ -224,6 +227,45 @@ export default function ManagerSlotPlanning() {
     }
   };
 
+  const handleUnAssignToFieldExecutive = async (feId: number, feName: string) => {
+    setIsUnAssigning(true);
+    try {
+      let obj = {
+        "managerId": userId,
+        "fieldExecutiveId": feId,
+        "weekNumber": selectedWeek,
+        "dayOfWeek": selectedDay
+      }
+      const response = await unAssignManagerToFieldExecutive(obj);
+
+      if (response.success) {
+        fetchManagerVisitsByWeekDay();
+
+        // Update local state to track assignment
+        // setAssignedFEs(prev => [...prev, feId]);
+
+        toast({
+          title: "Successfully Assigned",
+          description: `You have been assigned to ${feName}'s A+ and A visits for Week ${selectedWeek}, Day ${selectedDay}.`,
+        });
+
+        // Refresh the visits list if not first of month
+        if (!isFirstOfMonth) {
+          fetchManagerVisitsByWeekDay();
+        }
+      }
+    } catch (error: any) {
+      console.error("Error assigning to field executive:", error);
+      toast({
+        title: "Assignment Failed",
+        description: error.response?.data?.message || "Failed to assign to field executive",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUnAssigning(false);
+    }
+  };
+
   const handleRequestUpdate = async (data: {
     visitType: string;
     visitId: number;
@@ -370,9 +412,22 @@ export default function ManagerSlotPlanning() {
                     )}
                   </Button>
                 ) : (
-                  <Button variant="secondary" disabled className="min-w-[140px]">
-                    <CalendarCheck className="h-4 w-4 mr-2" />
-                    Assigned
+                  <Button
+                    onClick={() => handleUnAssignToFieldExecutive(fe.id, fe.name)}
+                    disabled={isUnAssigning}
+                    className="min-w-[140px]"
+                  >
+                    {isUnAssigning ? (
+                      <>
+                        <span className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        un-assigning...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Un-assign Visits
+                      </>
+                    )}
                   </Button>
                 )}
               </div>

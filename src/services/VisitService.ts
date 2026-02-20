@@ -186,3 +186,15 @@ export const fetchWeeklyVisitStatReport  = async () => {
   return response.data;
 
 }
+
+export const fetchDoctorVisitTrack  = async (feId,doctorId) => {
+  const response = await API.get(`/visit/doctor-track?fieldExecutiveId=${feId}&doctorId=${doctorId}`,{ 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+
+  return response.data;
+
+}

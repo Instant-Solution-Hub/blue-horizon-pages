@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { fetchDoctors, fetchPharmacists } from "@/services/UsersService";
+import { fetchDoctorVisitTrack } from "@/services/VisitService";
 
 interface Doctor {
   id: number;
@@ -72,11 +73,39 @@ export function AddSlotModal({
   const [pharmacists, setPharmacists] = useState<any[]>([]);
   const [doctorSearchQuery, setDoctorSearchQuery] = useState<string>("");
   const [pharmacistSearchQuery, setPharmacistSearchQuery] = useState<string>("");
+  const userId = sessionStorage.getItem("userID");
+  const [doctorTrack, setDoctorTrack] = useState<{
+    doctorId: number;
+    doctorName: string;
+    category: string;
+    requiredVisits: number;
+    plannedVisits: number;
+    progress: string;
+  } | null>(null);
 
   useEffect(() => {
     getDoctors();
     getPharmacists();
   }, []);
+
+  useEffect(() => {
+    getDoctorTrack();
+  }, [selectedId]);
+
+  const getDoctorTrack = async () => {
+    if (!selectedId || visitType !== "doctor") {
+      setDoctorTrack(null);
+      return;
+    }
+
+    try {
+      const response = await fetchDoctorVisitTrack(userId, selectedId);
+      setDoctorTrack(response);
+    } catch (error) {
+      console.error("Failed to fetch doctor track", error);
+      setDoctorTrack(null);
+    }
+  };
 
   const getDoctors = async () => {
     let response = await fetchDoctors();
@@ -180,8 +209,38 @@ export function AddSlotModal({
             {/* Doctor/Pharmacist Selection */}
             {visitType === "doctor" ? (
               <div className="space-y-2">
+                {doctorTrack && (
+                  <div className="flex flex-col items-start gap-1 p-3 bg-muted/40 rounded-md border">
+                    {/* <div className="flex items-center justify-between w-full">
+                      <span className="text-sm font-medium">
+                        {doctorTrack.doctorName}
+                      </span>
+
+                      <Badge
+                        variant="outline"
+                        className={categoryColors[doctorTrack.category]}
+                      >
+                        {doctorTrack.category === "A_PLUS"
+                          ? "A+"
+                          : doctorTrack.category}
+                      </Badge>
+                    </div> */}
+
+                    <span className="text-xs text-muted-foreground">
+                      Required Visits: {doctorTrack.requiredVisits}
+                    </span>
+
+                    <span className="text-xs text-muted-foreground">
+                      Planned Visits: {doctorTrack.plannedVisits}
+                    </span>
+
+                    <span className="text-xs font-semibold text-primary">
+                      Progress: {doctorTrack.progress}
+                    </span>
+                  </div>
+                )}
                 <Label>Select Doctor</Label>
-                
+
                 {/* Search input for doctors */}
                 <div className="relative mb-2">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -197,8 +256,8 @@ export function AddSlotModal({
                 <div className="space-y-2">
                   {filteredDoctors.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      {doctorSearchQuery 
-                        ? "No doctors match your search criteria." 
+                      {doctorSearchQuery
+                        ? "No doctors match your search criteria."
                         : "No doctors available."}
                     </p>
                   ) : (
@@ -206,11 +265,10 @@ export function AddSlotModal({
                       <div
                         key={doctor.id}
                         onClick={() => setSelectedId(doctor.id.toString())}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedId === doctor.id.toString()
-                            ? "border-primary bg-primary/5"
-                            : "hover:bg-muted/50"
-                        }`}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === doctor.id.toString()
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted/50"
+                          }`}
                       >
                         <div className="flex items-start justify-between">
                           <div>
@@ -231,16 +289,13 @@ export function AddSlotModal({
                             >
                               {doctor.category === "A_PLUS" ? "A+" : doctor.category}
                             </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {doctor.scheduledCount}/{doctor.maxSchedules} scheduled
-                            </span>
                           </div>
                         </div>
                       </div>
                     ))
                   )}
                 </div>
-                
+
                 {/* Result count */}
                 {filteredDoctors.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
@@ -251,7 +306,7 @@ export function AddSlotModal({
             ) : (
               <div className="space-y-2">
                 <Label>Select Pharmacist</Label>
-                
+
                 {/* Search input for pharmacists */}
                 <div className="relative mb-2">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -267,8 +322,8 @@ export function AddSlotModal({
                 <div className="space-y-2">
                   {filteredPharmacists.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      {pharmacistSearchQuery 
-                        ? "No pharmacists match your search criteria." 
+                      {pharmacistSearchQuery
+                        ? "No pharmacists match your search criteria."
                         : "No pharmacists available."}
                     </p>
                   ) : (
@@ -276,11 +331,10 @@ export function AddSlotModal({
                       <div
                         key={pharmacist.id}
                         onClick={() => setSelectedId(pharmacist.id.toString())}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedId === pharmacist.id.toString()
-                            ? "border-primary bg-primary/5"
-                            : "hover:bg-muted/50"
-                        }`}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === pharmacist.id.toString()
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted/50"
+                          }`}
                       >
                         <p className="font-medium">{pharmacist.contactPerson}</p>
                         <p className="text-sm text-muted-foreground">
@@ -290,7 +344,7 @@ export function AddSlotModal({
                     ))
                   )}
                 </div>
-                
+
                 {/* Result count for pharmacists */}
                 {filteredPharmacists.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">

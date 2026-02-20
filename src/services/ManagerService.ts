@@ -239,6 +239,16 @@ export const assignManagerToFieldExecutive = async (obj:any ) => {
     return response.data;
 }
 
+export const unAssignManagerToFieldExecutive = async (obj:any ) => {
+  const response = await API.post(`/manager-visits/unassign`, obj, { 
+    headers: {  
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
 export const fetchManagerDashboardStats = async (managerId: number) => {
   const response = await API.get(`/managers/stats/${managerId}`, { 
     headers: {
