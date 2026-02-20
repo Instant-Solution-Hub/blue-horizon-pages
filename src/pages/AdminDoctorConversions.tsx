@@ -34,8 +34,7 @@ const AdminDoctorConversions = () => {
         setFieldExecutives(Array.isArray(fesData) ? fesData : []);
 
         // Fetch Doctors for current FE
-        const doctorsData = await fetchDoctorsByFE(feId);
-        setDoctors(Array.isArray(doctorsData) ? doctorsData : []);
+      
 
         // Fetch Products
         const productsData = await getProducts();
@@ -58,6 +57,20 @@ const AdminDoctorConversions = () => {
 
     loadData();
   }, [feId]);
+
+  const loadDoctorsByFE = async (feId: number) => {
+  try {
+    const doctorsData = await fetchDoctorsByFE(feId);
+    setDoctors(Array.isArray(doctorsData) ? doctorsData : []);
+  } catch (err) {
+    console.error("Failed to load doctors", err);
+    toast({
+      title: "Error",
+      description: "Failed to load doctors.",
+      variant: "destructive",
+    });
+  }
+};
 
   const handleAddConversion = async (data: {
     fieldExecutiveId: number;
@@ -179,6 +192,7 @@ const AdminDoctorConversions = () => {
             fieldExecutives={fieldExecutives}
             doctors={doctors}
             products={products}
+            onFEChange={loadDoctorsByFE}
           />
         </main>
       </div>
