@@ -123,14 +123,7 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                         >
                           <CheckCircle2 className="w-4 h-4" /> Approve
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleReject(plan.id)}
-                          className="gap-1"
-                        >
-                          <XCircle className="w-4 h-4" /> Reject
-                        </Button>
+                       
                       </div>
                     )}
                   </div>

@@ -32,7 +32,7 @@ const ManagerStockUpdate = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [stockists, setStockists] = useState<Stockist[]>([]);
-  const managerId = Number(localStorage.getItem("managerId")) || 1;
+  const managerId = Number(sessionStorage.getItem("userID"));
 
  useEffect(() => {
   setLoading(true);

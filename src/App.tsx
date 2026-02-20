@@ -51,6 +51,7 @@ import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
 import { VisualAidsPage } from "./pages/VisualAidsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 
 
 
@@ -93,6 +94,7 @@ const App = () => (
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
             <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+            <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
               <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
             <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
              

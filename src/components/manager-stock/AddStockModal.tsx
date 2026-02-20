@@ -126,7 +126,7 @@ const AddStockModal = ({
 
     try {
      const responseData =  await addStock({
-        managerId: Number(localStorage.getItem("managerId")) || 1,
+        managerId: Number(sessionStorage.getItem("userID")),
         productId: Number(productId),
         stockistId: Number(stockistId),
         quantity: qty,

@@ -32,7 +32,7 @@ const CompetitiveBrands = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReport, setEditingReport] = useState<CompetitiveReport | null>(null);
   const [reports, setReports] = useState<CompetitiveReport[]>([]);
-  const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
+  const fieldExecutiveId =  parseInt(sessionStorage.getItem("feID") || "0");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -23,7 +23,7 @@ const Profile = () => {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaves, setLeaves] = useState<Leave[]>([]);
 
-  const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
+  const fieldExecutiveId = parseInt(sessionStorage.getItem("feID") || "0");
   const [profileStats, setProfileStats] = useState<FEProfileStats | null>(null);
   const [monthlyLeaves, setMonthlyLeaves] = useState<number>(0);
   const [contactDetails, setContactDetails] = useState<{

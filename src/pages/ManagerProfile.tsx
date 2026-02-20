@@ -16,7 +16,7 @@ import { fetchManagerContactDetails , fetchAdminContact , fetchSuperAdminContact
 const ManagerProfile = () => {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaves, setLeaves] = useState<Leave[]>([]);
-   const managerId = Number(localStorage.getItem("managerId")) || 1;
+   const managerId = Number(sessionStorage.getItem("userID"));
 const [loading, setLoading] = useState(true);
 const [profileStats, setProfileStats] = useState<ManagerProfileStats | null>(null);
 const [monthlyLeaves, setMonthlyLeaves] = useState<number>(0);

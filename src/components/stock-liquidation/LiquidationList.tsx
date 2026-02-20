@@ -259,15 +259,18 @@ const handleSave = (plan: LiquidationPlan) => {
                           </Badge>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(plan)}
-                        className="self-end lg:self-center"
-                      >
-                        <Pencil className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
+                    {plan.status === "PENDING" && (
+  <Button
+    size="sm"
+    variant="ghost"
+    onClick={() => handleEdit(plan)}
+    className="self-end lg:self-center"
+  >
+    <Pencil className="w-4 h-4 mr-1" />
+    Edit
+  </Button>
+)}
+
                     </div>
                   )}
                 </div>

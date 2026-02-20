@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import { PackageOpen } from "lucide-react";
 import ManagerLiquidationList from "@/components/manager-stock-liquidation/ManagerLiquidationList";
 import StatsCards from "@/components/stock-liquidation/StatsCards";
 import { PersonSelector, Person } from "@/components/admin-slots/PersonSelector";
+import { fetchEmployees , fetchLiquidationPlansForManager } from "@/services/ManagerService";
+import { updateLiquidationPlanStatus } from "@/services/LiquidationService";
+
 
 interface LiquidationPlanWithMeta {
   id: string;
@@ -19,51 +22,71 @@ interface LiquidationPlanWithMeta {
   employeeId: number;
 }
 
-const mockEmployees: Person[] = [
-  { id: 1, name: "Rahul Verma", employeeCode: "FE001", territory: "North Zone" },
-  { id: 2, name: "Amit Gupta", employeeCode: "FE002", territory: "East Zone" },
-  { id: 3, name: "Suresh Nair", employeeCode: "FE003", territory: "West Zone" },
-];
-
-const mockPlans: LiquidationPlanWithMeta[] = [
-  {
-    id: "1", product: "Paracetamol 500mg", quantity: 1500, doctor: "Dr. Rajesh Kumar",
-    targetLiquidation: 200, achievedUnits: 120, marketName: "Central Market",
-    medicalShopName: "Apollo Pharmacy", status: "PENDING", createdAt: new Date("2024-01-15"),
-    employeeId: 1,
-  },
-  {
-    id: "2", product: "Paracetamol 500mg", quantity: 1500, doctor: "Dr. Priya Sharma",
-    targetLiquidation: 150, achievedUnits: 0, marketName: "East Zone",
-    status: "PENDING", createdAt: new Date("2024-01-16"),
-    employeeId: 2,
-  },
-  {
-    id: "3", product: "Amoxicillin 250mg", quantity: 800, doctor: "Dr. Amit Patel",
-    targetLiquidation: 100, achievedUnits: 75, marketName: "West Market",
-    medicalShopName: "MedPlus", status: "APPROVED", createdAt: new Date("2024-01-17"),
-     employeeId: 3
-  },
-  {
-    id: "4", product: "Omeprazole 20mg", quantity: 1200, doctor: "Dr. Sunita Reddy",
-    targetLiquidation: 300, achievedUnits: 0, marketName: "North Market",
-    status: "PENDING", createdAt: new Date("2024-01-18"),
-    employeeId: 1,
-  },
-];
-
 const ManagerStockLiquidation = () => {
-  const [plans, setPlans] = useState<LiquidationPlanWithMeta[]>(mockPlans);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const managerId = Number(sessionStorage.getItem("userID"));
+
+  const [plans, setPlans] = useState<LiquidationPlanWithMeta[]>([]);
+  const [employees, setEmployees] = useState<Person[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] =
+    useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🔹 Fetch Employees
+  const fetchEmployeesData = async () => {
+    const employeesData = await fetchEmployees(managerId);
+    setEmployees(employeesData);
+  };
+
+  // 🔹 Fetch Current Month Liquidation Plans
+  const fetchLiquidationPlans = async () => {
+    const res = await fetchLiquidationPlansForManager(managerId);
+
+    const mappedPlans = res.map((p: any) => ({
+      ...p,
+      id: String(p.id),
+      createdAt: new Date(p.createdAt),
+    }));
+
+    setPlans(mappedPlans);
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchEmployeesData(),
+          fetchLiquidationPlans(),
+        ]);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    init();
+  }, []);
 
   const filteredPlans = selectedEmployeeId
     ? plans.filter((p) => p.employeeId === selectedEmployeeId)
     : [];
 
-  const handleUpdateStatus = (id: string, status: "APPROVED" | "REJECTED") => {
-    setPlans((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status } : p))
-    );
+  const handleUpdateStatus = async (
+    id: string,
+    status: "APPROVED" | "REJECTED"
+  ) => {
+    try {
+      await updateLiquidationPlanStatus(id, status);
+
+      setPlans((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, status } : p
+        )
+      );
+    } catch (err) {
+      console.error("Error updating status:", err);
+    }
   };
 
   return (
@@ -87,13 +110,13 @@ const ManagerStockLiquidation = () => {
 
           {/* Employee Selector */}
           <PersonSelector
-            persons={mockEmployees}
+            persons={employees}
             selectedPersonId={selectedEmployeeId}
             onSelect={setSelectedEmployeeId}
             placeholder="Search team member by name or employee ID..."
           />
 
-          {selectedEmployeeId && (
+          {selectedEmployeeId && !loading && (
             <>
               <StatsCards plans={filteredPlans as any} />
               <ManagerLiquidationList
@@ -101,6 +124,12 @@ const ManagerStockLiquidation = () => {
                 onUpdateStatus={handleUpdateStatus}
               />
             </>
+          )}
+
+          {loading && (
+            <p className="text-muted-foreground">
+              Loading data...
+            </p>
           )}
         </div>
       </main>

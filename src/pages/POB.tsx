@@ -25,7 +25,7 @@ const POB = () => {
     pending: orders.filter(o => o.status === "pending").length,
     confirmed: orders.filter(o => o.status === "confirmed").length,
   };
-  const feId = Number(localStorage.getItem("feId")) || 1;
+  const feId =  parseInt(sessionStorage.getItem("feID") || "0");
 
   const fetchOrders = async () => {
   try {

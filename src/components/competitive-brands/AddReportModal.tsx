@@ -91,7 +91,7 @@ const [designation, setDesignation] = useState("");
 const [observations, setObservations] = useState("");
 const [imageFile, setImageFile] = useState<File | null>(null);
 const [imagePreview, setImagePreview] = useState<string>("");
-const fieldExecutiveId = Number(localStorage.getItem("feId")) || 1;
+const fieldExecutiveId =  parseInt(sessionStorage.getItem("feID") || "0");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

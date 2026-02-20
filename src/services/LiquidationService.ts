@@ -62,3 +62,11 @@ export const updateLiquidationPlan = async (
 
   return res.data;
 };
+
+ export const updateLiquidationPlanStatus = async (id: string, status: "APPROVED" | "REJECTED") => {
+  const res = await API.put(`/fe/liquidation-plans/${id}/approval`, {
+        status,
+      });
+
+      return res.data;
+    }
