@@ -111,7 +111,7 @@ export default function SlotPlanning() {
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
-  // const isFirstOfMonth = today.getDate() === 1;
+  // const isFirstOfMonth = today.getDate() === 2;
   const isFirstOfMonth = true;
 
   const currentMonthName = today.toLocaleString("default", {
@@ -287,6 +287,7 @@ export default function SlotPlanning() {
                   selectedDay={selectedDay}
                   currentWeek={currentWeek}
                   currentDay={currentDay}
+                  // currentMonth={new Date().getMonth()+1}
                   isPastDisabled={false}
                   onWeekChange={setSelectedWeek}
                   onDayChange={setSelectedDay}

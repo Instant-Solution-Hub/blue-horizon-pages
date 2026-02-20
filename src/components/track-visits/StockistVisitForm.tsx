@@ -81,37 +81,49 @@ export function StockistVisitForm({ onSubmit, onCancel, stockists }: StockistVis
       alert("Notes are mandatory when 'Other' activity is selected");
       return;
     }
+    onSubmit({
+      visitType: "STOCKIST",
+      stockistType,
+      stockistId: selectedStockist.id,
+      stockistName: selectedStockist.name,
+      contactPerson: selectedStockist.contactPerson,
+      contactNumber: selectedStockist.contactNumber,
+      activitiesPerformed: selectedActivities,
+      orderValue: selectedActivities.includes("Sales Order") ? orderValue : "",
+      notes,
+      location: null,
+    });
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        onSubmit({
-          visitType: "STOCKIST",
-          stockistType,
-          stockistId: selectedStockist.id,
-          stockistName: selectedStockist.name,
-          contactPerson: selectedStockist.contactPerson,
-          contactNumber: selectedStockist.contactNumber,
-          activitiesPerformed: selectedActivities,
-          orderValue: selectedActivities.includes("Sales Order") ? orderValue : "",
-          notes,
-          location: { lat: position.coords.latitude, lng: position.coords.longitude },
-        });
-      },
-      () => {
-        onSubmit({
-          visitType: "STOCKIST",
-          stockistType,
-          stockistId: selectedStockist.id,
-          stockistName: selectedStockist.name,
-          contactPerson: selectedStockist.contactPerson,
-          contactNumber: selectedStockist.contactNumber,
-          activitiesPerformed: selectedActivities,
-          orderValue: selectedActivities.includes("Sales Order") ? orderValue : "",
-          notes,
-          location: null,
-        });
-      }
-    );
+    // navigator.geolocation.getCurrentPosition(
+    //   (position) => {
+    //     onSubmit({
+    //       visitType: "STOCKIST",
+    //       stockistType,
+    //       stockistId: selectedStockist.id,
+    //       stockistName: selectedStockist.name,
+    //       contactPerson: selectedStockist.contactPerson,
+    //       contactNumber: selectedStockist.contactNumber,
+    //       activitiesPerformed: selectedActivities,
+    //       orderValue: selectedActivities.includes("Sales Order") ? orderValue : "",
+    //       notes,
+    //       location: { lat: position.coords.latitude, lng: position.coords.longitude },
+    //     });
+    //   },
+    //   () => {
+    //     onSubmit({
+    //       visitType: "STOCKIST",
+    //       stockistType,
+    //       stockistId: selectedStockist.id,
+    //       stockistName: selectedStockist.name,
+    //       contactPerson: selectedStockist.contactPerson,
+    //       contactNumber: selectedStockist.contactNumber,
+    //       activitiesPerformed: selectedActivities,
+    //       orderValue: selectedActivities.includes("Sales Order") ? orderValue : "",
+    //       notes,
+    //       location: null,
+    //     });
+    //   }
+    // );
   };
 
   return (

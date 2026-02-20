@@ -19,6 +19,7 @@ import { AddManagerVisitModal } from "@/components/track-visits-manager/AddManag
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { fetchAllDoctors } from "@/services/DoctorService";
+import { VisitSearchBarManager } from "@/components/track-visits-manager/VisitSearchBarManager";
 
 interface Visit {
   id: string;
@@ -147,7 +148,7 @@ export default function TrackVisitsManager() {
       console.error("Error creating unscheduled visit:", error);
       toast({
         title: "Error",
-        description: "Failed to create unscheduled visit.",
+        description:error.response.data.message || "Failed to create unscheduled visit.",
         variant: "destructive",
       });
     }
@@ -247,7 +248,7 @@ export default function TrackVisitsManager() {
               </p>
             </div>
 
-            <VisitSearchBar
+            <VisitSearchBarManager
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               filterType={filterType}
@@ -259,7 +260,7 @@ export default function TrackVisitsManager() {
               completedVisits={visits}
               missedVisits={missedVisits}
               searchQuery={searchQuery}
-              filterType={filterType}
+              filterType={"all"}
             //   userType="manager"
             />
 

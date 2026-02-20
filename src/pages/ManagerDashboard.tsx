@@ -5,7 +5,7 @@ import ManagerScheduleItem from "@/components/manager-dashboard/ManagerScheduleI
 import TeamPerformanceTable from "@/components/manager-dashboard/TeamPerformanceTable";
 import { Stethoscope, TrendingUp, Users } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { fetchManagerDashboardStats, fetchManagerTeamPerformance, fetchManagerTodaysSchedule } from "@/services/ManagerService";
+import { fetchManagerDashboardStats, fetchManagerTeamPerformance, fetchManagerTodaysSchedule, fetchManagerTodaysScheduleVisitsOnly } from "@/services/ManagerService";
 
 const scheduleData = [
   {
@@ -69,8 +69,8 @@ const ManagerDashboard = () => {
 
   const getTodaysSchedule =async () => {
     setIsLoading(true);
-    let response = await fetchManagerTodaysSchedule(userId);
-    setTodaysSchedule(response.data);
+    let response = await fetchManagerTodaysScheduleVisitsOnly(userId);
+    setTodaysSchedule(response);
     setIsLoading(false);
   }
 
@@ -103,11 +103,13 @@ const ManagerDashboard = () => {
               />
               <ManagerStatsCard
                 title="Team Target Progress"
-                value={`${dashboardData?.targetProgress || 0}%`}
+                value={`${dashboardData?.teamTargetProgress || 0}%`}
                 icon={TrendingUp}
                 iconColor="text-success"
                 iconBgColor="bg-success/10"
-                trend={`${dashboardData?.trend || "0%"} from last week`}
+                // trend={`${dashboardData?.trend || "0%"} from last week`}
+                trend={``}
+
                 className="animate-fade-in"
                 style={{ animationDelay: "0.2s" } as React.CSSProperties}
               />
@@ -139,10 +141,10 @@ const ManagerDashboard = () => {
                 {todaysSchedule.map((item, index) => (
                   <ManagerScheduleItem
                     key={index}
-                    name={item.name}
-                    time={item.time}
-                    type={item.type.toLowerCase() as "doctor" | "pharmacy" | "stockist"}
-                    feName={item.feName}
+                    name={item.doctorName}
+                    time={item.visitDate}
+                    type={item.visitType.toLowerCase() as "doctor" | "pharmacy" | "stockist"}
+                    feName={item.fieldExecutiveName}
                   />
                 ))}
               </div>
@@ -150,9 +152,9 @@ const ManagerDashboard = () => {
           </section>
 
           {/* Team Performance Overview */}
-          <section className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          {/* <section className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
             <TeamPerformanceTable teamMembers={teamMembersData} />
-          </section>
+          </section> */}
         </main>
       </div>
     </div>

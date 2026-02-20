@@ -41,7 +41,7 @@ export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekN
 };
 
 export const fetchTodaysVisits = async (managerId: number) => {
-  const response = await API.get(`/manager-visits/today-scheduled/?managerId=${managerId}`, { 
+  const response = await API.get(`/manager-visits/today-scheduled?managerId=${managerId}`, { 
     headers: {
         "Content-Type": "application/json", 
         "Accept": "application/json",

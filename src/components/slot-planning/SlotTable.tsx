@@ -67,7 +67,7 @@ export function SlotTable({ title, visits }: SlotTableProps) {
               <TableHead>Practice Type</TableHead>
               <TableHead>Designation</TableHead>
               <TableHead>Hospital</TableHead>
-              <TableHead>Visit Track</TableHead>
+              <TableHead>Visit Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

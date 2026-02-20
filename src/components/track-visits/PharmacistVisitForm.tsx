@@ -49,19 +49,7 @@ export function PharmacistVisitForm({ onSubmit, onCancel, pharmacistVisits }: Ph
       return;
     }
 
-    navigator.geolocation.getCurrentPosition((position)=>{onSubmit({
-      visitId: selectedVisit ? selectedVisit.visitId : "",
-      visitType: "pharmacist",
-      pharmacyName,
-      contactPerson,
-      contactNumber,
-      activitiesPerformed: selectedActivities,
-      location: { lat: position.coords.latitude, lng: position.coords.longitude },
-      notes,
-      isMissed,
-      isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
-    });}, ()=>{
-      onSubmit({
+    onSubmit({
       visitId: selectedVisit ? selectedVisit.visitId : "",
       visitType: "pharmacist",
       pharmacyName,
@@ -72,8 +60,33 @@ export function PharmacistVisitForm({ onSubmit, onCancel, pharmacistVisits }: Ph
       notes,
       isMissed,
       isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
-    })
     });
+
+    // navigator.geolocation.getCurrentPosition((position)=>{onSubmit({
+    //   visitId: selectedVisit ? selectedVisit.visitId : "",
+    //   visitType: "pharmacist",
+    //   pharmacyName,
+    //   contactPerson,
+    //   contactNumber,
+    //   activitiesPerformed: selectedActivities,
+    //   location: { lat: position.coords.latitude, lng: position.coords.longitude },
+    //   notes,
+    //   isMissed,
+    //   isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
+    // });}, ()=>{
+    //   onSubmit({
+    //   visitId: selectedVisit ? selectedVisit.visitId : "",
+    //   visitType: "pharmacist",
+    //   pharmacyName,
+    //   contactPerson,
+    //   contactNumber,
+    //   activitiesPerformed: selectedActivities,
+    //   location: null,
+    //   notes,
+    //   isMissed,
+    //   isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
+    // })
+    // });
   };
 
   const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
