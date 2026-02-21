@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AddDoctorConversionModal from "@/components/admin-doctor-conversions/AddDoctorConversionModal";
 import DoctorConversionList from "@/components/admin-doctor-conversions/DoctorConversionList";
 
@@ -105,6 +112,21 @@ const initialConversions: DoctorConversion[] = [
 const AdminDoctorConversions = () => {
   const [conversions, setConversions] = useState<DoctorConversion[]>(initialConversions);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [fromDate, setFromDate] = useState<Date>();
+  const [toDate, setToDate] = useState<Date>();
+
+  const filteredConversions = useMemo(() => {
+    return conversions.filter((c) => {
+      const date = new Date(c.createdAt);
+      if (fromDate && date < fromDate) return false;
+      if (toDate) {
+        const endOfDay = new Date(toDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (date > endOfDay) return false;
+      }
+      return true;
+    });
+  }, [conversions, fromDate, toDate]);
 
   const handleAddConversion = (data: {
     fieldExecutiveId: string;
@@ -148,15 +170,80 @@ const AdminDoctorConversions = () => {
           </p>
         </div>
 
-        <div className="flex justify-end mb-4">
-          <Button onClick={() => setIsAddModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Conversion
-          </Button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm">From Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[180px] justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={setFromDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm">To Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[180px] justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={setToDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            {(fromDate || toDate) && (
+              <Button
+                variant="ghost"
+                className="self-end"
+                onClick={() => { setFromDate(undefined); setToDate(undefined); }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="sm:ml-auto">
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Conversion
+            </Button>
+          </div>
         </div>
 
         <DoctorConversionList
-          conversions={conversions}
+          conversions={filteredConversions}
           onDelete={handleDeleteConversion}
         />
 
