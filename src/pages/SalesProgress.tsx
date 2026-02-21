@@ -1,5 +1,6 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProductSalesTable from "@/components/sales-progress/ProductSalesTable";
+import StockistSalesTable from "@/components/sales-progress/StockistSalesTable";
 import MarketSalesTable from "@/components/sales-progress/MarketSalesTable";
 import { BarChart3 } from "lucide-react";
 
@@ -30,6 +31,11 @@ const SalesProgress = () => {
           {/* Market Sales Section */}
           <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <MarketSalesTable />
+          </div>
+
+          {/* Stockist Sales Section */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <StockistSalesTable />
           </div>
         </div>
       </main>
