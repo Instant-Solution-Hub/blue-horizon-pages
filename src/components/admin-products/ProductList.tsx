@@ -9,15 +9,16 @@
    TableRow,
  } from "@/components/ui/table";
  
- interface Product {
-   id: string;
-   name: string;
-   category: string;
-   description: string;
-   price: number;
-   pts: number;
-   ptr: number;
- }
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  price: number;
+  pts: number;
+  newPts: number;
+  ptr: number;
+}
  
  interface ProductListProps {
    products: Product[];
@@ -34,8 +35,9 @@
              <TableHead>Category</TableHead>
              <TableHead>Description</TableHead>
              <TableHead className="text-right">Price (₹)</TableHead>
-             <TableHead className="text-right">PTS (₹)</TableHead>
-             <TableHead className="text-right">PTR (₹)</TableHead>
+            <TableHead className="text-right">PTS (₹)</TableHead>
+              <TableHead className="text-right">New PTS (₹)</TableHead>
+              <TableHead className="text-right">PTR (₹)</TableHead>
              <TableHead className="text-center">Actions</TableHead>
            </TableRow>
          </TableHeader>
@@ -50,12 +52,15 @@
                <TableCell className="text-right">
                  {product.price.toFixed(2)}
                </TableCell>
-               <TableCell className="text-right">
-                 {product.pts.toFixed(2)}
-               </TableCell>
-               <TableCell className="text-right">
-                 {product.ptr.toFixed(2)}
-               </TableCell>
+              <TableCell className="text-right">
+                  {product.pts.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {product.newPts.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {product.ptr.toFixed(2)}
+                </TableCell>
                <TableCell className="text-center">
                  <Button
                    variant="ghost"
@@ -69,7 +74,7 @@
            ))}
            {products.length === 0 && (
              <TableRow>
-               <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+               <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                  No products found. Add your first product to get started.
                </TableCell>
              </TableRow>
