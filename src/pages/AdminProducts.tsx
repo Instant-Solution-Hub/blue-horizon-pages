@@ -7,15 +7,16 @@
  import UpdateProductModal from "@/components/admin-products/UpdateProductModal";
  import { useToast } from "@/hooks/use-toast";
  
- interface Product {
-   id: string;
-   name: string;
-   category: string;
-   description: string;
-   price: number;
-   pts: number;
-   ptr: number;
- }
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  price: number;
+  pts: number;
+  newPts: number;
+  ptr: number;
+}
  
  const categories = [
    "Antibiotics",
@@ -37,27 +38,30 @@
      name: "Amoxicillin 500mg",
      category: "Antibiotics",
      description: "Broad-spectrum antibiotic for bacterial infections",
-     price: 150.0,
-     pts: 120.0,
-     ptr: 135.0,
+    price: 150.0,
+    pts: 120.0,
+    newPts: 125.0,
+    ptr: 135.0,
    },
    {
      id: "2",
      name: "Paracetamol 650mg",
      category: "Painkillers",
      description: "Pain relief and fever reduction",
-     price: 25.0,
-     pts: 18.0,
-     ptr: 22.0,
+    price: 25.0,
+    pts: 18.0,
+    newPts: 20.0,
+    ptr: 22.0,
    },
    {
      id: "3",
      name: "Vitamin D3 60K",
      category: "Vitamins",
      description: "Cholecalciferol supplement for vitamin D deficiency",
-     price: 120.0,
-     pts: 95.0,
-     ptr: 108.0,
+    price: 120.0,
+    pts: 95.0,
+    newPts: 100.0,
+    ptr: 108.0,
    },
  ];
  
