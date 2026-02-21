@@ -46,14 +46,14 @@ const feProductData = [
 ];
 
 const feStockistData = [
-  { feName: "Arun Mehta", stockistName: "MedPlus Distributors", primarySales: 85000, date: "2025-06-10" },
-  { feName: "Arun Mehta", stockistName: "HealthCare Traders", primarySales: 62000, date: "2025-06-11" },
-  { feName: "Deepak Joshi", stockistName: "PharmaCare Agencies", primarySales: 94000, date: "2025-06-10" },
-  { feName: "Deepak Joshi", stockistName: "Apollo Supply Chain", primarySales: 71000, date: "2025-06-13" },
-  { feName: "Kavita Nair", stockistName: "LifeLine Distributors", primarySales: 53000, date: "2025-06-09" },
-  { feName: "Kavita Nair", stockistName: "MedPlus Distributors", primarySales: 47000, date: "2025-06-12" },
-  { feName: "Rahul Desai", stockistName: "HealthCare Traders", primarySales: 78000, date: "2025-06-14" },
-  { feName: "Rahul Desai", stockistName: "PharmaCare Agencies", primarySales: 66000, date: "2025-06-08" },
+  { feName: "Arun Mehta", feRegion: "North Region", stockistName: "MedPlus Distributors", primarySales: 85000, date: "2025-06-10" },
+  { feName: "Arun Mehta", feRegion: "North Region", stockistName: "HealthCare Traders", primarySales: 62000, date: "2025-06-11" },
+  { feName: "Deepak Joshi", feRegion: "South Region", stockistName: "PharmaCare Agencies", primarySales: 94000, date: "2025-06-10" },
+  { feName: "Deepak Joshi", feRegion: "South Region", stockistName: "Apollo Supply Chain", primarySales: 71000, date: "2025-06-13" },
+  { feName: "Kavita Nair", feRegion: "Central Region", stockistName: "LifeLine Distributors", primarySales: 53000, date: "2025-06-09" },
+  { feName: "Kavita Nair", feRegion: "Central Region", stockistName: "MedPlus Distributors", primarySales: 47000, date: "2025-06-12" },
+  { feName: "Rahul Desai", feRegion: "East Region", stockistName: "HealthCare Traders", primarySales: 78000, date: "2025-06-14" },
+  { feName: "Rahul Desai", feRegion: "East Region", stockistName: "PharmaCare Agencies", primarySales: 66000, date: "2025-06-08" },
 ];
 
 const AdminSalesProgress = () => {

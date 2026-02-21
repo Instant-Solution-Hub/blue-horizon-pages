@@ -6,6 +6,7 @@ import { Store } from "lucide-react";
 
 interface FEStockistSale {
   feName: string;
+  feRegion: string;
   stockistName: string;
   primarySales: number;
   date: string;
@@ -56,7 +57,12 @@ const AdminFEStockistTable = ({ data }: AdminFEStockistTableProps) => {
             {data.map((row, index) => (
               <TableRow key={index} className="hover:bg-primary/5 transition-colors border-b border-primary/10">
                 <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
-                <TableCell className="font-medium">{row.feName}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex flex-col">
+                    <span>{row.feName}</span>
+                    <span className="text-[10px] md:text-xs text-muted-foreground">{row.feRegion}</span>
+                  </div>
+                </TableCell>
                 <TableCell>{row.stockistName}</TableCell>
                 <TableCell className="font-semibold text-green-600">₹{row.primarySales.toLocaleString()}</TableCell>
               </TableRow>
