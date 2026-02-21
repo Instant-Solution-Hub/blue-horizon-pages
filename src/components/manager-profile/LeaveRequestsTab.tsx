@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, X, User, Search } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +21,7 @@ interface LeaveRequest {
 
 const LeaveRequestsTab = () => {
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([
     {
       id: "1",
@@ -132,11 +134,29 @@ const LeaveRequestsTab = () => {
     });
   };
 
-  const pendingRequests = leaveRequests.filter((r) => r.status === "PENDING");
-  const processedRequests = leaveRequests.filter((r) => r.status !== "PENDING");
+  const filteredRequests = useMemo(() => {
+    if (!searchQuery.trim()) return leaveRequests;
+    const q = searchQuery.toLowerCase();
+    return leaveRequests.filter((r) => r.feName.toLowerCase().includes(q));
+  }, [leaveRequests, searchQuery]);
+
+  const pendingRequests = filteredRequests.filter((r) => r.status === "PENDING");
+  const processedRequests = filteredRequests.filter((r) => r.status !== "PENDING");
 
   return (
     <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search by FE name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 h-11 bg-background"
+        />
+      </div>
+
       {/* Pending Requests */}
       <div>
         <h3 className="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
