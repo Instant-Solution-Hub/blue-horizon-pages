@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, TrendingUp, MapPin, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { TrendingUp, MapPin, Search } from "lucide-react";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import AdminTerritoryTable from "@/components/admin-sales-progress/AdminTerritoryTable";
 import AdminFEMarketTable from "@/components/admin-sales-progress/AdminFEMarketTable";
@@ -10,8 +8,7 @@ import AdminFEStockistTable from "@/components/admin-sales-progress/AdminFEStock
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Territory mock data
 const territoryData = [
@@ -56,21 +53,25 @@ const feStockistData = [
   { feName: "Rahul Desai", feRegion: "East Region", stockistName: "PharmaCare Agencies", primarySales: 66000, date: "2025-06-08" },
 ];
 
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 const AdminSalesProgress = () => {
-  const [fromDate, setFromDate] = useState<Date>();
-  const [toDate, setToDate] = useState<Date>();
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [managerSearch, setManagerSearch] = useState("");
   const [feSearch, setFeSearch] = useState("");
 
   const dateFilter = <T extends { date: string }>(items: T[]) => {
+    if (!selectedYear && !selectedMonth) return items;
     return items.filter((item) => {
       const d = new Date(item.date);
-      if (fromDate && d < fromDate) return false;
-      if (toDate) {
-        const end = new Date(toDate);
-        end.setHours(23, 59, 59, 999);
-        if (d > end) return false;
-      }
+      if (selectedYear && d.getFullYear() !== parseInt(selectedYear)) return false;
+      if (selectedMonth && d.getMonth() !== parseInt(selectedMonth)) return false;
       return true;
     });
   };
@@ -82,7 +83,7 @@ const AdminSalesProgress = () => {
       data = data.filter((d) => d.managerName.toLowerCase().includes(q));
     }
     return data;
-  }, [fromDate, toDate, managerSearch]);
+  }, [selectedYear, selectedMonth, managerSearch]);
 
   const filteredFEMarket = useMemo(() => {
     let data = dateFilter(feMarketData);
@@ -91,7 +92,7 @@ const AdminSalesProgress = () => {
       data = data.filter((d) => d.feName.toLowerCase().includes(q));
     }
     return data.sort((a, b) => a.feName.localeCompare(b.feName));
-  }, [fromDate, toDate, feSearch]);
+  }, [selectedYear, selectedMonth, feSearch]);
 
   const filteredFEProduct = useMemo(() => {
     let data = dateFilter(feProductData);
@@ -100,7 +101,7 @@ const AdminSalesProgress = () => {
       data = data.filter((d) => d.feName.toLowerCase().includes(q));
     }
     return data.sort((a, b) => a.feName.localeCompare(b.feName));
-  }, [fromDate, toDate, feSearch]);
+  }, [selectedYear, selectedMonth, feSearch]);
 
   const filteredFEStockist = useMemo(() => {
     let data = dateFilter(feStockistData);
@@ -109,7 +110,7 @@ const AdminSalesProgress = () => {
       data = data.filter((d) => d.feName.toLowerCase().includes(q));
     }
     return data.sort((a, b) => a.feName.localeCompare(b.feName));
-  }, [fromDate, toDate, feSearch]);
+  }, [selectedYear, selectedMonth, feSearch]);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -129,38 +130,36 @@ const AdminSalesProgress = () => {
             </p>
           </div>
 
-          {/* Date Range Pickers */}
+          {/* Year & Month Picker */}
           <div className="animate-fade-in flex flex-col sm:flex-row items-start sm:items-end gap-3">
             <div className="space-y-1">
-              <Label className="text-sm">From Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className={cn("p-3 pointer-events-auto")} />
-                </PopoverContent>
-              </Popover>
+              <Label className="text-sm">Year</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm">To Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus className={cn("p-3 pointer-events-auto")} />
-                </PopoverContent>
-              </Popover>
+              <Label className="text-sm">Month</Label>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Select Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((m, i) => (
+                    <SelectItem key={i} value={String(i)}>{m}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            {(fromDate || toDate) && (
-              <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); }}>Clear</Button>
+            {(selectedYear || selectedMonth) && (
+              <Button variant="ghost" onClick={() => { setSelectedYear(""); setSelectedMonth(""); }}>Clear</Button>
             )}
           </div>
 
