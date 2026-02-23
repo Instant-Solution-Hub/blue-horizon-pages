@@ -57,3 +57,19 @@ export const deleteDoctorConversion = async (feId:number,conversionId:number): P
 
   return res.data.data; // ApiResponseDto → data
 };
+
+export const fetchDoctorConversions = async (
+  fromDate: string,
+  toDate: string
+): Promise<DoctorConversion[]> => {
+  const res = await API.get(`/doctor-conversions`, {
+    params: {
+      fromDate,
+      toDate,
+    },
+  });
+
+  console.log(res);
+
+  return res.data.data; // ApiResponseDto → data
+};

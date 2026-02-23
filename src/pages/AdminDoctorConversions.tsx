@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Loader, CalendarIcon} from "lucide-react";
 import AddDoctorConversionModal from "@/components/admin-doctor-conversions/AddDoctorConversionModal";
 import DoctorConversionList from "@/components/admin-doctor-conversions/DoctorConversionList";
 import { FieldExecutive, fetchFEs } from "@/services/FEService";
 import { Doctor } from "@/components/manager-joining/RecordJoiningModal";
-import { DoctorConversion, addDoctorConversion, fetchDoctorConversionsForTheMonth, deleteDoctorConversion, DoctorConversionReqDto } from "@/services/DoctorConversion";
+import { DoctorConversion, fetchDoctorConversions ,addDoctorConversion, fetchDoctorConversionsForTheMonth, deleteDoctorConversion, DoctorConversionReqDto } from "@/services/DoctorConversion";
 import { fetchDoctorsByFE } from "@/services/DoctorService";
 import { getProducts, Product as ProductType } from "@/services/ProductService";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const AdminDoctorConversions = () => {
   const { toast } = useToast();
@@ -20,8 +25,54 @@ const AdminDoctorConversions = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+   const [fromDate, setFromDate] = useState<Date>();
+  const [toDate, setToDate] = useState<Date>();
 
   const feId = parseInt(sessionStorage.getItem("feID") || "0");
+
+  const loadConversions = async (fDate?: Date, tDate?: Date) => {
+  try {
+    setLoading(true);
+
+    let conversionsData;
+
+    if (fDate && tDate) {
+      conversionsData = await fetchDoctorConversions(
+        format(fDate, "yyyy-MM-dd"),
+        format(tDate, "yyyy-MM-dd")
+      );
+    } else {
+      conversionsData = await fetchDoctorConversionsForTheMonth();
+    }
+
+    const sortedData = Array.isArray(conversionsData)
+      ? [...conversionsData].sort((a, b) =>
+          (a.fieldExecutiveName || "").localeCompare(
+            b.fieldExecutiveName || "",
+            undefined,
+            { sensitivity: "base" }
+          )
+        )
+      : [];
+
+    setConversions(sortedData);
+  } catch (err) {
+    console.error("Failed to load conversions", err);
+    toast({
+      title: "Error",
+      description: "Failed to load doctor conversions data.",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (fromDate && toDate) {
+    loadConversions(fromDate, toDate);
+  }
+}, [fromDate, toDate]);
 
   // Fetch all required data
   useEffect(() => {
@@ -32,8 +83,6 @@ const AdminDoctorConversions = () => {
         // Fetch Field Executives
         const fesData = await fetchFEs();
         setFieldExecutives(Array.isArray(fesData) ? fesData : []);
-
-        // Fetch Doctors for current FE
       
 
         // Fetch Products
@@ -41,8 +90,8 @@ const AdminDoctorConversions = () => {
         setProducts(Array.isArray(productsData) ? productsData : []);
 
         // Fetch Conversions for current month
-        const conversionsData = await fetchDoctorConversionsForTheMonth();
-        setConversions(Array.isArray(conversionsData) ? conversionsData : []);
+       await loadConversions();
+      
       } catch (err) {
         console.error("Failed to load data", err);
         toast({
@@ -89,7 +138,9 @@ const AdminDoctorConversions = () => {
 
       // API returns the single newly created conversion — prepend to existing list
       if (result) {
-        setConversions((prev) => [result, ...prev]);
+        await loadConversions(); 
+         setFromDate(undefined);
+  setToDate(undefined);
       }
       toast({
         title: "Success",
@@ -166,6 +217,73 @@ const AdminDoctorConversions = () => {
               <Plus className="w-4 h-4 mr-2" />
               Add Conversion
             </Button>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm">From Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[180px] justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={setFromDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm">To Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[180px] justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={setToDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            {(fromDate || toDate) && (
+              <Button
+                variant="ghost"
+                className="self-end"
+              onClick={() => {
+  setFromDate(undefined);
+  setToDate(undefined);
+  loadConversions(); // 🔥 back to current month
+}}
+              >
+                Clear
+              </Button>
+            )}
           </div>
 
           {conversions.length === 0 && !loading ? (
