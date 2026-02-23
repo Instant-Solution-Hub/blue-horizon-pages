@@ -10,6 +10,7 @@ import {
   ChevronRight,
   TrendingUp,
   ClipboardCheck,
+  ClipboardList,
   Package,
   UserPlus,
   Megaphone,
@@ -38,6 +39,7 @@ const AdminSidebar = () => {
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
     { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
+    { icon: ClipboardList, label: "Visit Reports", path: "/admin-dashboard/visit-reports" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
   ];
 
