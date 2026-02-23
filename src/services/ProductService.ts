@@ -15,6 +15,7 @@ export interface Product {
   price:number;
   pts:number;
   ptr:number;
+  newPts:number;
   
 }
 
@@ -25,6 +26,7 @@ export interface ProductRequestDto {
   price:number;
   pts:number;
   ptr:number;
+  newPts:number;
 }
 
 export const getProducts = async ()  => {

@@ -63,6 +63,7 @@
          price: updatedProduct.price,
          pts: updatedProduct.pts,
          ptr: updatedProduct.ptr,
+         newPts: updatedProduct.newPts
        };
        const updated = await updateProduct(updatedProduct.id, payload);
        setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));

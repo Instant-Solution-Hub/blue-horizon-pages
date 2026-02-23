@@ -86,11 +86,8 @@ const App = () => (
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
           <Route path="/manager-dashboard/slot-planning" element={<ManagerSlotPlanning />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          {/* Manager Dashboard Routes */}
            <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
             <Route path="/manager-dashboard/profile" element={<ManagerProfile />} />
-            <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveRequests />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
             <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
@@ -109,6 +106,7 @@ const App = () => (
                <Route path="/admin-dashboard/user-management" element={<AdminUserManagement />} />
                <Route path="/admin-dashboard/products" element={<AdminProducts />} />
                <Route path="/admin-dashboard/leave-requests" element={<AdminLeaveRequests />} />
+               <Route path="/admin-dashboard/manager-leave-requests" element={<ManagerLeaveRequests />} />
                <Route path="/admin-dashboard/sales-progress" element={<AdminSalesProgress />} />
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />

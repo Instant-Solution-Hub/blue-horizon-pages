@@ -33,7 +33,6 @@ const navItems: NavItem[] = [
   { icon: MapPin, label: "Track Visits", href: "/manager-dashboard/track-visits" },
   { icon: Users, label: "Team Management", href: "/manager-dashboard/team" },
   { icon: Target, label: "Target Plan", href: "/manager-dashboard/target-plan" },
-  { icon: FileText, label: "Leave Requests", href: "/manager-dashboard/leave-requests" },
     { icon: ClipboardCheck, label: "Manager Joining", href: "/manager-dashboard/manager-joining" },
      { icon: ClipboardCheck, label: "Work Approvals", href: "/manager-dashboard/work-approvals" },
       { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },

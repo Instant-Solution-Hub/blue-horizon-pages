@@ -32,6 +32,26 @@ export const updateMonthlyProductSales = async (
   return res.data;
 };
 
+export const fetchMonthlyStockistSales = async (feId: number) => {
+  const res = await API.get("/fe/monthly-stockist-sales", {
+    params: { feId },
+  });
+  return res.data;
+};
+
+export const updateMonthlyStockistSales = async (
+  feId: number,
+  stockistId: number,
+  price: number
+) => {
+    console.log(feId + " "+ stockistId + " " + price);
+  const res = await API.put(
+    "/fe/monthly-stockist-sales",
+    { stockistId, price, feId }
+  );
+  return res.data;
+};
+
 
 export const getMonthlyMarketSales = async (
   feId: number
@@ -73,3 +93,42 @@ export const updateCompanyTarget=  async (payload:CompanyTarget) => {
   console.log(res); 
   return res.data;
 }
+
+export const getAllMonthlyMarketSales = async (year:number, month:number) => {
+  console.log("Fetching market sales for", year, month);
+  const res = await API.get(`/fe/market-sales/all-details`, {
+    params: {
+      year,
+      month,
+    },
+  });
+
+  console.log(res);
+  return res.data;
+};
+
+
+export const getAllMonthlyProductSales = async (year:number, month:number) => {
+  const res = await API.get(`/fe/monthly-sales/all/summary`, {
+    params: {
+      year,
+      month,
+    },
+  });
+
+  console.log(res);
+  return res.data;
+};
+
+export const getAllMonthlyStockistSales = async (year:number, month:number) => {
+  console.log("Fetching stockist sales for", year, month);
+  const res = await API.get(`/fe/monthly-stockist-sales/all/summary`, {
+    params: {
+      year,
+      month,
+    },
+  });
+
+  console.log(res);
+  return res.data;
+};

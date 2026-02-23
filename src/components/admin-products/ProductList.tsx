@@ -27,6 +27,7 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
             <TableHead className="text-white font-semibold">Description</TableHead>
             <TableHead className="text-right text-white font-semibold">Price (₹)</TableHead>
             <TableHead className="text-right text-white font-semibold">PTS (₹)</TableHead>
+             <TableHead className="text-right text-white font-semibold">New PTS (₹)</TableHead>
             <TableHead className="text-right text-white font-semibold">PTR (₹)</TableHead>
             <TableHead className="text-center text-white font-semibold">Actions</TableHead>
           </TableRow>
@@ -55,6 +56,9 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
               <TableCell className="text-right text-slate-600">
                 {product.pts.toFixed(2)}
               </TableCell>
+                <TableCell className="text-right text-slate-600">
+                  {product.newPts.toFixed(2)}
+                </TableCell>
               <TableCell className="text-right text-slate-600">
                 {product.ptr.toFixed(2)}
               </TableCell>

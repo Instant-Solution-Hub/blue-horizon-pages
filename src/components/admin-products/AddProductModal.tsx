@@ -24,6 +24,7 @@
    price: number;
    pts: number;
    ptr: number;
+   newPts:number;
  }
  
  interface AddProductModalProps {
@@ -46,6 +47,7 @@
      price: 0,
      pts: 0,
      ptr: 0,
+     newPts:0
    });
  
    const handleSubmit = (e: React.FormEvent) => {
@@ -61,6 +63,7 @@
        price: 0,
        pts: 0,
        ptr: 0,
+       newPts:0
      });
      onOpenChange(false);
    };
@@ -119,52 +122,67 @@
              />
            </div>
  
-           <div className="grid grid-cols-3 gap-4">
-             <div className="space-y-2">
-               <Label htmlFor="price">Price (₹)</Label>
-               <Input
-                 id="price"
-                 type="number"
-                 step="0.01"
-                 min="0"
-                 value={formData.price}
-                 onChange={(e) =>
-                   setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
-                 }
-                 required
-               />
-             </div>
- 
-             <div className="space-y-2">
-               <Label htmlFor="pts">PTS (₹)</Label>
-               <Input
-                 id="pts"
-                 type="number"
-                 step="0.01"
-                 min="0"
-                 value={formData.pts}
-                 onChange={(e) =>
-                   setFormData({ ...formData, pts: parseFloat(e.target.value) || 0 })
-                 }
-                 required
-               />
-             </div>
- 
-             <div className="space-y-2">
-               <Label htmlFor="ptr">PTR (₹)</Label>
-               <Input
-                 id="ptr"
-                 type="number"
-                 step="0.01"
-                 min="0"
-                 value={formData.ptr}
-                 onChange={(e) =>
-                   setFormData({ ...formData, ptr: parseFloat(e.target.value) || 0 })
-                 }
-                 required
-               />
-             </div>
-           </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (₹)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="pts">PTS (₹)</Label>
+                <Input
+                  id="pts"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.pts}
+                  onChange={(e) =>
+                    setFormData({ ...formData, pts: parseFloat(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="newPts">New PTS (₹)</Label>
+                <Input
+                  id="newPts"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.newPts}
+                  onChange={(e) =>
+                    setFormData({ ...formData, newPts: parseFloat(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ptr">PTR (₹)</Label>
+                <Input
+                  id="ptr"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.ptr}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ptr: parseFloat(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+            </div>
  
            <div className="flex justify-end gap-2 pt-4">
              <Button

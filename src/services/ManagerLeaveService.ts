@@ -87,6 +87,16 @@ export const fetchTeamLeaveRequests = async (managerId: number) => {
   return res.data.data as LeaveRequest[];
 };
 
+
+export const fetchLeaveRequests = async () => {
+  const res = await API.get(
+    `/leaves/fe-leaves`
+  );
+  console.log(res);
+  return res.data.data as LeaveRequest[];
+};
+
+
 export const fetchManagerLeaveRequests = async () => {
   const res = await API.get(
     `/managers/manager-leaves`

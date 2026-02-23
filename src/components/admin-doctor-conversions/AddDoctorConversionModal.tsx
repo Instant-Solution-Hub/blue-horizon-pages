@@ -30,6 +30,7 @@ interface AddDoctorConversionModalProps {
   fieldExecutives: FieldExecutive[];
   doctors: Doctor[];
   products: Product[];
+  onFEChange: (feId: number) => void; 
 }
 
 const AddDoctorConversionModal = ({
@@ -39,6 +40,7 @@ const AddDoctorConversionModal = ({
   fieldExecutives,
   doctors,
   products,
+  onFEChange
 }: AddDoctorConversionModalProps) => {
   const [formData, setFormData] = useState({
     fieldExecutiveId: "",
@@ -128,9 +130,19 @@ const AddDoctorConversionModal = ({
             <Select
               value={formData.fieldExecutiveId}
               onValueChange={(value) => {
-                setFormData({ ...formData, fieldExecutiveId: value });
-                setErrors({ ...errors, fieldExecutiveId: false });
-              }}
+  setFormData({
+    ...formData,
+    fieldExecutiveId: value,
+    doctorId: "",           // reset doctor
+    hospitalName: "",       // reset hospital
+  });
+
+  setErrors({ ...errors, fieldExecutiveId: false });
+
+  // ✅ fetch doctors for selected FE
+  onFEChange(Number(value));
+}}
+
             >
               <SelectTrigger
                 className={errors.fieldExecutiveId ? "border-destructive" : ""}
@@ -149,10 +161,12 @@ const AddDoctorConversionModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="doctor">Doctor *</Label>
-            <Select
-              value={formData.doctorId}
-              onValueChange={handleDoctorChange}
-            >
+           <Select
+  value={formData.doctorId}
+  onValueChange={handleDoctorChange}
+  disabled={!formData.fieldExecutiveId} // ✅ nice UX
+>
+
               <SelectTrigger
                 className={errors.doctorId ? "border-destructive" : ""}
               >

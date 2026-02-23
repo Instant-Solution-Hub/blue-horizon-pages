@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, User } from "lucide-react";
+import { Check, X, User, Search } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import {toast} from "sonner";
-import { fetchTeamLeaveRequests , LeaveRequest , approveLeaveRequest , rejectLeaveRequest} from "@/services/ManagerLeaveService";
+import { fetchTeamLeaveRequests , LeaveRequest , approveLeaveRequest , rejectLeaveRequest, fetchLeaveRequests} from "@/services/ManagerLeaveService";
+import { Input } from "../ui/input";
 
 
 
 const LeaveRequestsTab = () => {
 
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+   const [searchQuery, setSearchQuery] = useState("");
    const managerId = Number(sessionStorage.getItem("userID"));
 
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
@@ -21,7 +23,7 @@ const LeaveRequestsTab = () => {
     const loadLeaves = async () => {
       try {
         setLoading(true);
-        const data = await fetchTeamLeaveRequests(managerId);
+        const data = await fetchLeaveRequests();
         setLeaves(data);
         console.log(data);
       } catch (e) {
@@ -34,6 +36,12 @@ const LeaveRequestsTab = () => {
 
     loadLeaves();
   }, [managerId]);
+
+   const filteredRequests = useMemo(() => {
+    if (!searchQuery.trim()) return leaves;
+    const q = searchQuery.toLowerCase();
+    return leaves.filter((r) => r.feName.toLowerCase().includes(q));
+  }, [leaves, searchQuery]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -121,11 +129,21 @@ const handleReject = async (id: number) => {
 };
 
 
-  const pendingRequests = leaves.filter((r) => r.status === "PENDING");
-  const processedRequests = leaves.filter((r) => r.status !== "PENDING");
+  const pendingRequests = filteredRequests.filter((r) => r.status === "PENDING");
+  const processedRequests = filteredRequests.filter((r) => r.status !== "PENDING");
 
   return (
     <div className="space-y-6">
+        <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search by FE name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 h-11 bg-background"
+        />
+      </div>
       {/* Pending Requests */}
       <div>
         <h3 className="text-base font-semibold text-foreground mb-3 flex items-center gap-2">

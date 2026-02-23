@@ -71,6 +71,7 @@ export const getTerritoryOverview = async (
   month: number,
   year: number
 ) => {
+  console.log("Fetching territory overview for month: " + month + " year: " + year);
   const res = await API.get(
     `/managers/territories/overview`,
     {
