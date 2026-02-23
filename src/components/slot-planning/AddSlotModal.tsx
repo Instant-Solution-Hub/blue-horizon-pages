@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { fetchDoctors, fetchPharmacists } from "@/services/UsersService";
 import { fetchDoctorVisitTrack } from "@/services/VisitService";
+import { fetchDoctorsByFE } from "@/services/DoctorService";
 
 interface Doctor {
   id: number;
@@ -108,8 +109,9 @@ export function AddSlotModal({
   };
 
   const getDoctors = async () => {
-    let response = await fetchDoctors();
-    setDoctors(response.data);
+    let userId = sessionStorage.getItem("userID");
+    let response = await fetchDoctorsByFE(userId ? parseInt(userId) : 0);
+    setDoctors(response);
   };
 
   const getPharmacists = async () => {
