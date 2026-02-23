@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { ClipboardList, Search, CalendarIcon, User } from "lucide-react";
+import { ClipboardList, Search, CalendarIcon, User, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -13,14 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 type UserType = "field_executive" | "manager";
@@ -95,17 +87,6 @@ const allVisits: Record<number, Visit[]> = {
   ],
 };
 
-const statusColor: Record<string, string> = {
-  Completed: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  Missed: "bg-red-100 text-red-800 border-red-300",
-  Pending: "bg-amber-100 text-amber-800 border-amber-300",
-};
-
-const visitTypeColor: Record<string, string> = {
-  Doctor: "bg-blue-100 text-blue-800 border-blue-300",
-  Pharmacist: "bg-purple-100 text-purple-800 border-purple-300",
-  Stockist: "bg-orange-100 text-orange-800 border-orange-300",
-};
 
 const AdminVisitReports = () => {
   const [userType, setUserType] = useState<UserType>("field_executive");
@@ -229,7 +210,7 @@ const AdminVisitReports = () => {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{user.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <Badge variant="secondary" className="text-xs">{user.employeeCode}</Badge>
+                          <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">{user.employeeCode}</span>
                           <span className="text-xs text-muted-foreground truncate">{user.territory}</span>
                         </div>
                       </div>
@@ -298,63 +279,39 @@ const AdminVisitReports = () => {
                 )}
               </div>
 
-              {/* Visits Table */}
-              <Card className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    Visits of {selectedUser.name}
-                    {fromDate && toDate && (
-                      <span className="text-sm font-normal text-muted-foreground ml-2">
-                        ({format(fromDate, "dd MMM yyyy")} — {format(toDate, "dd MMM yyyy")})
-                      </span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {filteredVisits.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      No visits found for the selected date range.
-                    </p>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Hospital / Location</TableHead>
-                          <TableHead>Visit Type</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Notes</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredVisits.map((visit) => (
-                          <TableRow key={visit.id}>
-                            <TableCell className="whitespace-nowrap">
-                              {format(new Date(visit.date), "dd MMM yyyy")}
-                            </TableCell>
-                            <TableCell className="font-medium">{visit.doctorName}</TableCell>
-                            <TableCell>{visit.hospitalName}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className={visitTypeColor[visit.visitType]}>
-                                {visit.visitType}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className={statusColor[visit.status]}>
-                                {visit.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="max-w-[200px] truncate text-muted-foreground text-sm">
-                              {visit.notes}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Visit Summary Cards */}
+              <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ animationDelay: "0.2s" }}>
+                <Card className="border-emerald-200 bg-emerald-50/50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-emerald-100">
+                        <ClipboardList className="h-6 w-6 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Completed Visits</p>
+                        <p className="text-3xl font-bold text-emerald-700">
+                          {filteredVisits.filter((v) => v.status === "Completed").length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-red-200 bg-red-50/50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-red-100">
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Missed Visits</p>
+                        <p className="text-3xl font-bold text-red-700">
+                          {filteredVisits.filter((v) => v.status === "Missed").length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </>
           )}
         </div>
