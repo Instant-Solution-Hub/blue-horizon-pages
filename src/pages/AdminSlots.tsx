@@ -286,9 +286,10 @@ export default function AdminSlots() {
                 <CardHeader>
                   <CardTitle className="text-base">
                     Slot Schedule — {selectedPerson.name}
-                    <span className="text-muted-foreground font-normal text-sm ml-2">
+                    <span className="text-muted-foreground font-normal text-sm mx-2">
                       ({selectedPerson.employeeCode})
                     </span>
+                    With {managerVisits[0]?.feName}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">

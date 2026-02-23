@@ -94,7 +94,7 @@ const DoctorFilters = ({ filters, onFiltersChange }: DoctorFiltersProps) => {
         onValueChange={handlePracticeTypeChange}
       >
         <SelectTrigger className="w-full sm:w-[150px]">
-          <SelectValue placeholder="Practice Type" />
+          <SelectValue placeholder="Prescription Type" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Types</SelectItem>

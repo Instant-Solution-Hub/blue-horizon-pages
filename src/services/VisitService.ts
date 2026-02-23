@@ -198,3 +198,13 @@ export const fetchDoctorVisitTrack  = async (feId,doctorId) => {
   return response.data;
 
 }
+
+export const fetchFEVisitReport = async (feId, fromDate, toDate) => {
+  const response = await API.get(`/visit/visit-report?fieldExecutiveId=${feId}&from=${fromDate}&to=${toDate}`,{ 
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}

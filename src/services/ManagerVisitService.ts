@@ -203,3 +203,13 @@ export const fetchAllVisitsByWeekDay = async (managerId: number, week: number, d
   });
     return response.data;
 }
+
+export const fetchManagerVisitReport = async (managerId: number, fromDate: any, toDate: any) => {
+  const response = await API.get(`/manager-visits/reports?managerId=${managerId}&from=${fromDate}&to=${toDate}`, {
+    headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}

@@ -280,7 +280,7 @@ export function AddSlotModal({
                             </p>
                             {doctor.practiceType && (
                               <p className="text-xs text-muted-foreground mt-1">
-                                Practice: {doctor.practiceType}
+                                Prescription: {doctor.practiceType}
                               </p>
                             )}
                           </div>

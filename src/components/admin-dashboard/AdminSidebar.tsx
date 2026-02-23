@@ -18,6 +18,7 @@ import {
   UsersRound,
   CalendarRange,
   BellDot,
+  ClipboardList,
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ const AdminSidebar = () => {
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
     { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
     { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
+    { icon: ClipboardList, label: "Visit Reports", path: "/admin-dashboard/visit-reports" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
   ];
 

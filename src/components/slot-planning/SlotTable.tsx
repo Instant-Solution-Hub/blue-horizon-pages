@@ -32,9 +32,9 @@ const categoryColors: Record<string, string> = {
 };
 
 const practiceTypeLabels: Record<string, string> = {
-  RP: "Retail Practice",
-  OP: "Own Practice",
-  NP: "Nursing Practice",
+  RP: "RP",
+  OP: "OP",
+  NP: "NP",
 };
 
 export function SlotTable({ title, visits }: SlotTableProps) {
@@ -64,7 +64,7 @@ export function SlotTable({ title, visits }: SlotTableProps) {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Practice Type</TableHead>
+              <TableHead>Prescription Type</TableHead>
               <TableHead>Designation</TableHead>
               <TableHead>Hospital</TableHead>
               <TableHead>Visit Status</TableHead>

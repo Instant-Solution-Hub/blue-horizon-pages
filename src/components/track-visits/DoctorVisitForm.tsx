@@ -110,77 +110,82 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     );
   };
 
-  const handleSubmit = () => {
-    if (!selectedVisit) return;
-    if (!isMissed && selectedActivities.length === 0) {
-      alert("Please select at least one activity performed");
-      return;
-    }
-    if (
-      selectedActivities.includes("Product Conversion") &&
-      conversionRows.some((r) => (!r.productId || r.quantity <= 0))
-    ) {
-      alert("Please select product and quantity for all conversion rows");
-      return;
-    }
+ const handleSubmit = () => {
+  if (!selectedVisit) return;
 
-    if (isMissed && !notes.trim()) {
-      alert("Notes are mandatory for missed visits");
-      return;
-    }
+  if (!isMissed && selectedActivities.length === 0) {
+    alert("Please select at least one activity performed");
+    return;
+  }
 
-    const convertedProducts =
-      selectedActivities.includes("Product Conversion")
-        ? conversionRows
+  if (
+    selectedActivities.includes("Product Conversion") &&
+    conversionRows.some((r) => !r.productId || r.quantity <= 0)
+  ) {
+    alert("Please select product and quantity for all conversion rows");
+    return;
+  }
+
+  if (isMissed && !notes.trim()) {
+    alert("Notes are mandatory for missed visits");
+    return;
+  }
+
+  const convertedProducts =
+    selectedActivities.includes("Product Conversion")
+      ? conversionRows
           .filter((r) => r.productId)
           .map((r) => ({
             productId: Number(r.productId),
             quantity: r.quantity,
             value: r.value,
           }))
-        : [];
+      : [];
 
-
-    // Get current location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        onSubmit({
-          visitType: "doctor",
-          doctorId: selectedVisit.id,
-          visitId: selectedVisit.visitId,
-          doctorName: selectedVisit.doctorName,
-          hospital: selectedVisit.hospital,
-          designation: selectedVisit.designation,
-          category: selectedVisit.category,
-          practiceType: selectedVisit.practiceType,
-          isMissed,
-          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
-          activitiesPerformed: selectedActivities,
-          notes,
-          location: { lat: position.coords.latitude, lng: position.coords.longitude },
-          convertedProducts,
-        });
-      },
-      () => {
-        onSubmit({
-          visitType: "doctor",
-          doctorId: selectedVisit.id,
-          visitId: selectedVisit.visitId,
-          doctorName: selectedVisit.doctorName,
-          hospital: selectedVisit.hospital,
-          designation: selectedVisit.designation,
-          category: selectedVisit.category,
-          practiceType: selectedVisit.practiceType,
-          isMissed,
-          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
-          activitiesPerformed: selectedActivities,
-          notes,
-          location: null,
-          convertedProducts,
-        });
-      }
-    );
+  const payload = {
+    visitType: "doctor" as const,
+    doctorId: selectedVisit.id,
+    visitId: selectedVisit.visitId,
+    doctorName: selectedVisit.doctorName,
+    hospital: selectedVisit.hospital,
+    designation: selectedVisit.designation,
+    category: selectedVisit.category,
+    practiceType: selectedVisit.practiceType,
+    isMissed,
+    isPreviouslyMissed: selectedVisit.status === "MISSED",
+    activitiesPerformed: selectedActivities,
+    notes,
+    convertedProducts,
   };
+
+  // ✅ If missed, no need to capture location
+  if (isMissed) {
+    onSubmit({
+      ...payload,
+      location: null,
+    });
+    return;
+  }
+
+  // Otherwise capture location
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      onSubmit({
+        ...payload,
+        location: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        },
+      });
+    },
+    () => {
+      onSubmit({
+        ...payload,
+        location: null,
+      });
+    }
+  );
+};
 
   const handleAddRow = () => {
     setConversionRows([...conversionRows, { productId: 0, quantity: 1, value: 0 }]);

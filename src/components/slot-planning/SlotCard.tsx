@@ -23,9 +23,9 @@ const categoryColors: Record<string, string> = {
 };
 
 const practiceTypeLabels: Record<string, string> = {
-  RP: "Retail Practice",
-  OP: "Own Practice",
-  NP: "Nursing Practice",
+  RP: "RP",
+  OP: "OP",
+  NP: "NP",
 };
 
 export function SlotCard({

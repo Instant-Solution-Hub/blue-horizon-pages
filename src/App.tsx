@@ -52,6 +52,7 @@ import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
 import { VisualAidsPage } from "./pages/VisualAidsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
+import AdminVisitReports from "./pages/AdminVisitReports";
 
 
 
@@ -111,6 +112,7 @@ const App = () => (
                <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
                <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
+               <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
              {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />

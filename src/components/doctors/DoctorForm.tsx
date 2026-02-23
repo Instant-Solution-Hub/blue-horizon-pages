@@ -29,15 +29,15 @@ const categories: { value: Category; label: string }[] = [
 ];
 
 const practiceTypes: { value: PracticeType; label: string }[] = [
-  { value: "RP", label: "RP (Regular Practice)" },
+  { value: "RP", label: "RP (Regular Prescription)" },
   { value: "OP", label: "OP (Outpatient)" },
-  { value: "NP", label: "NP (New Practice)" },
+  { value: "NP", label: "NP (New Prescription)" },
 ];
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   category: z.enum(["A_PLUS", "A", "B"], { required_error: "Category is required" }),
-  practiceType: z.enum(["RP", "OP", "NP"], { required_error: "Practice type is required" }),
+  practiceType: z.enum(["RP", "OP", "NP"], { required_error: "Prescription type is required" }),
   designation: z.string().max(100).optional(),
   hospitalName: z.string().min(1, "Hospital name is required").max(200),
   location: z.string().max(200).optional(),
@@ -151,11 +151,11 @@ const DoctorForm = ({ doctor, onSubmit, onCancel, isLoading }: DoctorFormProps) 
             name="practiceType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Practice Type *</FormLabel>
+                <FormLabel>Prescription Type *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select practice type" />
+                      <SelectValue placeholder="Select prescription type" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
