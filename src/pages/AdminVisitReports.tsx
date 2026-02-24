@@ -93,12 +93,18 @@ const allVisits: Record<number, Visit[]> = {
 };
 
 const defaultVisitReport = {
-    completedVisitCount: 0,
-    missedVisitCount: 0,
-    completedDoctorVisitCount: 0,
-    completedPharmacistVisitCount: 0,
-    missedDoctorVisitCount: 0,
-    missedPharmacistVisitCount: 0
+    completedAPlusVisits:0,
+    completedAVisits:0,
+    completedBVisits:0,
+    completedDoctorVisitCount:0,
+    completedVisitCount:0,
+    missedAPlusVisits:0,
+    missedAVisits:0,
+    missedBVisits:0,
+    missedDoctorVisitCount:0,
+    missedVisitCount:0,
+    completedPharmacistVisitCount:0,
+    missedPharmacistVisitCount:0,
 }
 
 
@@ -354,99 +360,247 @@ const AdminVisitReports = () => {
                             </div>
 
                             {/* Visit Summary Cards */}
-                            <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ animationDelay: "0.2s" }}>
-                                <Card className="border-emerald-200 bg-emerald-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-emerald-100">
-                                                <ClipboardList className="h-6 w-6 text-emerald-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Completed Visits</p>
-                                                <p className="text-3xl font-bold text-emerald-700">
-                                                    {visitReports.completedVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="border-red-200 bg-red-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-red-100">
-                                                <AlertTriangle className="h-6 w-6 text-red-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Missed Visits</p>
-                                                <p className="text-3xl font-bold text-red-700">
-                                                    {visitReports.missedVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="border-emerald-200 bg-emerald-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-emerald-100">
-                                                <ClipboardList className="h-6 w-6 text-emerald-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Completed Doctor Visits</p>
-                                                <p className="text-3xl font-bold text-emerald-700">
-                                                    {visitReports.completedDoctorVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                 <Card className="border-red-200 bg-red-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-red-100">
-                                                <AlertTriangle className="h-6 w-6 text-red-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Missed Doctor Visits</p>
-                                                <p className="text-3xl font-bold text-red-700">
-                                                    {visitReports.missedDoctorVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="border-emerald-200 bg-emerald-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-emerald-100">
-                                                <ClipboardList className="h-6 w-6 text-emerald-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Completed Pharmacist Visits</p>
-                                                <p className="text-3xl font-bold text-emerald-700">
-                                                    {visitReports.completedPharmacistVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                 <Card className="border-red-200 bg-red-50/50">
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-full bg-red-100">
-                                                <AlertTriangle className="h-6 w-6 text-red-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Missed Pharmacist Visits</p>
-                                                <p className="text-3xl font-bold text-red-700">
-                                                    {visitReports.missedPharmacistVisitCount}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                
-                            </div>
+                            <div className="animate-fade-in space-y-6" style={{ animationDelay: "0.2s" }}>
+    {/* Summary Cards - Overall Stats */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
+            <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Total Completed</p>
+                        <p className="text-3xl font-bold text-emerald-700">
+                            {visitReports.completedVisitCount}
+                        </p>
+                    </div>
+                    <div className="p-3 rounded-full bg-emerald-200/50">
+                        <ClipboardList className="h-6 w-6 text-emerald-600" />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+        
+        <Card className="border-red-200 bg-gradient-to-br from-red-50 to-red-100/50">
+            <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Total Missed</p>
+                        <p className="text-3xl font-bold text-red-700">
+                            {visitReports.missedVisitCount}
+                        </p>
+                    </div>
+                    <div className="p-3 rounded-full bg-red-200/50">
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    </div>
+
+    {/* Doctor Visits Section */}
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <div className="h-1 w-6 bg-blue-500 rounded-full"></div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Doctor Visits</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-2xl font-bold text-blue-700">
+                                {visitReports.completedDoctorVisitCount}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-blue-100">
+                            <ClipboardList className="h-4 w-4 text-blue-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
+            <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Missed</p>
+                            <p className="text-2xl font-bold text-orange-700">
+                                {visitReports.missedDoctorVisitCount}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-orange-100">
+                            <AlertTriangle className="h-4 w-4 text-orange-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+
+    {/* A+ Visits Section */}
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <div className="h-1 w-6 bg-purple-500 rounded-full"></div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">A+ Visits</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-2xl font-bold text-purple-700">
+                                {visitReports.completedAPlusVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-purple-100">
+                            <ClipboardList className="h-4 w-4 text-purple-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
+            <Card className="border-pink-200 bg-gradient-to-br from-pink-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Missed</p>
+                            <p className="text-2xl font-bold text-pink-700">
+                                {visitReports.missedAPlusVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-pink-100">
+                            <AlertTriangle className="h-4 w-4 text-pink-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+
+    {/* A Visits Section */}
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <div className="h-1 w-6 bg-indigo-500 rounded-full"></div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">A Visits</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-2xl font-bold text-indigo-700">
+                                {visitReports.completedAVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-indigo-100">
+                            <ClipboardList className="h-4 w-4 text-indigo-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
+            <Card className="border-rose-200 bg-gradient-to-br from-rose-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Missed</p>
+                            <p className="text-2xl font-bold text-rose-700">
+                                {visitReports.missedAVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-rose-100">
+                            <AlertTriangle className="h-4 w-4 text-rose-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+
+    {/* B Visits Section */}
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <div className="h-1 w-6 bg-cyan-500 rounded-full"></div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">B Visits</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <Card className="border-cyan-200 bg-gradient-to-br from-cyan-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-2xl font-bold text-cyan-700">
+                                {visitReports.completedBVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-cyan-100">
+                            <ClipboardList className="h-4 w-4 text-cyan-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
+            <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Missed</p>
+                            <p className="text-2xl font-bold text-amber-700">
+                                {visitReports.missedBVisits}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-amber-100">
+                            <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+
+    {/* Pharmacist Visits Section */}
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <div className="h-1 w-6 bg-teal-500 rounded-full"></div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Pharmacist Visits</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <p className="text-2xl font-bold text-teal-700">
+                                {visitReports.completedPharmacistVisitCount}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-teal-100">
+                            <ClipboardList className="h-4 w-4 text-teal-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
+            <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">Missed</p>
+                            <p className="text-2xl font-bold text-amber-700">
+                                {visitReports.missedPharmacistVisitCount}
+                            </p>
+                        </div>
+                        <div className="p-2 rounded-full bg-amber-100">
+                            <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+</div>
                         </>
                     )}
                 </div>
