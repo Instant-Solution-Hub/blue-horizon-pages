@@ -66,6 +66,8 @@ const Sidebar = () => {
 
   }, []);
   const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.clear();
     navigate("/");
   };
 

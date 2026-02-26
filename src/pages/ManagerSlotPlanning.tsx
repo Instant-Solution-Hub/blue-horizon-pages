@@ -84,8 +84,8 @@ export default function ManagerSlotPlanning() {
     month: "long",
     year: "numeric",
   });
-  const isFirstOfMonth = today.getDate() === 2;
-  // const isFirstOfMonth = true; // For testing
+  // const isFirstOfMonth = today.getDate() === 2;
+  const isFirstOfMonth = true; // For testing
 
   useEffect(() => {
     if (selectedWeek && selectedDay) {
@@ -593,7 +593,7 @@ export default function ManagerSlotPlanning() {
                     selectedDay={selectedDay}
                     currentWeek={currentWeek}
                     currentDay={currentDay}
-                    // currentMonth={new Date().getMonth()+1}
+                    currentMonth={new Date().getMonth()+1}
                     isPastDisabled={false}
                     onWeekChange={setSelectedWeek}
                     onDayChange={setSelectedDay}

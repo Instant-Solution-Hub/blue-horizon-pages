@@ -48,6 +48,8 @@ const ManagerSidebar = () => {
   const location = useLocation();
 
   const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.clear();
     navigate("/");
   };
 

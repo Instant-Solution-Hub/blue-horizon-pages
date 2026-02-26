@@ -18,6 +18,8 @@ const LogoutConfirmation = () => {
 
   const handleLogout = () => {
     // Clear any session data if needed
+    sessionStorage.clear();
+    localStorage.clear();
     navigate("/");
   };
 
