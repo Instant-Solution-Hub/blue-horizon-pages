@@ -25,7 +25,7 @@ export const fetchFEProfileStats = async (
     params: {
       year,
       month,
-    },
+    }
   }
   );
   console.log(data);
