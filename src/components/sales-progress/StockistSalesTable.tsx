@@ -25,6 +25,8 @@ const StockistSalesTable = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editSales, setEditSales] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const today = new Date().getDate();
+const isEditableDay = today <= 2; // ✅ only day 1 & 2 editable
 
   const feId = Number(sessionStorage.getItem("feID"));
 
@@ -63,6 +65,15 @@ const StockistSalesTable = () => {
 
   // ✅ SAVE
   const handleSave = async (stockistId: number) => {
+      if (!isEditableDay) {
+    toast({
+      title: "Editing not allowed",
+      description: "Sales can only be edited on the 1st and 2nd day of the month.",
+      variant: "destructive",
+    });
+    return;
+  }
+
     try {
       setLoading(true);
 
@@ -203,14 +214,18 @@ const StockistSalesTable = () => {
                           </Button>
                         </>
                       ) : (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 text-primary hover:bg-primary/10"
-                          onClick={() => handleEdit(stockist)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                    <Button
+  size="icon"
+  variant="ghost"
+  className="h-8 w-8 text-primary hover:bg-primary/10"
+  onClick={() => handleEdit(stockist)}
+  disabled={
+    !isEditableDay ||
+    (editingId !== null && editingId !== stockist.stockistId)
+  }
+>
+  <Pencil className="h-4 w-4" />
+</Button>
                       )}
                     </div>
                   </TableCell>

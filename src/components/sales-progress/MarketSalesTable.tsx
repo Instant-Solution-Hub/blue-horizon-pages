@@ -27,6 +27,8 @@ const MarketSalesTable = () => {
   const [markets, setMarkets] = useState<MarketSale[]>([]);
   const [editingMarket, setEditingMarket] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
+  const today = new Date().getDate();
+const isEditableDay = today <= 2; // ✅ only 1st & 2nd editable
   const { toast } = useToast();
   const feId = Number(sessionStorage.getItem("feID")) || 1;// later from auth context
 
@@ -58,6 +60,14 @@ useEffect(() => {
   };
 
   const handleSave = async (market: MarketSale) => {
+      if (!isEditableDay) {
+    toast({
+      title: "Editing not allowed",
+      description: "Sales can only be edited on the 1st and 2nd day of the month.",
+      variant: "destructive",
+    });
+    return;
+  }
     try {
       const updated = await updateMarketSales(feId, {
         market: market.market,
@@ -165,15 +175,16 @@ useEffect(() => {
                       </>
                     ) : (
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleEdit(market)}
-                        disabled={editingMarket !== null && editingMarket !== market.market}
-
-                        
-                      >
-                        <Pencil className="h-4 w-4 text-primary" />
-                      </Button>
+  size="icon"
+  variant="ghost"
+  onClick={() => handleEdit(market)}
+  disabled={
+    !isEditableDay ||
+    (editingMarket !== null && editingMarket !== market.market)
+  }
+>
+  <Pencil className="h-4 w-4 text-primary" />
+</Button>
                     )}
                   </div>
                 </TableCell>

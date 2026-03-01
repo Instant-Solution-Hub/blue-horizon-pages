@@ -29,6 +29,8 @@ const ProductSalesTable = () => {
   const [products, setProducts] = useState<ProductSale[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editQty, setEditQty] = useState<number>(0);
+  const today = new Date().getDate();
+const isEditableDay = today <= 2; // ✅ allows 1st and 2nd
   const { toast } = useToast();
 
   const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
@@ -58,6 +60,14 @@ const ProductSalesTable = () => {
   };
 
 const handleSave = async (product: ProductSale) => {
+  if (!isEditableDay) {
+  toast({
+    title: "Editing not allowed",
+    description: "Sales can only be edited on the 1st and 2nd day of the month.",
+    variant: "destructive",
+  });
+  return;
+}
   try {
     await updateMonthlyProductSales(feId, product.productId, editQty);
 
@@ -174,15 +184,18 @@ const handleSave = async (product: ProductSale) => {
                           </Button>
                         </>
                       ) : (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
-                          onClick={() => handleEdit(product)}
-                          disabled={editingId !== null && editingId !== product.productId}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                       <Button
+  size="icon"
+  variant="ghost"
+  className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
+  onClick={() => handleEdit(product)}
+  disabled={
+    !isEditableDay ||
+    (editingId !== null && editingId !== product.productId)
+  }
+>
+  <Pencil className="h-4 w-4" />
+</Button>
                       )}
                     </div>
                   </TableCell>

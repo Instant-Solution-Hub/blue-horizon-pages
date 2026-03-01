@@ -65,8 +65,18 @@ const [feStockistData, setFeStockistData] = useState<any[]>([]);
   const [managerSearch, setManagerSearch] = useState("");
   const [feSearch, setFeSearch] = useState("");
   const currentYear = new Date().getFullYear();
-  const selectedYearNum = selectedYear ? Number(selectedYear) : null;
-const selectedMonthNum = selectedMonth ? Number(selectedMonth) + 1 : null;
+const selectedYearNum = selectedYear ? Number(selectedYear) : null;
+
+const selectedMonthNum =
+  selectedMonth !== ""
+    ? ((Number(selectedMonth) + 1) % 12) + 1
+    : null;
+
+const adjustedYear =
+  selectedYearNum && selectedMonth !== ""
+    ? selectedYearNum + (Number(selectedMonth) === 11 ? 1 : 0)
+    : null;
+    
 const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -115,7 +125,7 @@ useEffect(() => {
 useEffect(() => {
   const fetchByDropdown = async () => {
     if (selectedYearNum && selectedMonthNum) {
-      await loadSalesData(selectedYearNum, selectedMonthNum);
+      await loadSalesData(adjustedYear!, selectedMonthNum!);
     }
 
     // if cleared → load current month

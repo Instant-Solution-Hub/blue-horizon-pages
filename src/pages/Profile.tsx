@@ -32,6 +32,9 @@ const Profile = () => {
   emergencyContact: string;
   name:string;
 } | null>(null);
+  const now = new Date();
+      const month = now.getMonth() + 1; // getMonth() is 0-indexed
+      const year = now.getFullYear();
 
 
 
@@ -40,7 +43,7 @@ useEffect(() => {
   const loadProfileData = async () => {
     try {
       const [stats, leavesUsed, leavesList, contact] = await Promise.all([
-        fetchFEProfileStats(fieldExecutiveId),
+        fetchFEProfileStats(fieldExecutiveId, year , month),
         fetchMonthlyConfirmedLeaves(fieldExecutiveId),
         fetchLeavesByFE(fieldExecutiveId),
         fetchFEContactDetails(fieldExecutiveId),

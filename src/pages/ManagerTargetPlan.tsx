@@ -48,6 +48,8 @@ const ManagerTargetPlan = () => {
     const managerId = Number(sessionStorage.getItem("userID"));
 const month = new Date().getMonth() + 1;
 const year = new Date().getFullYear();
+const today = now.getDate();
+const isEditable = today <= 2;
   const [isSetTargetOpen, setIsSetTargetOpen] = useState(false);
 
   const [feTargets, setFeTargets] = useState<FETarget[]>([]);
@@ -258,7 +260,12 @@ const handleUpdateTerritoryData = async (
           <Card className="mb-6">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Monthly Targets by Field Executive</CardTitle>
-              <Button onClick={() => setIsSetTargetOpen(true)} size="sm">
+             <Button
+  onClick={() => setIsSetTargetOpen(true)}
+  size="sm"
+  disabled={!isEditable}
+  className={!isEditable ? "opacity-50 cursor-not-allowed" : ""}
+>
                 <Plus className="w-4 h-4 mr-2" />
                 Set Target
               </Button>
