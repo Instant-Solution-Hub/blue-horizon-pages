@@ -21,7 +21,7 @@ export const fetchFEProfileStats = async (
 ): Promise<FEProfileStats> => {
   const { data } = await API.get(
     `/field-executives/${feId}/profile-stats`,{
-     
+
     params: {
       year,
       month,
