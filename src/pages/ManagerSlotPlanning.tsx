@@ -84,8 +84,8 @@ export default function ManagerSlotPlanning() {
     month: "long",
     year: "numeric",
   });
-  // const isFirstOfMonth = today.getDate() === 2;
-  const isFirstOfMonth = true; // For testing
+  const isFirstOfMonth = today.getDate() === 2;
+  // const isFirstOfMonth = true; // For testing
 
   useEffect(() => {
     if (selectedWeek && selectedDay) {
