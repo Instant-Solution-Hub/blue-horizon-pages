@@ -75,7 +75,7 @@ interface AddPOBModalProps {
 interface Product {
   id: number;
   name: string;
-  price: number;
+  newPts: number;
 }
 
 
@@ -178,8 +178,8 @@ const addProductRow = () => {
     productId: selectedProduct.id,
     productName: selectedProduct.name,
     qty: newQty,
-    price: selectedProduct.price,
-    total: selectedProduct.price * newQty,
+    price: selectedProduct.newPts,
+    total: selectedProduct.newPts * newQty,
   };
 
   setProducts([...products, newRow]);
@@ -362,7 +362,7 @@ const filteredProducts = productsMaster
                                   newProduct === product.name ? "opacity-100" : "opacity-0"
                                 )}
                               />
-                              {product.name} - ₹{product.price}
+                              {product.name} - ₹{product.newPts}
                             </CommandItem>
                           ))}
                         </CommandGroup>
