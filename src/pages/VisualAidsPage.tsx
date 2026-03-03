@@ -62,8 +62,8 @@ export function VisualAidsPage() {
 
   const getFileEmbedUrl = (fileUrl: string) => {
     const extension = fileUrl.split('.').pop()?.toLowerCase();
-    // const fullPath = baseUrl+fileUrl;
-    const fullPath = 'https://developing8.org/download-file.php?post_id=NTc0&file_field_name=YW9jX2RvY3VtZW50cw%3D%3D&pod_item_id=NjE5';
+    const fullPath = baseUrl+fileUrl;
+    // const fullPath = 'https://developing8.org/download-file.php?post_id=NTc0&file_field_name=YW9jX2RvY3VtZW50cw%3D%3D&pod_item_id=NjE5';
     console.log(baseUrl+fileUrl)
     
     if (extension === 'ppt' || extension === 'pptx') {
