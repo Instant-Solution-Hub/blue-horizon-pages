@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "../ui/button";
+import { formatToIST } from "@/lib/utils";
 
 interface BaseVisit {
   id: string;
@@ -137,7 +138,7 @@ export function VisitCard({ visit }: VisitCardProps) {
         <div className="flex items-center gap-4 mt-4 pt-3 border-t">
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Calendar className="h-3 w-3" />
-            <span>{format(visit.dateTime, "dd MMM yyyy, hh:mm a")}</span>
+            <span>{formatToIST(visit.dateTime.toISOString())}</span>
           </div>
           {visit.isMissed && (
             <div className="flex items-center gap-1 text-sm text-destructive">

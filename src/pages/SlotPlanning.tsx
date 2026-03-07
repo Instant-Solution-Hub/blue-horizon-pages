@@ -18,7 +18,21 @@ import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCar
 import { PharmacistSlotTable } from "@/components/slot-planning/PharmicistSlotTable";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { slotChangeRequest } from "@/services/SlotRequestService";
-
+export const holidayList = [
+  "2026-04-15", // VISHU
+  "2026-05-01", // LABOUR DAY
+  "2026-05-27", // BAKRID
+  "2026-06-25", // MUHARRAM
+  "2026-08-12", // KARKIDAKAVAVU
+  "2026-08-15", // INDEPENDENCE DAY
+  "2026-08-25", // ONAM
+  "2026-08-26", // ONAM
+  "2026-10-21", // VIJAYADHASHAMI
+  "2026-12-25", // CHRISTMAS
+  "2027-01-26", // REPUBLIC DAY
+  "2027-03-06", // SHIVARATHRI
+  "2027-03-10"  // RAMZAN
+];
 /* ---------------- MOCK DATA ---------------- */
 
 // const mockDoctorVisits: SlotVisit[] = [
@@ -85,6 +99,9 @@ export default function SlotPlanning() {
 
   const [doctorSlots, setDoctorSlots] = useState<any[]>([]);
   const [pharmacistSlots, setPharmacistSlots] = useState<any[]>([]);
+  const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
 
   // const [slots, setSlots] = useState<SlotVisit[]>([
   //   ...mockDoctorVisits,
@@ -96,6 +113,7 @@ export default function SlotPlanning() {
   useEffect(() => {
     getPlannedDoctorVisits();
     getPlannedPharmacyVisits();
+    console.log("Selected Week: ", selectedWeek, "Selected Day: ", selectedDay);
   }, [selectedWeek, selectedDay]);
 
   const getPlannedDoctorVisits = async () => {
@@ -113,8 +131,10 @@ export default function SlotPlanning() {
   const today = new Date();
   const isFirstOfMonth = today.getDate() === 2;
   // const isFirstOfMonth = true;
+  const planningDate = new Date();
+  planningDate.setMonth(today.getMonth() + 1);
 
-  const currentMonthName = today.toLocaleString("default", {
+  const nextMonthName = planningDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
@@ -261,7 +281,7 @@ export default function SlotPlanning() {
             {/* Header */}
             <div>
               <h1 className="text-2xl font-bold">Slot Planning</h1>
-              <p className="text-muted-foreground">{currentMonthName}</p>
+              <p className="text-muted-foreground">{nextMonthName}</p>
             </div>
             {!isFirstOfMonth && <MonthlyTargetProgress />}
             <WarningSection isFirstOfMonth={isFirstOfMonth} />
@@ -287,15 +307,18 @@ export default function SlotPlanning() {
                   selectedDay={selectedDay}
                   currentWeek={currentWeek}
                   currentDay={currentDay}
-                  currentMonth={new Date().getMonth()+1}
+                  currentMonth={new Date().getMonth() + 1}
                   isPastDisabled={false}
                   onWeekChange={setSelectedWeek}
                   onDayChange={setSelectedDay}
+                  setDayMapping={setDayMapping}
+                  dayMapping={dayMapping}
+                  holidays={holidayList}
                 />
 
                 {isFirstOfMonth ? (
                   <>
-                    {!(selectedWeek == 1 && selectedDay == 2) ? (<Button onClick={() => setIsAddModalOpen(true)}>
+                    {!(selectedWeek == 1 && dayMapping.get(selectedDay)?.date == 2) ? (<Button onClick={() => setIsAddModalOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add New Slot
                     </Button>) : (<Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10">

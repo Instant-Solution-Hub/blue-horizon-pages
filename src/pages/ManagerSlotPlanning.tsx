@@ -30,6 +30,7 @@ import { slotChangeRequest } from "@/services/SlotRequestService";
 import { fetchAllVisitsByWeekDay } from "@/services/ManagerVisitService";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
+import { holidayList } from "./SlotPlanning";
 
 /* ---------------- TYPES ---------------- */
 
@@ -75,15 +76,21 @@ export default function ManagerSlotPlanning() {
   const [isUnAssigning, setIsUnAssigning] = useState(false);
 
   const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
-
+  const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
   const userId = Number(sessionStorage.getItem("userID"));
   const managerName = sessionStorage.getItem("userName") || "Manager";
 
   const today = new Date();
-  const currentMonthName = today.toLocaleString("default", {
+  const planningDate = new Date();
+  planningDate.setMonth(today.getMonth() + 1);
+
+  const nextMonthName = planningDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
+
   const isFirstOfMonth = today.getDate() === 2;
   // const isFirstOfMonth = true; // For testing
 
@@ -154,36 +161,36 @@ export default function ManagerSlotPlanning() {
   };
 
   const fetchManagerVisitsByWeekDay = async () => {
-  setIsLoading(true);
-  try {
-    const response = await fetchAllVisitsByWeekDay(
-      userId,
-      selectedWeek,
-      selectedDay
-    );
+    setIsLoading(true);
+    try {
+      const response = await fetchAllVisitsByWeekDay(
+        userId,
+        selectedWeek,
+        selectedDay
+      );
 
-    const visits = response.data;
+      const visits = response.data;
 
-    setManagerVisits(visits);
+      setManagerVisits(visits);
 
-    const uniqueFeIds:any = Array.from(
-      new Set(visits.map(i => i.feId))
-    );
+      const uniqueFeIds: any = Array.from(
+        new Set(visits.map(i => i.feId))
+      );
 
-    setAssignedFEs(uniqueFeIds);
+      setAssignedFEs(uniqueFeIds);
 
-    console.log("unique FEs", uniqueFeIds);
-  } catch (error) {
-    console.error("Error fetching manager visits:", error);
-    toast({
-      title: "Error",
-      description: "Failed to load your visits",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+      console.log("unique FEs", uniqueFeIds);
+    } catch (error) {
+      console.error("Error fetching manager visits:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your visits",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   /* ---------------- HANDLERS ---------------- */
@@ -557,7 +564,7 @@ export default function ManagerSlotPlanning() {
             <div>
               <h1 className="text-2xl font-bold">Manager Slot Planning</h1>
               <p className="text-muted-foreground">
-                {currentMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
+                {nextMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
               </p>
             </div>
 
@@ -593,10 +600,13 @@ export default function ManagerSlotPlanning() {
                     selectedDay={selectedDay}
                     currentWeek={currentWeek}
                     currentDay={currentDay}
-                    currentMonth={new Date().getMonth()+1}
+                    currentMonth={new Date().getMonth() + 1}
                     isPastDisabled={false}
                     onWeekChange={setSelectedWeek}
                     onDayChange={setSelectedDay}
+                    setDayMapping={setDayMapping}
+                    dayMapping={dayMapping}
+                    holidays={holidayList}
                   />
                   <p className="text-sm text-muted-foreground mt-2">
                     {isFirstOfMonth
@@ -607,14 +617,14 @@ export default function ManagerSlotPlanning() {
                 </div>
 
                 {/* Slot Planning Day Warning */}
-                {isFirstOfMonth && selectedWeek === 1 && selectedDay === 2 ? (
+                {isFirstOfMonth && selectedWeek === 1 && dayMapping.get(selectedDay)?.date == 2 ? (
                   <Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10">
                     <AlertTriangle className="h-5 w-5 text-amber-600" />
                     <AlertTitle className="text-amber-700 font-semibold">
                       Slot Planning Day
                     </AlertTitle>
                     <AlertDescription className="text-amber-600">
-                      Today is slot planning day. You can view but cannot assign to visits scheduled for Week 1, Day 2.
+                      Slot planning for Week 1, Day 2 is locked. Since it's the day for planning slots.
                     </AlertDescription>
                   </Alert>
                 ) : (
