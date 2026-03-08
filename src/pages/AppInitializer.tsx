@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { checkPortalStatus } from "@/services/PortalService";
 import PortalLockedPage from "@/pages/PortalLockedPage";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 
 type InitState = "loading" | "locked" | "ready";
@@ -10,6 +10,7 @@ type InitState = "loading" | "locked" | "ready";
 const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<InitState>("loading");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const init = async () => {
@@ -23,19 +24,25 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
 
         if (res.isLocked) {
           setState("locked");
+          navigate("/portal-locked");
         } else {
           setState("ready");
-          let userRole = sessionStorage.getItem("userRole").toLowerCase();
-          if (userRole === "manager") {
-            navigate("/manager-dashboard");
-            return;
-          } else if (userRole === "admin") {
-            navigate("/admin-dashboard/profile");
-            return;
-          }else {
-             navigate("/dashboard");
-             return;
+          if (location.pathname.match(/^\/(portal-locked)/)) {
+            let userRole = sessionStorage.getItem("userRole").toLowerCase();
+            if (userRole === "manager") {
+              navigate("/manager-dashboard");
+              return;
+            } else if (userRole === "admin") {
+              navigate("/admin-dashboard/profile");
+              return;
+            } else if (userRole === "fe") {
+              navigate("/dashboard");
+              return;
+            } else {
+              navigate("/");
+            }
           }
+
         }
       } catch (err) {
         console.error("Portal status check failed", err);
@@ -45,7 +52,7 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
     };
 
     init();
-  }, []);
+  }, [location.pathname]);
 
   if (state === "loading") {
     return <div className="h-screen flex flex-col items-center justify-center text-center px-4">

@@ -66,19 +66,19 @@ export function VisualAidsPage() {
     // const fullPath = 'https://developing8.org/download-file.php?post_id=NTc0&file_field_name=YW9jX2RvY3VtZW50cw%3D%3D&pod_item_id=NjE5';
     console.log(baseUrl+fileUrl)
     
-    if (extension === 'ppt' || extension === 'pptx') {
-      return `https://docs.google.com/gview?url=${encodeURIComponent(fullPath)}&embedded=true`;
-    }
+    // if (extension === 'ppt' || extension === 'pptx') {
+    //   return `https://docs.google.com/gview?url=${encodeURIComponent(fullPath)}&embedded=true`;
+    // }
     
     if (extension === 'pdf') {
-      return fileUrl;
+      return fullPath;
     }
     
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
-      return fileUrl;
+      return fullPath;
     }
     
-    return fileUrl;
+    return fullPath;
   };
 
   if (loading) {
