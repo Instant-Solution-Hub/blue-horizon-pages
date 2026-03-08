@@ -65,7 +65,8 @@ const ManagerSidebar = () => {
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary-foreground rounded-xl flex items-center justify-center flex-shrink-0">
-            <Pill className="w-6 h-6 text-primary" />
+            {/* <Pill className="w-6 h-6 text-primary" /> */}
+            <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
           </div>
           {!isCollapsed && (
             <div className="animate-fade-in">

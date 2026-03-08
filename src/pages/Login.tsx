@@ -105,7 +105,7 @@ const Login = () => {
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
           <div className="flex items-center gap-3 mb-8 animate-fade-in">
             <div className="w-16 h-16 bg-primary-foreground rounded-2xl flex items-center justify-center">
-              <Pill className="w-9 h-9 text-primary" />
+              <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
             </div>
             <div>
               <h1 className="text-3xl font-display font-bold">Larimar Pharma</h1>
@@ -146,7 +146,8 @@ const Login = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              <Pill className="w-7 h-7 text-primary-foreground" />
+              {/* <Pill className="w-7 h-7 text-primary-foreground" /> */}
+              <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground">Larimar Pharma</h1>
