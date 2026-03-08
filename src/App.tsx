@@ -33,6 +33,7 @@ import SalesProgress from "./pages/SalesProgress";
 import AdminSalesProgress from "./pages/AdminSalesProgress";
 import AdminSlots from "./pages/AdminSlots";
 import AdminVisitReports from "./pages/AdminVisitReports";
+import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
 import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
