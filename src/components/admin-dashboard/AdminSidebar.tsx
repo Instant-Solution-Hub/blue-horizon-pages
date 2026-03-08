@@ -18,6 +18,7 @@ import {
   HeartHandshake,
   UsersRound,
   CalendarRange,
+  CalendarCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
