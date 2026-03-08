@@ -47,3 +47,14 @@ export const markFEVisitAsCompleted = async (visitId):Promise<any[]> => {
   const res = await API.post(`/visit/admin/mark-visit-as-completed/${visitId}`);
   return res.data.data;
 }
+
+export const fetchAllSlotPlanDayRequests = async ():Promise<any[]> => {
+  const res = await API.get('/slot-planning-requests/admin/all');
+  return res.data;
+}
+
+export const reviewSlotPlanDayRequest = async (requestId: number, adminId: number, obj) : Promise<any[]> => {
+  const res = await API.put(`/slot-planning-requests/${requestId}/review?adminId=${adminId}`, obj);
+  console.log(res);
+  return res.data; // ApiResponseDto → data
+}

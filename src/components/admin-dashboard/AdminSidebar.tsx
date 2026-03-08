@@ -19,6 +19,7 @@ import {
   CalendarRange,
   BellDot,
   ClipboardList,
+  CalendarCheck,
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ const AdminSidebar = () => {
      { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
     { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
+    { icon: CalendarCheck, label: "Slot Plan Requests", path: "/admin-dashboard/slot-plan-day-requests" },
     { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
     { icon: ClipboardList, label: "Visit Reports", path: "/admin-dashboard/visit-reports" },
     { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
@@ -56,8 +58,8 @@ const AdminSidebar = () => {
       <div className="p-4 flex items-center justify-between">
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-[#3D53D1] font-bold text-sm">LP</span>
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
             </div>
             <span className="font-semibold text-white">
               Larimar Pharma

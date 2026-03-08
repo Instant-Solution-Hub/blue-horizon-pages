@@ -26,11 +26,12 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ManagerRequestUpdateModal } from "@/components/manager-slot-planning/ManagerRequestUpdateModal";
-import { slotChangeRequest } from "@/services/SlotRequestService";
+import { checkIfSlotPlanDayEnabled, slotChangeRequest, slotPlanDayRequestManager } from "@/services/SlotRequestService";
 import { fetchAllVisitsByWeekDay } from "@/services/ManagerVisitService";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { holidayList } from "./SlotPlanning";
+import { SlotPlanDayRequestModal } from "@/components/slot-planning/SlotPlanDayRequestModal";
 
 /* ---------------- TYPES ---------------- */
 
@@ -74,6 +75,8 @@ export default function ManagerSlotPlanning() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isUnAssigning, setIsUnAssigning] = useState(false);
+  const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
+  const [slotPlanDayEnabled, setSlotPlanDayEnabled] = useState(false);
 
   const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
   const [dayMapping, setDayMapping] = useState<
@@ -91,8 +94,13 @@ export default function ManagerSlotPlanning() {
     year: "numeric",
   });
 
-  const isFirstOfMonth = today.getDate() === 2;
+  const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
   // const isFirstOfMonth = true; // For testing
+
+
+  useEffect(() => {
+    checkIfSlotPlanEnabled();
+  }, []);
 
   useEffect(() => {
     if (selectedWeek && selectedDay) {
@@ -131,6 +139,16 @@ export default function ManagerSlotPlanning() {
   }
 
   /* ---------------- API CALLS ---------------- */
+
+   const checkIfSlotPlanEnabled = async () => {
+      try {
+        const response = await checkIfSlotPlanDayEnabled("MANAGER", userId);
+        setSlotPlanDayEnabled(response.canPlanSlot);
+        // console.log("Check Slot Plan Day Response: ", response);
+      } catch (error) { 
+        console.log("Error checking slot plan day: ", error);
+      }
+    };
 
   const fetchAllocatedFEsData = async () => {
     setIsLoading(true);
@@ -300,6 +318,28 @@ export default function ManagerSlotPlanning() {
       toast({
         title: "Request Failed",
         description: `Your slot update request for the selected ${data.visitType} visit could not be sent.`,
+      });
+    }
+  };
+
+  const handleSlotDayRequestSubmit = async (data) => {
+    try {
+      // API call to create request
+      const response = await slotPlanDayRequestManager(data, userId);
+      console.log("Submitting Slot Plan Day Request with data: ", data);
+      toast({
+        title: "Success",
+        description: "Slot plan day request submitted successfully",
+        variant: "default",
+      });
+
+      setIsSlotRequestPopupOpen(false);
+    } catch (error) {
+      console.log("Error submitting slot plan day request: ", error);
+      toast({
+        title: "Error",
+        description: error.response.data.message || "Failed to submit request. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -561,12 +601,21 @@ export default function ManagerSlotPlanning() {
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
-            <div>
-              <h1 className="text-2xl font-bold">Manager Slot Planning</h1>
-              <p className="text-muted-foreground">
-                {nextMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">Manager Slot Planning</h1>
+                <p className="text-muted-foreground">
+                  {nextMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
+                </p>
+              </div>
+               <Button
+                onClick={() => setIsSlotRequestPopupOpen(true)}
+                className="bg-primary hover:bg-primary/90"
+              >
+                Request Slot Plan Day
+              </Button>
             </div>
+
 
             {!isFirstOfMonth && <MonthlyTargetProgress />}
             <WarningSection isFirstOfMonth={isFirstOfMonth} />
@@ -914,6 +963,14 @@ export default function ManagerSlotPlanning() {
           type: "doctor",
         }))}
         onSubmit={handleRequestUpdate}
+      />
+
+      <SlotPlanDayRequestModal
+        isOpen={isSlotRequestPopupOpen}
+        onClose={() => setIsSlotRequestPopupOpen(false)}
+        onSubmit={handleSlotDayRequestSubmit}
+        userType={"MANAGER"}
+        userId={userId}
       />
     </div>
   );

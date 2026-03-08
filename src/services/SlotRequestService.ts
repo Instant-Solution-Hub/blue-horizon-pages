@@ -25,3 +25,22 @@ export const reviewSlotChangeRequest = async (requestId: number, adminId: number
   console.log(res);
   return res.data; // ApiResponseDto → data
 }
+
+
+export const slotPlanDayRequestFieldExecutive = async (obj, feId) : Promise<any[]> => {
+  const res = await API.post(`/slot-planning-requests/field-executive/${feId}`, obj);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
+export const slotPlanDayRequestManager = async (obj, managerId) : Promise<any[]> => {
+  const res = await API.post(`/slot-planning-requests/manager/${managerId}`, obj);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
+export const checkIfSlotPlanDayEnabled = async (userType, userId) : Promise<any> => {
+  const res = await API.get(`/slot-planning-requests/can-plan-slot-today?requesterType=${userType}&requesterId=${userId}`);
+  console.log(res);
+  return res.data; // ApiResponseDto → data
+}
