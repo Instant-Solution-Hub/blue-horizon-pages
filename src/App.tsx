@@ -33,6 +33,7 @@ import SalesProgress from "./pages/SalesProgress";
 import AdminSalesProgress from "./pages/AdminSalesProgress";
 import AdminSlots from "./pages/AdminSlots";
 import AdminVisitReports from "./pages/AdminVisitReports";
+import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
 import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
@@ -85,6 +86,7 @@ const App = () => (
             <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
           <Route path="/admin-dashboard/slots" element={<AdminSlots />} />
           <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
+          <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
           {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
