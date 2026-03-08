@@ -27,6 +27,7 @@ const StockistSalesTable = () => {
   const [loading, setLoading] = useState(false);
   const today = new Date().getDate();
 const isEditableDay = today <= 2; // ✅ only day 1 & 2 editable
+const subtotalSales = stockists.reduce((sum, s) => sum + (s.price || 0), 0);
 
   const feId = Number(sessionStorage.getItem("feID"));
 
@@ -231,6 +232,17 @@ const isEditableDay = today <= 2; // ✅ only day 1 & 2 editable
                   </TableCell>
                 </TableRow>
               ))}
+              <TableRow className="bg-primary/10 font-semibold">
+  <TableCell colSpan={2} className="text-right text-primary">
+    Subtotal
+  </TableCell>
+
+  <TableCell className="text-green-700">
+    ₹{subtotalSales.toLocaleString()}
+  </TableCell>
+
+  <TableCell />
+</TableRow>
             </TableBody>
           </Table>
         </div>

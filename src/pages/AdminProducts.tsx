@@ -11,16 +11,8 @@
 
  
  const categories = [
-   "Antibiotics",
-   "Painkillers",
-   "Vitamins",
-   "Cardiovascular",
-   "Diabetes",
-   "Respiratory",
-   "Gastrointestinal",
-   "Dermatology",
-   "Neurology",
-   "Other",
+   "FIRST",
+   "SECOND"
  ];
  
  // initial empty state (products will be fetched from backend)

@@ -30,6 +30,7 @@ const ProductSalesTable = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editQty, setEditQty] = useState<number>(0);
   const today = new Date().getDate();
+  const subtotalSales = products.reduce((sum, p) => sum + p.sales, 0);
 const isEditableDay = today <= 2; // ✅ allows 1st and 2nd
   const { toast } = useToast();
 
@@ -200,7 +201,17 @@ const handleSave = async (product: ProductSale) => {
                     </div>
                   </TableCell>
                 </TableRow>
+                
               ))}
+              <TableRow className="bg-primary/10 font-semibold">
+    <TableCell colSpan={4} className="text-right text-primary">
+      Subtotal
+    </TableCell>
+    <TableCell className="text-green-700">
+      ₹{subtotalSales.toLocaleString()}
+    </TableCell>
+    <TableCell />
+  </TableRow>
             </TableBody>
           </Table>
         </div>

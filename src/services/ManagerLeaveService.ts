@@ -81,10 +81,10 @@ export const fetchMonthlyConfirmedLeaves = async (
 
 export const fetchTeamLeaveRequests = async (managerId: number) => {
   const res = await API.get(
-    `/managers/${managerId}/fe-leaves`
+    `/managers/leaves/${managerId}/fe-leaves`
   );
   console.log(res);
-  return res.data.data as LeaveRequest[];
+  return res.data as LeaveRequest[];
 };
 
 

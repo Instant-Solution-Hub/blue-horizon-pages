@@ -53,6 +53,7 @@ import { VisualAidsPage } from "./pages/VisualAidsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 import AdminVisitReports from "./pages/AdminVisitReports";
+import ManagerLeaveData from "./pages/ManagerLeaveData";
 
 
 
@@ -95,6 +96,7 @@ const App = () => (
             <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
               <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
             <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
+                   <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveData />} />
              
 
      {/* Admin Dashboard Routes */}

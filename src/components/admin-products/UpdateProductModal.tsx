@@ -82,7 +82,7 @@
            </div>
  
            <div className="space-y-2">
-             <Label htmlFor="category">Category</Label>
+             <Label htmlFor="category">Division</Label>
              <Select
                value={formData.category}
                onValueChange={(value) =>
@@ -90,7 +90,7 @@
                }
              >
                 <SelectTrigger className={!formData.category ? "border-destructive" : ""}>
-                 <SelectValue placeholder="Select category" />
+                 <SelectValue placeholder="Select division" />
                </SelectTrigger>
                <SelectContent>
                  {categories.map((category) => (

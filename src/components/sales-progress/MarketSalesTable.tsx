@@ -31,6 +31,7 @@ const MarketSalesTable = () => {
 const isEditableDay = today <= 2; // ✅ only 1st & 2nd editable
   const { toast } = useToast();
   const feId = Number(sessionStorage.getItem("feID")) || 1;// later from auth context
+  const subtotalSales = markets.reduce((sum, m) => sum + m.salesAmount, 0);
 
 
 const now = new Date();
@@ -191,6 +192,15 @@ useEffect(() => {
                  
                 </TableRow>
               ))}
+              <TableRow className="bg-primary/10 font-semibold">
+  <TableCell colSpan={2} className="text-right text-primary">
+    Subtotal
+  </TableCell>
+  <TableCell className="text-green-700">
+    ₹{subtotalSales.toLocaleString()}
+  </TableCell>
+  <TableCell />
+</TableRow>
             </TableBody>
           </Table>
         </div>

@@ -23,8 +23,7 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
         <TableHeader className="bg-[rgb(61,83,209)]">
           <TableRow className="hover:bg-[rgb(61,83,209)] border-none">
             <TableHead className="text-white font-semibold h-12">Name</TableHead>
-            <TableHead className="text-white font-semibold">Category</TableHead>
-            <TableHead className="text-white font-semibold">Description</TableHead>
+            <TableHead className="text-white font-semibold">Division</TableHead>
             <TableHead className="text-right text-white font-semibold">Price (₹)</TableHead>
             <TableHead className="text-right text-white font-semibold">PTS (₹)</TableHead>
              <TableHead className="text-right text-white font-semibold">New PTS (₹)</TableHead>
@@ -46,9 +45,6 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
                 <span className="inline-flex items-center rounded-md bg-[rgb(61,83,209)]/10 px-2.5 py-0.5 text-xs font-medium text-[rgb(61,83,209)]">
                   {product.category}
                 </span>
-              </TableCell>
-              <TableCell className="max-w-[200px] truncate text-slate-500">
-                {product.description}
               </TableCell>
               <TableCell className="text-right font-medium text-slate-700">
                 {product.price.toFixed(2)}
