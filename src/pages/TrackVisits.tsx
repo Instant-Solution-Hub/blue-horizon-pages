@@ -70,7 +70,7 @@ export default function TrackVisits() {
   const getTodaysVisits = async () => {
     if (!feID) return;
     try {
-      const data = await fetchTodaysVisits(Number(feID));
+      const data = await fetchTodaysAndMissedVisits(Number(feID));
       setTodaysVisits(data);
       console.log("Today's Visits:", data);
     } catch (error) {
