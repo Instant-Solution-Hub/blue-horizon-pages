@@ -50,6 +50,16 @@ export const fetchTodaysVisits = async (fieldExecutiveId: number) => {
     return response.data;
 }
 
+export const fetchTodaysAndMissedVisits = async (fieldExecutiveId: number) => {
+  const response = await API.get(`/visit/today-scheduled-and-missed?fieldExecutiveId=${fieldExecutiveId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
 export const markVisit = async (visitData: any) => {
   const response = await API.post(`/visit/mark`, visitData, {
     headers: {    

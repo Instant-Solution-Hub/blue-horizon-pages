@@ -16,6 +16,7 @@ import { set } from "date-fns";
 import { fetchFEVisitsByWeekDay, fetchManagerVisitsByWeekDay } from "@/services/AdminSlotService";
 import { AdminSlotVisitListManager } from "@/components/admin-slots/AdminSlotVisitListManager";
 import { getAllPendingRequests, reviewSlotChangeRequest } from "@/services/SlotRequestService";
+import { holidayList } from "./SlotPlanning";
 
 /* ---------- MOCK DATA ---------- */
 
@@ -68,7 +69,9 @@ export default function AdminSlots() {
   const [fePharmacistVisits, setFEPharmacistVisits] = useState<any[]>([]);
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
   const userId = sessionStorage.getItem("userID");
-
+ const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
 
   useEffect(() => {
     fetchAllFieldExecutives();
@@ -148,7 +151,7 @@ export default function AdminSlots() {
     }
     try {
       const response = await reviewSlotChangeRequest(requestId, Number(userId), obj);
-       setSlotRequests((prev) =>
+      setSlotRequests((prev) =>
         prev.map((r) =>
           r.id === requestId ? { ...r, status: "rejected" } : r
         )
@@ -301,6 +304,9 @@ export default function AdminSlots() {
                     isPastDisabled={false}
                     currentWeek={currentWeek}
                     currentDay={currentDay}
+                    setDayMapping={setDayMapping}
+                    dayMapping={dayMapping}
+                    holidays={holidayList}
                   />
                   {slotType === "manager" ? (
                     <AdminSlotVisitListManager doctorVisits={managerVisits} pharmacistVisits={[]} />

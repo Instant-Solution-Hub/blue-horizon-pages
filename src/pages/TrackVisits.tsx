@@ -5,7 +5,7 @@ import { VisitSearchBar } from "@/components/track-visits/VisitSearchBar";
 import { AddVisitModal } from "@/components/track-visits/AddVisitModal";
 import { VisitList } from "@/components/track-visits/VisitList";
 import { useToast } from "@/hooks/use-toast";
-import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchMissedVisits, fetchTodaysVisits, markStockistVisit, markVisit, reMarkVisit } from "@/services/VisitService";
+import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchMissedVisits, fetchTodaysAndMissedVisits, fetchTodaysVisits, markStockistVisit, markVisit, reMarkVisit } from "@/services/VisitService";
 import { set } from "date-fns";
 import { get } from "http";
 import { StockistVisitData } from "@/components/track-visits/StockistVisitForm";
