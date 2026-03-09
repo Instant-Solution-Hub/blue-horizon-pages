@@ -12,7 +12,8 @@ import {
   fetchTodaysVisits, 
   markVisit, 
   reMarkVisit,
-  createUnscheduledVisit
+  createUnscheduledVisit,
+  fetchTodaysAndMissedVisits
 } from "@/services/ManagerVisitService";
 import { adaptBackendVisits } from "@/lib/utils";
 import { AddManagerVisitModal } from "@/components/track-visits-manager/AddManagerVisitModal";
@@ -90,7 +91,7 @@ export default function TrackVisitsManager() {
   const getTodaysVisits = async () => {
     if (!managerId) return;
     try {
-      const data = await fetchTodaysVisits(Number(managerId));
+      const data = await fetchTodaysAndMissedVisits(Number(managerId));
       setTodaysVisits(data);
     } catch (error) {
       console.error("Error fetching today's visits:", error);
