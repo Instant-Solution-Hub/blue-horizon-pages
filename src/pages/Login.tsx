@@ -6,57 +6,116 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Mail, Lock, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { login } from "@/services/AuthenticationService";
+import { checkPortalStatus } from "@/services/PortalService";
+import PortalLockedPage from "./PortalLockedPage";
+
+type InitState = "loading" | "locked" | "ready";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState<InitState>("loading");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate login - replace with actual auth
-    setTimeout(() => {
+    try {
+      const response = await login(email, password);
+      console.log("Login Response: ", response);
       setIsLoading(false);
+      if (response.success) {
+        sessionStorage.setItem("userID", response.data.id);
+        sessionStorage.setItem("feID", response.data.id);
+        sessionStorage.setItem("userName", response.data.name);
+        sessionStorage.setItem("userEmail", response.data.email);
+        sessionStorage.setItem("userRole", response.data.userType);
+        toast({
+          title: "Login Successful",
+          description: ``,
+        });
+        console.log("User Type: ", response.data.userType);
+        if (response.data.userType.toLowerCase() === "manager") {
+          navigate("/manager-dashboard");
+          return;
+        }
+        if (response.data.userType.toLowerCase() === "admin") {
+          navigate("/admin-dashboard/profile");
+          return;
+        }
+        if (response.data.userType.toLowerCase() === "super_admin") {
+          navigate("/super-admin-dashboard/sales-progress");
+          return;
+        }
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+
+      if (error.response?.status === 423) {
+        const userIdentity = error.response.data.data;
+        sessionStorage.setItem("userID", userIdentity.userId);
+        sessionStorage.setItem("userRole", userIdentity.userType == "MANAGER" ? "Manager" : "FE");
+        navigate("/portal-locked");
+      }
+
       toast({
-        title: "Welcome back!",
-        description: "Successfully logged in to Larimar Pharma",
+        title: "Login Failed",
+        description: error.response?.data?.message || "Invalid credentials",
+        variant: "destructive",
       });
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
+
+  const checkPortalStatusBeforeNavigating = async () => {
+    try {
+      const res = await checkPortalStatus();
+      if (res.isLocked) {
+        setState("locked");
+      } else {
+        setState("ready");
+      }
+    } catch (err) {
+      console.error("Portal status check failed", err);
+      setState("ready");
+    }
+  };
+
+  if (state === "locked") {
+    return <PortalLockedPage />;
+  }
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
-        
+
         {/* Decorative circles */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary-foreground/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl" />
-        
+
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
-          <div className="flex items-center gap-3 mb-8 animate-fade-in">
-            <div className="w-16 h-16 bg-primary-foreground rounded-2xl flex items-center justify-center">
-              <Pill className="w-9 h-9 text-primary" />
+          <div className="flex items-center gap-5 mb-8 animate-fade-in">
+            <div className="w-24 h-24 bg-primary-foreground rounded-3xl flex items-center justify-center shadow-lg">
+              <Pill className="w-14 h-14 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-display font-bold">Larimar Pharma</h1>
-              <p className="text-primary-foreground/80 text-sm">Field Force Management</p>
+              <h1 className="text-4xl font-display font-bold">Larimar Pharma</h1>
+              <p className="text-primary-foreground/80 text-base">Field Force Management</p>
             </div>
           </div>
-          
+
           <div className="max-w-md text-center space-y-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <h2 className="text-2xl font-semibold">
               Streamline Your Field Operations
             </h2>
             <p className="text-primary-foreground/70 leading-relaxed">
-              Manage doctor visits, track pharmacy interactions, plan slots efficiently, 
+              Manage doctor visits, track pharmacy interactions, plan slots efficiently,
               and monitor your team's performance - all in one powerful platform.
             </p>
           </div>
@@ -82,9 +141,9 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-muted/30">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              <Pill className="w-7 h-7 text-primary-foreground" />
+          <div className="lg:hidden flex items-center justify-center gap-4 mb-8">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
+              <Pill className="w-10 h-10 text-primary-foreground" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground">Larimar Pharma</h1>
@@ -143,15 +202,6 @@ const Login = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
-                  >
-                    Forgot password?
-                  </button>
                 </div>
 
                 <Button
