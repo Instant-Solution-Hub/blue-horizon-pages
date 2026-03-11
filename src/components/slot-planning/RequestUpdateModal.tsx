@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Send } from "lucide-react";
 import { WeekDaySelector } from "./WeekDaySelector";
+import { holidayList } from "@/pages/SlotPlanning";
 
 interface Visit {
   id: number;
@@ -53,6 +54,10 @@ export function RequestUpdateModal({
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [selectedDay, setSelectedDay] = useState(1);
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
+   const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
+
 
   const filteredVisits = useMemo(() => {
     console.log("Filtering visits for type:", doctorVisits, pharmacistVisits, visitType);
@@ -184,6 +189,9 @@ export function RequestUpdateModal({
             isPastDisabled={false}
             onWeekChange={setSelectedWeek}
             onDayChange={setSelectedDay}
+            setDayMapping={setDayMapping}
+            dayMapping={dayMapping}
+            holidays={holidayList}
           />
 
           {/* Notes */}
