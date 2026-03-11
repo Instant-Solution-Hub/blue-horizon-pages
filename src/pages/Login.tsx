@@ -92,148 +92,144 @@ const Login = () => {
   }
 
 
-  return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+return (
+ 
+    
+   <div className="min-h-screen grid lg:grid-cols-2">
 
-        {/* Decorative circles */}
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary-foreground/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl" />
+      {/* LEFT SIDE - BRANDING */}
+   
+<div className="hidden lg:flex flex-col items-center justify-center bg-primary text-primary-foreground relative overflow-hidden">
 
-        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
-          <div className="flex items-center gap-3 mb-8 animate-fade-in">
-            <div className="w-16 h-16 bg-primary-foreground rounded-2xl flex items-center justify-center">
-              <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-display font-bold">Larimar Pharma</h1>
-              <p className="text-primary-foreground/80 text-sm">Field Force Management</p>
-            </div>
-          </div>
+  <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80"></div>
 
-          <div className="max-w-md text-center space-y-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <h2 className="text-2xl font-semibold">
-              Streamline Your Field Operations
-            </h2>
-            <p className="text-primary-foreground/70 leading-relaxed">
-              Manage doctor visits, track pharmacy interactions, plan slots efficiently,
-              and monitor your team's performance - all in one powerful platform.
-            </p>
-          </div>
+  <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+  <div className="absolute bottom-20 right-20 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
 
-          {/* Feature highlights */}
-          <div className="mt-12 grid grid-cols-2 gap-6 max-w-md animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            {[
-              { label: "Doctor Visits", value: "Track & Manage" },
-              { label: "Slot Planning", value: "Weekly & Monthly" },
-              { label: "Real-time", value: "Progress Tracking" },
-              { label: "Reports", value: "Analytics & Insights" },
-            ].map((item, index) => (
-              <div key={index} className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-primary-foreground/20">
-                <p className="text-primary-foreground/60 text-xs uppercase tracking-wide">{item.label}</p>
-                <p className="text-primary-foreground font-medium mt-1">{item.value}</p>
-              </div>
-            ))}
-          </div>
+  <div className="relative z-10 flex flex-col items-center text-center space-y-10 px-10">
+
+    <div className="w-44 h-44 bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6">
+      <img
+        src="/LOGO.jpg"
+        alt="Larimar Pharma"
+        className="w-full h-full object-contain"
+      />
+    </div>
+
+    <div>
+      <h1 className="text-4xl font-bold">Larimar Pharma</h1>
+      <p className="text-primary-foreground/80 text-lg mt-2">
+        Field Force Management Portal
+      </p>
+    </div>
+     <div className="grid grid-cols-2 gap-4 max-w-sm mt-4">
+      {[
+        "Doctor Visit Tracking",
+        "Pharmacy Interaction",
+        "Sales Monitoring",
+        "Manager Insights",
+      ].map((item, i) => (
+        <div
+          key={i}
+          className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-sm font-medium"
+        >
+          {item}
         </div>
-      </div>
+      ))}
+    </div>
 
-      {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-muted/30">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              {/* <Pill className="w-7 h-7 text-primary-foreground" /> */}
-              <img src="/LOGO.jpg" alt="Larimar Pharma Logo" className="w-7 h-7" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">Larimar Pharma</h1>
+  </div>
+</div>
+<div className="flex items-center justify-center bg-muted/30 p-8">
+
+  <div className="w-full max-w-md">
+
+      {/* RIGHT SIDE - LOGIN CARD */}
+      <Card className="shadow-2xl border-0">
+        <CardHeader className="space-y-4 text-center">
+
+          {/* MOBILE / TABLET LOGO */}
+          <div className="flex justify-center lg:hidden">
+            <div className="w-24 h-24 rounded-2xl bg-white shadow-lg flex items-center justify-center p-3">
+              <img
+                src="/LOGO.jpg"
+                alt="Larimar Pharma"
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
 
-          <Card className="border-0 shadow-xl card-shadow animate-fade-in">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl font-display font-bold text-center">
-                Welcome Back
-              </CardTitle>
-              <CardDescription className="text-center">
-                Sign in to your Field Executive account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 bg-background border-border focus:border-primary focus:ring-primary"
-                      required
-                    />
-                  </div>
-                </div>
+          <CardTitle className="text-2xl font-bold">
+            Welcome Back
+          </CardTitle>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-12 bg-background border-border focus:border-primary focus:ring-primary"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
+          <CardDescription>
+            Sign in to access your dashboard
+          </CardDescription>
 
-                {/* <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
-                  >
-                    Forgot password?
-                  </button>
-                </div> */}
+        </CardHeader>
 
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={isLoading}
+        <CardContent>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* EMAIL */}
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* PASSWORD */}
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 pr-10 h-12"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      Signing in...
-                    </div>
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    "Sign In"
+                    <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
-                </Button>
-              </form>
+                </button>
 
-              <div className="mt-6 text-center">
+              </div>
+            </div>
+
+            {/* LOGIN BUTTON */}
+            <Button
+              type="submit"
+              className="w-full h-12 text-base font-semibold"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </Button>
+
+          </form>
+           <div className="mt-6 text-center">
                 <p className="text-sm text-muted-foreground">
                   Need help?{" "}
                   <button className="text-primary hover:text-primary/80 font-medium transition-colors">
@@ -241,16 +237,18 @@ const Login = () => {
                   </button>
                 </p>
               </div>
-            </CardContent>
-          </Card>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            © 2025 Larimar Pharma. All rights reserved.
+        </CardContent>
+      </Card>
+        <p className="text-center text-xs text-muted-foreground mt-6">
+            © 2026 Larimar Pharma. All rights reserved.
           </p>
-        </div>
-      </div>
     </div>
-  );
+    </div>
+     </div>
+  
+
+);
 };
 
 export default Login;
