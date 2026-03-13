@@ -110,82 +110,88 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     );
   };
 
- const handleSubmit = () => {
-  if (!selectedVisit) return;
+  const handleSubmit = () => {
+    if (!selectedVisit) return;
 
-  if (!isMissed && selectedActivities.length === 0) {
-    alert("Please select at least one activity performed");
-    return;
-  }
+    if (!isMissed && selectedActivities.length === 0) {
+      alert("Please select at least one activity performed");
+      return;
+    }
 
-  if (
-    selectedActivities.includes("Product Conversion") &&
-    conversionRows.some((r) => !r.productId || r.quantity <= 0)
-  ) {
-    alert("Please select product and quantity for all conversion rows");
-    return;
-  }
+    if (
+      selectedActivities.includes("Product Conversion") &&
+      conversionRows.some((r) => !r.productId || r.quantity <= 0)
+    ) {
+      alert("Please select product and quantity for all conversion rows");
+      return;
+    }
 
-  if (isMissed && !notes.trim()) {
-    alert("Notes are mandatory for missed visits");
-    return;
-  }
+    if (isMissed && !notes.trim()) {
+      alert("Notes are mandatory for missed visits");
+      return;
+    }
 
-  const convertedProducts =
-    selectedActivities.includes("Product Conversion")
-      ? conversionRows
+    const convertedProducts =
+      selectedActivities.includes("Product Conversion")
+        ? conversionRows
           .filter((r) => r.productId)
           .map((r) => ({
             productId: Number(r.productId),
             quantity: r.quantity,
             value: r.value,
           }))
-      : [];
+        : [];
 
-  const payload = {
-    visitType: "doctor" as const,
-    doctorId: selectedVisit.id,
-    visitId: selectedVisit.visitId,
-    doctorName: selectedVisit.doctorName,
-    hospital: selectedVisit.hospital,
-    designation: selectedVisit.designation,
-    category: selectedVisit.category,
-    practiceType: selectedVisit.practiceType,
-    isMissed,
-    isPreviouslyMissed: selectedVisit.status === "MISSED",
-    activitiesPerformed: selectedActivities,
-    notes,
-    convertedProducts,
-  };
+    const payload = {
+      visitType: "doctor" as const,
+      doctorId: selectedVisit.id,
+      visitId: selectedVisit.visitId,
+      doctorName: selectedVisit.doctorName,
+      hospital: selectedVisit.hospital,
+      designation: selectedVisit.designation,
+      category: selectedVisit.category,
+      practiceType: selectedVisit.practiceType,
+      isMissed,
+      isPreviouslyMissed: selectedVisit.status === "MISSED",
+      activitiesPerformed: selectedActivities,
+      notes,
+      convertedProducts,
+    };
 
-  // ✅ If missed, no need to capture location
-  if (isMissed) {
-    onSubmit({
-      ...payload,
-      location: null,
-    });
-    return;
-  }
-
-  // Otherwise capture location
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      onSubmit({
-        ...payload,
-        location: {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        },
-      });
-    },
-    () => {
+    // ✅ If missed, no need to capture location
+    if (isMissed) {
       onSubmit({
         ...payload,
         location: null,
       });
+      return;
     }
-  );
-};
+
+    // Otherwise capture location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Location Accuracy:", position.coords.accuracy);
+        onSubmit({
+          ...payload,
+          location: {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          },
+        });
+      },
+      () => {
+        onSubmit({
+          ...payload,
+          location: null,
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
 
   const handleAddRow = () => {
     setConversionRows([...conversionRows, { productId: 0, quantity: 1, value: 0 }]);
@@ -237,9 +243,19 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
             <SelectValue placeholder="Select a doctor" />
           </SelectTrigger>
           <SelectContent>
-            {doctorVisits.map((visit, index) => (
+            {doctorVisits.map((visit) => (
               <SelectItem key={visit.visitId} value={visit.visitId}>
-                {visit.doctorName} - {visit.hospital} {visit?.status === "MISSED" ? "- Missed" : ""}
+                <div className="flex items-center justify-between w-full">
+                  <span>
+                    {visit.doctorName} - {visit.hospital}
+                  </span>
+
+                  {visit?.status === "MISSED" && (
+                    <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">
+                      Missed
+                    </span>
+                  )}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

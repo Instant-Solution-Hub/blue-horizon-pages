@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { VisitSearchBar } from "@/components/track-visits/VisitSearchBar";
@@ -48,6 +48,7 @@ export default function TrackVisits() {
   }, []);
 
 
+
   const getAllProducts = async () => {
     try {
       const response = await fetchAllProducts();
@@ -67,11 +68,17 @@ export default function TrackVisits() {
     }
   }
 
+  const sortedTodaysVisits = useMemo(
+    () => [...todaysVisits].sort((a, b) => Number(a.status === "MISSED") - Number(b.status === "MISSED")),
+    [todaysVisits]
+  );
+
   const getTodaysVisits = async () => {
     if (!feID) return;
     try {
       const data = await fetchTodaysAndMissedVisits(Number(feID));
       setTodaysVisits(data);
+
       console.log("Today's Visits:", data);
     } catch (error) {
       console.error("Error fetching today's visits:", error);
@@ -152,7 +159,7 @@ export default function TrackVisits() {
       });
     } catch (error) {
       console.error(error);
-      toast({ 
+      toast({
         title: error.response.data.message,
         description: "Failed to re-mark visit.",
         variant: "destructive",
@@ -170,7 +177,7 @@ export default function TrackVisits() {
       return;
     }
 
-    if(data.isPreviouslyMissed){
+    if (data.isPreviouslyMissed) {
       handleReMarkVisit(data);
       return;
     }
@@ -250,7 +257,7 @@ export default function TrackVisits() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSubmit={handleAddVisit}
-              todaysVisits={todaysVisits}
+              todaysVisits={sortedTodaysVisits}
               stockists={allStockists}
               products={allProducts}
             />
