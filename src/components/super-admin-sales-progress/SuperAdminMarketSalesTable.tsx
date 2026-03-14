@@ -15,6 +15,7 @@ interface MarketSale {
   id: number;
   marketName: string;
   secondarySales: number;
+  managerName: string;
 }
 
 const SuperAdminMarketSalesTable = () => {
@@ -22,16 +23,21 @@ const SuperAdminMarketSalesTable = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadMarketSales = async () => {
-      try {
-        const data = await fetchMonthlyMarketSales();
-        setMarketData(data || []);
-      } catch (error) {
-        console.error("Failed to fetch market sales:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+   const loadMarketSales = async () => {
+  try {
+    const data = await fetchMonthlyMarketSales();
+
+    const sortedData = (data || []).sort((a: MarketSale, b: MarketSale) =>
+      a.managerName.localeCompare(b.managerName)
+    );
+
+    setMarketData(sortedData);
+  } catch (error) {
+    console.error("Failed to fetch market sales:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     loadMarketSales();
   }, []);
@@ -57,54 +63,66 @@ const SuperAdminMarketSalesTable = () => {
       <CardContent className="p-0">
         <div className="overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-primary/5 hover:bg-primary/5">
-                <TableHead className="w-16 font-semibold text-primary">
-                  SL.NO
-                </TableHead>
-                <TableHead className="font-semibold text-primary">
-                  Market
-                </TableHead>
-                <TableHead className="font-semibold text-primary text-right">
-                  Secondary Sales (₹)
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+          <TableHeader>
+  <TableRow className="bg-primary/5 hover:bg-primary/5">
+    <TableHead className="w-16 font-semibold text-primary">
+      SL.NO
+    </TableHead>
 
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                    Loading market sales...
-                  </TableCell>
-                </TableRow>
-              ) : marketData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                    No data available
-                  </TableCell>
-                </TableRow>
-              ) : (
-                marketData.map((market, index) => (
-                  <TableRow
-                    key={market.id}
-                    className="hover:bg-primary/5 transition-colors duration-200 border-b border-primary/10"
-                  >
-                    <TableCell className="font-medium text-muted-foreground">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {market.marketName}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="font-semibold text-green-600">
-                        ₹{market.secondarySales.toLocaleString()}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
+    <TableHead className="font-semibold text-primary">
+      Manager
+    </TableHead>
+
+    <TableHead className="font-semibold text-primary">
+      Market
+    </TableHead>
+
+    <TableHead className="font-semibold text-primary text-right">
+      Secondary Sales (₹)
+    </TableHead>
+  </TableRow>
+</TableHeader>
+
+           <TableBody>
+  {loading ? (
+    <TableRow>
+      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+        Loading market sales...
+      </TableCell>
+    </TableRow>
+  ) : marketData.length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+        No data available
+      </TableCell>
+    </TableRow>
+  ) : (
+    marketData.map((market, index) => (
+      <TableRow
+        key={market.id}
+        className="hover:bg-primary/5 transition-colors duration-200 border-b border-primary/10"
+      >
+        <TableCell className="font-medium text-muted-foreground">
+          {index + 1}
+        </TableCell>
+
+        <TableCell className="font-medium text-blue-600">
+          {market.managerName}
+        </TableCell>
+
+        <TableCell className="font-medium">
+          {market.marketName}
+        </TableCell>
+
+        <TableCell className="text-right">
+          <span className="font-semibold text-green-600">
+            ₹{market.secondarySales.toLocaleString()}
+          </span>
+        </TableCell>
+      </TableRow>
+    ))
+  )}
+</TableBody>
           </Table>
         </div>
       </CardContent>
