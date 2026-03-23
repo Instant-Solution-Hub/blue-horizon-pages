@@ -68,12 +68,19 @@ export function MissedVisitList() {
 
   const visits = role === "fe" ? feVisits : managerVisits;
 
-  const filtered = visits.filter((v) => {
+  const filtered =role === "fe" ? feVisits.filter((v) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
-      v.personName.toLowerCase().includes(q) ||
-      v.employeeCode.toLowerCase().includes(q)
+      v.feName?.toLowerCase().includes(q) ||
+      v.feEmpCode?.toLowerCase().includes(q)
+    );
+  }) : managerVisits.filter((v) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      v.managerName?.toLowerCase().includes(q) ||
+      v.managerEmpCode?.toLowerCase().includes(q)
     );
   });
 
