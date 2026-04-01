@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { deleteVisitById, fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
+import { deleteVisitById, fetchCurrentPlannedDoctorVisits, fetchCurrentPlannedPharmacyVisits, fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
 import { set } from "date-fns";
 import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCard";
 import { PharmacistSlotTable } from "@/components/slot-planning/PharmicistSlotTable";
@@ -116,8 +116,7 @@ export default function SlotPlanning() {
 
   useEffect(() => {
     checkIfSlotPlanEnabled();
-    getPlannedDoctorVisits();
-    getPlannedPharmacyVisits();
+    getPlannedVisits();
     console.log("Selected Week: ", selectedWeek, "Selected Day: ", selectedDay);
   }, [selectedWeek, selectedDay]);
 
@@ -130,6 +129,17 @@ export default function SlotPlanning() {
       console.log("Error checking slot plan day: ", error);
     }
   };
+
+  const getPlannedVisits = async () => {
+    if(isFirstOfMonth) {
+      getPlannedDoctorVisits();
+      getPlannedPharmacyVisits();
+    } else {
+      getCurrentPlannedDoctorVisits();
+      getCurrentPlannedPharmacyVisits();
+    }
+  };
+
   const getPlannedDoctorVisits = async () => {
     const response = await fetchPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
     setDoctorSlots(response);
@@ -140,13 +150,28 @@ export default function SlotPlanning() {
     setPharmacistSlots(response);
   };
 
+  const getCurrentPlannedDoctorVisits = async () => {
+    const response = await fetchCurrentPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
+    setDoctorSlots(response);
+  };
+
+  const getCurrentPlannedPharmacyVisits = async () => {
+    const response = await fetchCurrentPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
+    setPharmacistSlots(response);
+  };
+
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
   const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
   // const isFirstOfMonth = true;
+
+  const getMonth = () => {
+    // if its the slot planning day, show next month, else show current month
+    return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+  }
   const planningDate = new Date();
-  planningDate.setMonth(today.getMonth() + 1);
+  planningDate.setMonth(getMonth());
 
   const nextMonthName = planningDate.toLocaleString("default", {
     month: "long",
@@ -179,8 +204,7 @@ export default function SlotPlanning() {
       }
       let response = await planVisit(obj);
       console.log("Plan Visit Response: ", response);
-      getPlannedDoctorVisits();
-      getPlannedPharmacyVisits();
+      getPlannedVisits();
       toast({
         title: "Slot Added",
         description: `${slot.type === "doctor" ? "Doctor" : "Pharmacist"
@@ -204,8 +228,7 @@ export default function SlotPlanning() {
     try {
       const response = await deleteVisitById(id);
       console.log("Delete Visit Response: ", response);
-      getPlannedDoctorVisits();
-      getPlannedPharmacyVisits();
+      getPlannedVisits();
       toast({
         title: "Slot Removed",
         description: "The visit has been removed from your schedule.",
@@ -299,6 +322,8 @@ export default function SlotPlanning() {
 
 
 
+
+
   /* ---------------- FILTERS ---------------- */
 
   // const doctorSlots = slots.filter((s) => s.type === "doctor");
@@ -353,7 +378,7 @@ export default function SlotPlanning() {
                   selectedDay={selectedDay}
                   currentWeek={currentWeek}
                   currentDay={currentDay}
-                  currentMonth={new Date().getMonth() + 1}
+                  currentMonth={getMonth()}
                   isPastDisabled={false}
                   onWeekChange={setSelectedWeek}
                   onDayChange={setSelectedDay}

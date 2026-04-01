@@ -204,8 +204,18 @@ export const fetchManagerVisitComplianceData = async (
     return response.data;
 };
 
-export const fetchAllVisitsByWeekDay = async (managerId: number, week: number, day: number) => {
+export const fetchAllNextMonthVisits = async (managerId: number, week: number, day: number) => {
   const response = await API.post(`/manager-visits/get-all-visits-by-week-day?managerId=${managerId}&weekNumber=${week}&dayOfWeek=${day}`, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const fetchAllCurrentMonthVisits = async (managerId: number, week: number, day: number) => {
+  const response = await API.post(`/manager-visits/get-current-month-visits?managerId=${managerId}&weekNumber=${week}&dayOfWeek=${day}`, {
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json", 

@@ -27,7 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ManagerRequestUpdateModal } from "@/components/manager-slot-planning/ManagerRequestUpdateModal";
 import { checkIfSlotPlanDayEnabled, slotChangeRequest, slotPlanDayRequestManager } from "@/services/SlotRequestService";
-import { fetchAllVisitsByWeekDay } from "@/services/ManagerVisitService";
+import { fetchAllNextMonthVisits, fetchAllCurrentMonthVisits } from "@/services/ManagerVisitService";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { holidayList } from "./SlotPlanning";
@@ -86,16 +86,24 @@ export default function ManagerSlotPlanning() {
   const managerName = sessionStorage.getItem("userName") || "Manager";
 
   const today = new Date();
+  const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
+  // const isFirstOfMonth = true; // For testing
+
+  const getMonth = () => {
+    // if its the slot planning day, show next month, else show current month
+    return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+  }
   const planningDate = new Date();
-  planningDate.setMonth(today.getMonth() + 1);
+  planningDate.setMonth(getMonth());
 
   const nextMonthName = planningDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
 
-  const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
-  // const isFirstOfMonth = true; // For testing
+  
+
+
 
 
   useEffect(() => {
@@ -140,15 +148,15 @@ export default function ManagerSlotPlanning() {
 
   /* ---------------- API CALLS ---------------- */
 
-   const checkIfSlotPlanEnabled = async () => {
-      try {
-        const response = await checkIfSlotPlanDayEnabled("MANAGER", userId);
-        setSlotPlanDayEnabled(response.canPlanSlot);
-        // console.log("Check Slot Plan Day Response: ", response);
-      } catch (error) { 
-        console.log("Error checking slot plan day: ", error);
-      }
-    };
+  const checkIfSlotPlanEnabled = async () => {
+    try {
+      const response = await checkIfSlotPlanDayEnabled("MANAGER", userId);
+      setSlotPlanDayEnabled(response.canPlanSlot);
+      // console.log("Check Slot Plan Day Response: ", response);
+    } catch (error) {
+      console.log("Error checking slot plan day: ", error);
+    }
+  };
 
   const fetchAllocatedFEsData = async () => {
     setIsLoading(true);
@@ -181,12 +189,20 @@ export default function ManagerSlotPlanning() {
   const fetchManagerVisitsByWeekDay = async () => {
     setIsLoading(true);
     try {
-      const response = await fetchAllVisitsByWeekDay(
-        userId,
-        selectedWeek,
-        selectedDay
-      );
-
+      let response;
+      if (isFirstOfMonth) {
+        response = await fetchAllNextMonthVisits(
+          userId,
+          selectedWeek,
+          selectedDay
+        );
+      }else{
+        response = await fetchAllCurrentMonthVisits(
+          userId,
+          selectedWeek,
+          selectedDay
+        );
+      }
       const visits = response.data;
 
       setManagerVisits(visits);
@@ -608,7 +624,7 @@ export default function ManagerSlotPlanning() {
                   {nextMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
                 </p>
               </div>
-               <Button
+              <Button
                 onClick={() => setIsSlotRequestPopupOpen(true)}
                 className="bg-primary hover:bg-primary/90"
               >
@@ -649,7 +665,7 @@ export default function ManagerSlotPlanning() {
                     selectedDay={selectedDay}
                     currentWeek={currentWeek}
                     currentDay={currentDay}
-                    currentMonth={new Date().getMonth() + 1}
+                    currentMonth={getMonth()}
                     isPastDisabled={false}
                     onWeekChange={setSelectedWeek}
                     onDayChange={setSelectedDay}

@@ -29,6 +29,17 @@ export const fetchPlannedDoctorVisits = async (fieldExecutiveId: number, weekNum
     return response.data;
 };
 
+// fetch planned visits for a field executive (Current Month)
+export const fetchCurrentPlannedDoctorVisits = async (fieldExecutiveId: number, weekNumber: number, dayOfWeek: string) => {
+  const response = await API.get(`/visit/current-planned-doctor-visits?fieldExecutiveId=${fieldExecutiveId}&weekNumber=${weekNumber}&dayOfWeek=${dayOfWeek}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+};
+
 
 export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekNumber: number, dayOfWeek: string) => {
   const response = await API.get(`/visit/planned-pharmacy-visits?fieldExecutiveId=${fieldExecutiveId}&weekNumber=${weekNumber}&dayOfWeek=${dayOfWeek}`, { 
@@ -39,6 +50,17 @@ export const fetchPlannedPharmacyVisits = async (fieldExecutiveId: number, weekN
   });
     return response.data;
 };
+
+export const fetchCurrentPlannedPharmacyVisits = async (fieldExecutiveId: number, weekNumber: number, dayOfWeek: string) => {
+  const response = await API.get(`/visit/current-planned-pharmacy-visits?fieldExecutiveId=${fieldExecutiveId}&weekNumber=${weekNumber}&dayOfWeek=${dayOfWeek}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+};
+
 
 export const fetchTodaysVisits = async (fieldExecutiveId: number) => {
   const response = await API.get(`/visit/today-scheduled?fieldExecutiveId=${fieldExecutiveId}`, { 
