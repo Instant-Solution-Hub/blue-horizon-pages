@@ -98,7 +98,7 @@ export function WeekDaySelector({
     return { days, mapping };
   };
 
-  useEffect(() => {
+useEffect(() => {
     const { days, mapping } = getDaysInWeekForMonth(
       selectedWeek,
       currentMonth,
@@ -106,12 +106,36 @@ export function WeekDaySelector({
     );
 
     setAvailableDays(days);
-    setDayMapping(mapping);
+    if (setDayMapping) {
+      setDayMapping(mapping);
+    }
+  }, [selectedWeek, currentMonth, currentYear, holidaySet]);
 
-    if (!days.includes(selectedDay) && days.length > 0) {
+
+ // Separate effect to handle day selection when week changes
+  // useEffect(() => {
+  //   if (availableDays.length > 0) {
+  //     // Check if current selected day is valid in the new week
+  //     if (!availableDays.includes(selectedDay)) {
+  //       // If not valid, select the first available day
+  //       onDayChange(availableDays[0]);
+  //     }
+  //   }
+  // }, [availableDays, selectedDay, onDayChange]);
+
+  const handleWeekChange = (week: number) => {
+    // First, get the days for the new week
+    const { days } = getDaysInWeekForMonth(week, currentMonth, currentYear);
+    
+    // Call onWeekChange to update the parent state
+    onWeekChange(week);
+    
+    // Immediately update the day to the first day of the new week
+    // This ensures the day changes at the same time as the week
+    if (days.length > 0) {
       onDayChange(days[0]);
     }
-  }, [selectedWeek, currentMonth, currentYear, holidays]); // Add holidays to dependency array
+  };
 
   const isPastWeek = (week: number) => {
     if (!isPastDisabled) return false;
@@ -146,7 +170,7 @@ export function WeekDaySelector({
               size="sm"
               disabled={disabled || !hasDaysInMonth}
               onClick={() =>
-                !disabled && hasDaysInMonth && onWeekChange(week)
+                !disabled && hasDaysInMonth && handleWeekChange(week)
               }
               className={cn(
                 "min-w-[80px]",

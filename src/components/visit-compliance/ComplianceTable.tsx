@@ -29,6 +29,25 @@ const categoryColors: Record<string, string> = {
   B: "bg-gray-100 text-gray-800",
 };
 
+const statusConfig = {
+  completed: {
+    label: "Completed",
+    variant: "default",
+    className: "bg-green-100 text-green-800 hover:bg-green-100",
+  },
+  scheduled: {
+    label: "Scheduled",
+    variant: "secondary",
+    className: "bg-blue-100 text-blue-800 hover:bg-blue-100",
+  },
+  missed: {
+    label: "Missed",
+    variant: "destructive",
+    className: "",
+  },
+} as const;
+
+
 export function ComplianceTable({ records }: ComplianceTableProps) {
   if (records.length === 0) {
     return (
@@ -37,6 +56,7 @@ export function ComplianceTable({ records }: ComplianceTableProps) {
       </div>
     );
   }
+
 
   return (
     <div className="rounded-md border">
@@ -51,32 +71,30 @@ export function ComplianceTable({ records }: ComplianceTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {records.map((record) => (
-            <TableRow key={record.id}>
-              <TableCell className="font-medium">{record.name}</TableCell>
-              <TableCell>
-                <Badge variant="secondary" className={categoryColors[record.category]}>
-                  {record.category}
-                </Badge>
-              </TableCell>
-              <TableCell>{format(record.scheduledDate, "dd MMM yyyy")}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={record.status === "completed" ? "default" : "destructive"}
-                  className={
-                    record.status === "completed"
-                      ? "bg-green-100 text-green-800 hover:bg-green-100"
-                      : ""
-                  }
-                >
-                  {record.status === "completed" ? "Completed" : "Missed"}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {record.reason || "-"}
-              </TableCell>
-            </TableRow>
-          ))}
+          {records.map((record) => {
+            const config = statusConfig[record.status] || statusConfig.missed;
+
+            return (
+
+              <TableRow key={record.id}>
+                <TableCell className="font-medium">{record.name}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className={categoryColors[record.category]}>
+                    {record.category}
+                  </Badge>
+                </TableCell>
+                <TableCell>{format(record.scheduledDate, "dd MMM yyyy")}</TableCell>
+                <TableCell>
+                  <Badge variant={config.variant} className={config.className}>
+                    {config.label}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {record.reason || "-"}
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>
