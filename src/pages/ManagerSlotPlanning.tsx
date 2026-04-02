@@ -64,27 +64,24 @@ interface ManagerVisit {
 export default function ManagerSlotPlanning() {
   const { toast } = useToast();
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
-
-  const [selectedWeek, setSelectedWeek] = useState(1);
-  const [selectedDay, setSelectedDay] = useState(1);
-  const [selectedFE, setSelectedFE] = useState<number | null>(null);
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [managerVisits, setManagerVisits] = useState<any[]>([]);
-
-  const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAssigning, setIsAssigning] = useState(false);
-  const [isUnAssigning, setIsUnAssigning] = useState(false);
-  const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
   const [slotPlanDayEnabled, setSlotPlanDayEnabled] = useState(false);
+  const getFirstDayOfMonth = (isFirstOfMonth) => {
+    const today = new Date();
 
-  const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
-  const [dayMapping, setDayMapping] = useState<
-    Map<number, { date: number; label: string; isHoliday: boolean }>
-  >(new Map());
-  const userId = Number(sessionStorage.getItem("userID"));
-  const managerName = sessionStorage.getItem("userName") || "Manager";
+    // Decide month
+    const month = isFirstOfMonth
+      ? today.getMonth() + 1   // next month
+      : today.getMonth();      // current month
 
+    const year = today.getFullYear();
+
+    const date = new Date(year, month, 1);
+
+    let day = date.getDay(); // 0 (Sun) → 6 (Sat)
+
+    // Convert to 1–7 (Sun–Sat)
+    return day === 0 ? 1 : day + 1;
+  };
   const today = new Date();
   const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
   // const isFirstOfMonth = true; // For testing
@@ -101,6 +98,28 @@ export default function ManagerSlotPlanning() {
     year: "numeric",
   });
 
+
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedDay, setSelectedDay] = useState(getFirstDayOfMonth(isFirstOfMonth));
+  const [selectedFE, setSelectedFE] = useState<number | null>(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [managerVisits, setManagerVisits] = useState<any[]>([]);
+
+  const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [isUnAssigning, setIsUnAssigning] = useState(false);
+  const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
+  
+
+  const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
+  const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
+  const userId = Number(sessionStorage.getItem("userID"));
+  const managerName = sessionStorage.getItem("userName") || "Manager";
+
+  
   
 
 
