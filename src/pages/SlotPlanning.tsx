@@ -89,77 +89,28 @@ export const holidayList = [
 /* ---------------- PAGE ---------------- */
 
 export default function SlotPlanning() {
+
   const { toast } = useToast();
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
 
-  const [selectedWeek, setSelectedWeek] = useState(1);
-  const [selectedDay, setSelectedDay] = useState(1);
+  const getFirstDayOfMonth = (isFirstOfMonth) => {
+    const today = new Date();
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    // Decide month
+    const month = isFirstOfMonth
+      ? today.getMonth() + 1   // next month
+      : today.getMonth();      // current month
 
-  const [doctorSlots, setDoctorSlots] = useState<any[]>([]);
-  const [pharmacistSlots, setPharmacistSlots] = useState<any[]>([]);
-  const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
+    const year = today.getFullYear();
+
+    const date = new Date(year, month, 1);
+
+    let day = date.getDay(); // 0 (Sun) → 6 (Sat)
+
+    // Convert to 1–7 (Sun–Sat)
+    return day === 0 ? 1 : day + 1;
+  };
   const [slotPlanDayEnabled, setSlotPlanDayEnabled] = useState(false);
-  const [dayMapping, setDayMapping] = useState<
-    Map<number, { date: number; label: string; isHoliday: boolean }>
-  >(new Map());
-
-  // const [slots, setSlots] = useState<SlotVisit[]>([
-  //   ...mockDoctorVisits,
-  //   ...mockPharmacistVisits,
-  // ]);
-
-  const feID = parseInt(sessionStorage.getItem("feID") || "0");
-  const userType = "FE";
-
-  useEffect(() => {
-    checkIfSlotPlanEnabled();
-    getPlannedVisits();
-    console.log("Selected Week: ", selectedWeek, "Selected Day: ", selectedDay);
-  }, [selectedWeek, selectedDay]);
-
-  const checkIfSlotPlanEnabled = async () => {
-    try {
-      const response = await checkIfSlotPlanDayEnabled(userType, feID);
-      setSlotPlanDayEnabled(response.canPlanSlot);
-      // console.log("Check Slot Plan Day Response: ", response);
-    } catch (error) { 
-      console.log("Error checking slot plan day: ", error);
-    }
-  };
-
-  const getPlannedVisits = async () => {
-    if(isFirstOfMonth) {
-      getPlannedDoctorVisits();
-      getPlannedPharmacyVisits();
-    } else {
-      getCurrentPlannedDoctorVisits();
-      getCurrentPlannedPharmacyVisits();
-    }
-  };
-
-  const getPlannedDoctorVisits = async () => {
-    const response = await fetchPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
-    setDoctorSlots(response);
-  };
-
-  const getPlannedPharmacyVisits = async () => {
-    const response = await fetchPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
-    setPharmacistSlots(response);
-  };
-
-  const getCurrentPlannedDoctorVisits = async () => {
-    const response = await fetchCurrentPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
-    setDoctorSlots(response);
-  };
-
-  const getCurrentPlannedPharmacyVisits = async () => {
-    const response = await fetchCurrentPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
-    setPharmacistSlots(response);
-  };
-
   /* ---------------- DATE HELPERS ---------------- */
 
   const today = new Date();
@@ -177,6 +128,84 @@ export default function SlotPlanning() {
     month: "long",
     year: "numeric",
   });
+
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedDay, setSelectedDay] = useState(getFirstDayOfMonth(isFirstOfMonth));
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
+  const [doctorSlots, setDoctorSlots] = useState<any[]>([]);
+  const [pharmacistSlots, setPharmacistSlots] = useState<any[]>([]);
+  const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
+
+  const [dayMapping, setDayMapping] = useState<
+    Map<number, { date: number; label: string; isHoliday: boolean }>
+  >(new Map());
+
+
+
+
+  // const [slots, setSlots] = useState<SlotVisit[]>([
+  //   ...mockDoctorVisits,
+  //   ...mockPharmacistVisits,
+  // ]);
+
+  const feID = parseInt(sessionStorage.getItem("feID") || "0");
+  const userType = "FE";
+
+  useEffect(() => {
+    // console.log("today date", today.getDate());
+    checkIfSlotPlanEnabled();
+    getPlannedVisits();
+    console.log("Selected Week: ", selectedWeek, "Selected Day: ", selectedDay);
+  }, [selectedWeek, selectedDay]);
+
+  const checkIfSlotPlanEnabled = async () => {
+    try {
+      const response = await checkIfSlotPlanDayEnabled(userType, feID);
+      setSlotPlanDayEnabled(response.canPlanSlot);
+      // console.log("Check Slot Plan Day Response: ", response);
+    } catch (error) {
+      console.log("Error checking slot plan day: ", error);
+    }
+  };
+
+  const getPlannedVisits = async () => {
+    if (isFirstOfMonth) {
+      getPlannedDoctorVisits();
+      getPlannedPharmacyVisits();
+    } else {
+      getCurrentPlannedDoctorVisits();
+      getCurrentPlannedPharmacyVisits();
+    }
+  };
+
+  const getPlannedDoctorVisits = async () => {
+    console.log("Fetching planned doctor visits for FE ID: ", feID, "Week: ", selectedWeek, "Day: ", selectedDay);
+    const response = await fetchPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
+    setDoctorSlots([]);
+    setDoctorSlots([...response]);
+  };
+
+  const getPlannedPharmacyVisits = async () => {
+    const response = await fetchPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
+    setPharmacistSlots(response);
+  };
+
+  const getCurrentPlannedDoctorVisits = async () => {
+    const response = await fetchCurrentPlannedDoctorVisits(feID, selectedWeek, selectedDay.toString());
+    setDoctorSlots(response);
+  };
+
+  const getCurrentPlannedPharmacyVisits = async () => {
+    const response = await fetchCurrentPlannedPharmacyVisits(feID, selectedWeek, selectedDay.toString());
+    setPharmacistSlots(response);
+  };
+
+
+
+
 
   /* ---------------- HANDLERS ---------------- */
 
@@ -308,13 +337,13 @@ export default function SlotPlanning() {
         description: "Slot plan day request submitted successfully",
         variant: "default",
       });
-      
+
       setIsSlotRequestPopupOpen(false);
     } catch (error) {
       console.log("Error submitting slot plan day request: ", error);
       toast({
         title: "Error",
-        description:error.response.data.message || "Failed to submit request. Please try again.",
+        description: error.response.data.message || "Failed to submit request. Please try again.",
         variant: "destructive",
       });
     }
@@ -489,7 +518,7 @@ export default function SlotPlanning() {
         onSubmit={handleRequestUpdate}
       />
 
-       <SlotPlanDayRequestModal 
+      <SlotPlanDayRequestModal
         isOpen={isSlotRequestPopupOpen}
         onClose={() => setIsSlotRequestPopupOpen(false)}
         onSubmit={handleSlotDayRequestSubmit}
