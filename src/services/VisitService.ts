@@ -7,9 +7,20 @@ const API = axios.create({
   },
 });
 
-// plan visit
+// plan visit for next month
 export const planVisit = async (visitData: any) => {
   const response = await API.post(`/visit/plan/week-day`, visitData, {
+    headers: { 
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+};
+
+// plan visit for current month
+export const planCurrentMonthVisit = async (visitData: any) => {
+  const response = await API.post(`/visit/plan/week-day/current-month`, visitData, {
     headers: { 
         "Content-Type": "application/json", 
         "Accept": "application/json", 
