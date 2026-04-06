@@ -38,7 +38,7 @@ const ProductCard = ({
       <CardContent className="pt-0">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">PTS</p>
+            <p className="text-xs text-muted-foreground">New PTS</p>
             <p className="text-sm font-semibold text-foreground">₹{pts.toFixed(2)}</p>
           </div>
           <div className="space-y-0.5">
