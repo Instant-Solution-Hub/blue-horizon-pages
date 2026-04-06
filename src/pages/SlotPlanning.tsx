@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Plus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { deleteVisitById, fetchCurrentPlannedDoctorVisits, fetchCurrentPlannedPharmacyVisits, fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planVisit } from "@/services/VisitService";
+import { deleteVisitById, fetchCurrentPlannedDoctorVisits, fetchCurrentPlannedPharmacyVisits, fetchPlannedDoctorVisits, fetchPlannedPharmacyVisits, planCurrentMonthVisit, planVisit } from "@/services/VisitService";
 import { set } from "date-fns";
 import { PharmacistSlotCard } from "@/components/slot-planning/PharmacistSlotCard";
 import { PharmacistSlotTable } from "@/components/slot-planning/PharmicistSlotTable";
@@ -119,7 +119,8 @@ export default function SlotPlanning() {
 
   const getMonth = () => {
     // if its the slot planning day, show next month, else show current month
-    return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+    // return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+    return isFirstOfMonth ? new Date().getMonth() : new Date().getMonth();
   }
   const planningDate = new Date();
   planningDate.setMonth(getMonth());
@@ -172,13 +173,15 @@ export default function SlotPlanning() {
   };
 
   const getPlannedVisits = async () => {
-    if (isFirstOfMonth) {
-      getPlannedDoctorVisits();
-      getPlannedPharmacyVisits();
-    } else {
+    // if (isFirstOfMonth) {
+    //   getPlannedDoctorVisits();
+    //   getPlannedPharmacyVisits();
+    // } else {
+    //   getCurrentPlannedDoctorVisits();
+    //   getCurrentPlannedPharmacyVisits();
+    // }
       getCurrentPlannedDoctorVisits();
       getCurrentPlannedPharmacyVisits();
-    }
   };
 
   const getPlannedDoctorVisits = async () => {
@@ -231,7 +234,8 @@ export default function SlotPlanning() {
         "stockistType": "NONE",
         "stockistName": ""
       }
-      let response = await planVisit(obj);
+      // let response = await planVisit(obj);
+      let response = await planCurrentMonthVisit(obj);
       console.log("Plan Visit Response: ", response);
       getPlannedVisits();
       toast({

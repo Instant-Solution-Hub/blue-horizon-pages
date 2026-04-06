@@ -7,10 +7,8 @@ import { VisitList } from "@/components/track-visits/VisitList";
 import { useToast } from "@/hooks/use-toast";
 import { fetchAllProducts, fetchAllStockists, fetchCompletedVisits, fetchMissedVisits, fetchTodaysAndMissedVisits, fetchTodaysVisits, markStockistVisit, markVisit, reMarkVisit } from "@/services/VisitService";
 import { set } from "date-fns";
-import { get } from "http";
 import { StockistVisitData } from "@/components/track-visits/StockistVisitForm";
 import { adaptBackendVisits, adaptBackendVisitsForMissed } from "@/lib/utils";
-import { on } from "events";
 import { ReMarkVisitModal } from "@/components/track-visits/ReMarkVisitModal";
 
 interface Visit {

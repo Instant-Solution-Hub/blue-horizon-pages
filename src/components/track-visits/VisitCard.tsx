@@ -76,6 +76,7 @@ export function VisitCard({ visit }: VisitCardProps) {
       <div className="grid grid-cols-2 gap-2 text-sm mt-3">
         <p><span className="text-muted-foreground">Prescription Type:</span> {v.practiceType}</p>
         <p><span className="text-muted-foreground">Hospital:</span> {v.hospital}</p>
+        <p className="text-xs text-muted-foreground">Visit ID: {visit.id}</p>
       </div>
       {v.location && (
         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
