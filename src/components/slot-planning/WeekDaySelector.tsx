@@ -192,6 +192,7 @@ useEffect(() => {
             const disabled = isPastDay(day);
             const dayInfo = dayMapping.get(day);
             const isHoliday = dayInfo?.isHoliday || false;
+            const isSecondDayOfMonth = dayInfo?.date === 2;
 
             return (
               <Button
@@ -203,6 +204,7 @@ useEffect(() => {
                 className={cn(
                   "min-w-[70px] flex flex-col gap-0 h-auto py-2 relative",
                   selectedDay === day && "ring-2 ring-primary/50",
+                  isSecondDayOfMonth && "bg-yellow-100 hover:bg-yellow-200 border-yellow-300",
                   disabled && "opacity-40 cursor-not-allowed",
                   isHoliday && !disabled && "bg-red-50 hover:bg-red-100 border-red-200"
                 )}
@@ -210,6 +212,11 @@ useEffect(() => {
                 {/* Holiday indicator */}
                 {isHoliday && !disabled && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+
+
+                {isSecondDayOfMonth && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" />
                 )}
                 <span className={cn(
                   "text-xs",

@@ -88,7 +88,8 @@ export default function ManagerSlotPlanning() {
 
   const getMonth = () => {
     // if its the slot planning day, show next month, else show current month
-    return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+    // return isFirstOfMonth ? new Date().getMonth() + 1 : new Date().getMonth();
+    return new Date().getMonth();
   }
   const planningDate = new Date();
   planningDate.setMonth(getMonth());
@@ -209,19 +210,24 @@ export default function ManagerSlotPlanning() {
     setIsLoading(true);
     try {
       let response;
-      if (isFirstOfMonth) {
-        response = await fetchAllNextMonthVisits(
+      // if (isFirstOfMonth) {
+      //   response = await fetchAllNextMonthVisits(
+      //     userId,
+      //     selectedWeek,
+      //     selectedDay
+      //   );
+      // }else{
+      //   response = await fetchAllCurrentMonthVisits(
+      //     userId,
+      //     selectedWeek,
+      //     selectedDay
+      //   );
+      // }
+       response = await fetchAllCurrentMonthVisits(
           userId,
           selectedWeek,
           selectedDay
         );
-      }else{
-        response = await fetchAllCurrentMonthVisits(
-          userId,
-          selectedWeek,
-          selectedDay
-        );
-      }
       const visits = response.data;
 
       setManagerVisits(visits);
