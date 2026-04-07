@@ -31,7 +31,7 @@ const ProductSalesTable = () => {
   const [editQty, setEditQty] = useState<number>(0);
   const today = new Date().getDate();
   const subtotalSales = products.reduce((sum, p) => sum + p.sales, 0);
-const isEditableDay = today <= 2; // ✅ allows 1st and 2nd
+const isEditableDay = today == 7; // ✅ allows 1st and 2nd
   const { toast } = useToast();
 
   const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
