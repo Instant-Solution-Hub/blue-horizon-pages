@@ -26,7 +26,7 @@ const StockistSalesTable = () => {
   const [editSales, setEditSales] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const today = new Date().getDate();
-const isEditableDay = today == 7; // ✅ only day 1 & 2 editable
+const isEditableDay = today == 9; // ✅ only day 1 & 2 editable
 const subtotalSales = stockists.reduce((sum, s) => sum + (s.price || 0), 0);
 
   const feId = Number(sessionStorage.getItem("feID"));
