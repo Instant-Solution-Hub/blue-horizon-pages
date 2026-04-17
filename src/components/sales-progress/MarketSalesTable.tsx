@@ -28,7 +28,7 @@ const MarketSalesTable = () => {
   const [editingMarket, setEditingMarket] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
   const today = new Date().getDate();
-const isEditableDay = today <= 2; // ✅ only 1st & 2nd editable
+const isEditableDay = today == 9; // ✅ only 1st & 2nd editable
   const { toast } = useToast();
   const feId = Number(sessionStorage.getItem("feID")) || 1;// later from auth context
   const subtotalSales = markets.reduce((sum, m) => sum + m.salesAmount, 0);

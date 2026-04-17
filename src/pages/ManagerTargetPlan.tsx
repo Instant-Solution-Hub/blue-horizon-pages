@@ -49,7 +49,7 @@ const ManagerTargetPlan = () => {
 const month = new Date().getMonth() + 1;
 const year = new Date().getFullYear();
 const today = now.getDate();
-const isEditable = today <= 2;
+const isEditable = today == 8;
   const [isSetTargetOpen, setIsSetTargetOpen] = useState(false);
 
   const [feTargets, setFeTargets] = useState<FETarget[]>([]);
