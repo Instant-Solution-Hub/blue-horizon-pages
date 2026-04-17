@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fetchDoctors, fetchPharmacists } from "@/services/UsersService";
+import { fetchDoctors, fetchPharmacists, fetchPharmacistsByFe } from "@/services/UsersService";
 import { fetchDoctorVisitTrack } from "@/services/VisitService";
 import { fetchDoctorsByFE } from "@/services/DoctorService";
 
@@ -115,7 +115,8 @@ export function AddSlotModal({
   };
 
   const getPharmacists = async () => {
-    let response = await fetchPharmacists();
+    let userId = sessionStorage.getItem("userID");
+    let response = await fetchPharmacistsByFe(userId ? parseInt(userId) : 0);
     setPharmacists(response);
   };
 

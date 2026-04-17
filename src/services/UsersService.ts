@@ -28,3 +28,24 @@ export const fetchPharmacists = async () => {
   });
   return response.data;
 };
+
+// fetch  pharmacists by FE
+export const fetchPharmacistsByFe = async (feId: number) => {
+  const response = await API.get(`/pharmacies/fe/${feId}`, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+  return response.data;
+};
+
+export const fetchAllDoctorsByManager = async (managerId: number) => {
+  const response = await API.get(`/managers/team-doctors/${managerId}`, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+  return response.data.data;
+};

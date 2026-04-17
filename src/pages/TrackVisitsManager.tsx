@@ -21,6 +21,7 @@ import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { fetchAllDoctors } from "@/services/DoctorService";
 import { VisitSearchBarManager } from "@/components/track-visits-manager/VisitSearchBarManager";
+import { fetchAllDoctorsByManager } from "@/services/UsersService";
 
 interface Visit {
   id: string;
@@ -72,8 +73,9 @@ export default function TrackVisitsManager() {
 
   const fetchDoctors = async () => {
     try {
-     const response = await fetchAllDoctors();
+     const response = await fetchAllDoctorsByManager(Number(managerId));
       setAllDoctors(response);
+      console.log(response)
     } catch (error) {
       console.error("Error fetching doctors:", error);
     }
