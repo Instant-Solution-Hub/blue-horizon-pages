@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input"; // Add this import
 
 interface ScheduledDoctor {
   id: string;
@@ -42,7 +43,6 @@ interface ConversionRow {
   value: number;
 }
 
-
 export interface UnscheduledManagerDoctorVisitData {
   visitType: "doctor";
   doctorId: string;
@@ -56,19 +56,11 @@ export interface UnscheduledManagerDoctorVisitData {
   notes: string;
 }
 
-// const products: Product[] = [
-//   { id: 1, name: "Product A", price: 120 },
-//   { id: 2, name: "Product B", price: 85 },
-//   { id: 3, name: "Product C", price: 60 },
-// ];
-
-
 const activities = [
   "Product Detailing",
   "Sample Distribution",
   "Study Distribution",
   "Stock Updates",
-//   "Product Conversion",
   "Prescription Review",
   "Follow-up Discussion",
   "New Product Introduction",
@@ -83,10 +75,23 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
     { productId: 0, quantity: 1, value: 0 },
   ]);
 
+  // Search state
+  const [doctorSearch, setDoctorSearch] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Filter doctors based on search
+  const filteredDoctors = doctors.filter((doctor) =>
+    doctor.name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+    doctor.hospitalName.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+    doctor.designation.toLowerCase().includes(doctorSearch.toLowerCase())
+  );
+
   const handleDoctorChange = (doctorId: string) => {
     const doctor = doctors.find((d) => d.id === doctorId);
     onDesignationChange(doctor.designation);
     setSelectedVisit(doctor || null);
+    setDoctorSearch(doctor?.name || "");
+    setIsDropdownOpen(false);
   };
 
   const handleActivityToggle = (activity: string) => {
@@ -109,21 +114,18 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
       return;
     }
 
-     onSubmit({
-          visitType: "doctor",
-          doctorId: selectedVisit.id,
-          // visitId: selectedVisit.visitId,
-          doctorName: selectedVisit.name,
-          hospital: selectedVisit.hospitalName,
-          designation: selectedVisit.designation,
-          category: selectedVisit.category,
-          practiceType: selectedVisit.practiceType,
-          isMissed,
-          activitiesPerformed: selectedActivities,
-          notes,
-        });
-
-    
+    onSubmit({
+      visitType: "doctor",
+      doctorId: selectedVisit.id,
+      doctorName: selectedVisit.name,
+      hospital: selectedVisit.hospitalName,
+      designation: selectedVisit.designation,
+      category: selectedVisit.category,
+      practiceType: selectedVisit.practiceType,
+      isMissed,
+      activitiesPerformed: selectedActivities,
+      notes,
+    });
   };
 
   const handleAddRow = () => {
@@ -154,7 +156,6 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
     setConversionRows(updated);
   };
 
-
   const getRowPrice = (row: ConversionRow) => {
     const product = products.find((p) => p.id === row.productId);
     return product ? product.price * row.quantity : 0;
@@ -165,24 +166,72 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
     0
   );
 
-
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Select Doctor</Label>
-        <Select onValueChange={handleDoctorChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a doctor" />
-          </SelectTrigger>
-          <SelectContent>
-            {doctors.map((doctor) => (
-              <SelectItem key={doctor.id} value={doctor.id}>
-                {doctor.name} - {doctor.hospitalName} {doctor.status === "MISSED" ? "- Missed" : ""}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        {/* Custom Searchable Select */}
+        <div className="relative">
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Search doctor by name, hospital or specialty..."
+              value={doctorSearch}
+              onChange={(e) => {
+                setDoctorSearch(e.target.value);
+                setIsDropdownOpen(true);
+                if (selectedVisit && e.target.value !== selectedVisit.name) {
+                  setSelectedVisit(null);
+                }
+              }}
+              onFocus={() => setIsDropdownOpen(true)}
+              className="w-full pr-8"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              ▼
+            </Button>
+          </div>
+
+          {isDropdownOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setIsDropdownOpen(false)}
+              />
+              <div className="absolute z-20 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                {filteredDoctors.length > 0 ? (
+                  filteredDoctors.map((doctor) => (
+                    <div
+                      key={doctor.id}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                      onClick={() => handleDoctorChange(doctor.id)}
+                    >
+                      <div className="font-medium">{doctor.name}</div>
+                      <div className="text-sm text-gray-600">
+                        {doctor.hospitalName} • {doctor.designation}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Category: {doctor.category} • Practice: {doctor.practiceType}
+                        {doctor.status === "MISSED" && " • Missed"}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-gray-500 text-center">
+                    No doctors found
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {selectedVisit && (
@@ -304,7 +353,6 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
           </div>
         </div>
       )}
-
 
       <div className="space-y-2">
         <Label>Notes {isMissed && "(Required)"}</Label>
