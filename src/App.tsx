@@ -37,6 +37,7 @@ import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
 import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
+import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalRequests";
 import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
@@ -91,6 +92,7 @@ const App = () => (
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
           <Route path="/super-admin-dashboard/work-approvals" element={<SuperAdminWorkApprovals />} />
+          <Route path="/super-admin-dashboard/manager-joinings" element={<SuperAdminManagerJoinings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
