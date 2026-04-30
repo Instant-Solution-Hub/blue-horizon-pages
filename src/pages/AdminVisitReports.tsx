@@ -1,11 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
-import { ClipboardList, Search, CalendarIcon, User, AlertTriangle } from "lucide-react";
+import { ClipboardList, Search, CalendarIcon, User, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -13,9 +19,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { fetchFEs } from "@/services/FEService";
-import { get } from "http";
 import { fetchManagerInfos } from "@/services/ManagerService";
 import { fetchFEVisitReport } from "@/services/VisitService";
 import { fetchManagerVisitReport } from "@/services/ManagerVisitService";
@@ -31,82 +44,34 @@ interface UserOption {
 
 interface Visit {
     id: number;
-    date: string;
+    visitId: string;
     doctorName: string;
-    hospitalName: string;
-    visitType: "Doctor" | "Pharmacist" | "Stockist";
+    pharmacyName: string;
+    fieldExecutiveName:string;
+    category: string;
+    practiceType: string;
+    visitDate: string;
     status: "Completed" | "Missed" | "Pending";
-    notes: string;
 }
-
-// Mock users
-const fieldExecutives: UserOption[] = [
-    { id: 1, name: "Arun Mehta", employeeCode: "FE001", territory: "North Region" },
-    { id: 2, name: "Deepak Joshi", employeeCode: "FE002", territory: "South Region" },
-    { id: 3, name: "Kavita Nair", employeeCode: "FE003", territory: "Central Region" },
-    { id: 4, name: "Rahul Desai", employeeCode: "FE004", territory: "East Region" },
-    { id: 5, name: "Sneha Gupta", employeeCode: "FE005", territory: "West Region" },
-];
-
-const managers: UserOption[] = [
-    { id: 101, name: "Rajesh Kumar", employeeCode: "MGR001", territory: "North Zone" },
-    { id: 102, name: "Priya Sharma", employeeCode: "MGR002", territory: "South Zone" },
-    { id: 103, name: "Vikram Singh", employeeCode: "MGR003", territory: "Central Zone" },
-];
-
-// Mock visits
-const allVisits: Record<number, Visit[]> = {
-    1: [
-        { id: 1, date: "2025-06-10", doctorName: "Dr. Ramesh Patel", hospitalName: "City Hospital", visitType: "Doctor", status: "Completed", notes: "Discussed new product line" },
-        { id: 2, date: "2025-06-12", doctorName: "Dr. Meena Iyer", hospitalName: "Apollo Clinic", visitType: "Doctor", status: "Completed", notes: "Sample distributed" },
-        { id: 3, date: "2025-06-14", doctorName: "MedPlus Pharmacy", hospitalName: "MedPlus Store #12", visitType: "Pharmacist", status: "Missed", notes: "Shop closed" },
-        { id: 4, date: "2025-06-18", doctorName: "HealthCare Traders", hospitalName: "Main Market", visitType: "Stockist", status: "Completed", notes: "Order placed ₹45,000" },
-        { id: 5, date: "2025-06-22", doctorName: "Dr. Suresh Nair", hospitalName: "Global Hospital", visitType: "Doctor", status: "Completed", notes: "Follow-up visit" },
-    ],
-    2: [
-        { id: 6, date: "2025-06-11", doctorName: "Dr. Anita Rao", hospitalName: "Fortis Hospital", visitType: "Doctor", status: "Completed", notes: "New prescription started" },
-        { id: 7, date: "2025-06-13", doctorName: "PharmaCare Agency", hospitalName: "PharmaCare Office", visitType: "Stockist", status: "Completed", notes: "Stock replenished" },
-        { id: 8, date: "2025-06-15", doctorName: "Dr. Kiran Das", hospitalName: "Max Hospital", visitType: "Doctor", status: "Missed", notes: "Doctor unavailable" },
-    ],
-    3: [
-        { id: 9, date: "2025-06-09", doctorName: "Dr. Pooja Verma", hospitalName: "Narayana Health", visitType: "Doctor", status: "Completed", notes: "Product demo done" },
-        { id: 10, date: "2025-06-16", doctorName: "LifeLine Distributors", hospitalName: "Warehouse #3", visitType: "Stockist", status: "Completed", notes: "Monthly review" },
-    ],
-    4: [
-        { id: 11, date: "2025-06-08", doctorName: "Dr. Amit Shah", hospitalName: "Ruby Hall Clinic", visitType: "Doctor", status: "Completed", notes: "Positive feedback on Larimar-500" },
-        { id: 12, date: "2025-06-14", doctorName: "Dr. Neha Kapoor", hospitalName: "Sahyadri Hospital", visitType: "Doctor", status: "Pending", notes: "Scheduled follow-up" },
-    ],
-    5: [
-        { id: 13, date: "2025-06-10", doctorName: "Dr. Ravi Menon", hospitalName: "Kokilaben Hospital", visitType: "Doctor", status: "Completed", notes: "Conversion achieved" },
-    ],
-    101: [
-        { id: 14, date: "2025-06-10", doctorName: "Dr. Harish Gupta", hospitalName: "AIIMS Delhi", visitType: "Doctor", status: "Completed", notes: "Zone review visit" },
-        { id: 15, date: "2025-06-15", doctorName: "Dr. Sunita Reddy", hospitalName: "Medanta Hospital", visitType: "Doctor", status: "Completed", notes: "Team accompaniment" },
-    ],
-    102: [
-        { id: 16, date: "2025-06-12", doctorName: "Dr. Lakshmi Nair", hospitalName: "CMC Vellore", visitType: "Doctor", status: "Completed", notes: "Strategy meeting" },
-    ],
-    103: [
-        { id: 17, date: "2025-06-11", doctorName: "Dr. Sanjay Mishra", hospitalName: "Bhopal Memorial", visitType: "Doctor", status: "Completed", notes: "Market analysis" },
-        { id: 18, date: "2025-06-18", doctorName: "Apollo Supply Chain", hospitalName: "Central Warehouse", visitType: "Stockist", status: "Completed", notes: "Quarterly stock check" },
-    ],
-};
 
 const defaultVisitReport = {
-    completedAPlusVisits:0,
-    completedAVisits:0,
-    completedBVisits:0,
-    completedDoctorVisitCount:0,
-    completedVisitCount:0,
-    missedAPlusVisits:0,
-    missedAVisits:0,
-    missedBVisits:0,
-    missedDoctorVisitCount:0,
-    missedVisitCount:0,
-    completedPharmacistVisitCount:0,
-    missedPharmacistVisitCount:0,
-}
-
+    completedVisitCount: 0,
+    missedVisitCount: 0,
+    pendingVisitCount: 0,
+    // completedAPlusVisits: 0,
+    // completedAVisits: 0,
+    // completedBVisits: 0,
+    // completedDoctorVisitCount: 0,
+    // completedVisitCount: 0,
+    // missedAPlusVisits: 0,
+    // missedAVisits: 0,
+    // missedBVisits: 0,
+    // missedDoctorVisitCount: 0,
+    // missedVisitCount: 0,
+    // completedPharmacistVisitCount: 0,
+    // missedPharmacistVisitCount: 0,
+    visits: [] as Visit[],
+};
 
 const AdminVisitReports = () => {
     const [userType, setUserType] = useState<UserType>("field_executive");
@@ -114,41 +79,85 @@ const AdminVisitReports = () => {
     const [userSearch, setUserSearch] = useState("");
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
     const [fieldExecutives, setFieldExecutives] = useState<any[]>([]);
     const [managers, setManagers] = useState<any[]>([]);
     const [visitReports, setVisitReports] = useState(defaultVisitReport);
+    const [visits, setVisits] = useState<Visit[]>([]);
+    const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
     useEffect(() => {
         getAllFieldExecutives();
         getAllManagers();
     }, []);
 
-    useEffect(() => {
-        if (selectedUserId && fromDate && toDate) {
+    // useEffect(() => {
+    //     if (selectedUserId && fromDate && toDate ) {
+    //         const formattedFromDate = formatDate(fromDate);
+    //         const formattedToDate = formatDate(toDate);
+
+    //         if (userType === "field_executive") {
+    //             fetchFEVisitReport(selectedUserId, formattedFromDate, formattedToDate)
+    //                 .then((data) => {
+    //                     setVisitReports(data);
+    //                     // Assuming the API returns visits array in the response
+    //                     setVisits(data.visits || []);
+    //                 })
+    //                 .catch((error) => {
+    //                     console.error("Error fetching visit report:", error);
+    //                     setVisitReports(defaultVisitReport);
+    //                     setVisits([]);
+    //                 });
+    //         } else {
+    //             fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate)
+    //                 .then((data) => {
+    //                     setVisitReports(data);
+    //                     setVisits(data.visits || []);
+    //                 })
+    //                 .catch((error) => {
+    //                     console.error("Error fetching visit report:", error);
+    //                     setVisitReports(defaultVisitReport);
+    //                     setVisits([]);
+    //                 });
+    //         }
+    //     }
+    // }, [selectedUserId, fromDate, toDate]);
+
+    const apply = async () => {
+        if (selectedUserId && fromDate && toDate && statusFilter) {
             const formattedFromDate = formatDate(fromDate);
             const formattedToDate = formatDate(toDate);
 
             if (userType === "field_executive") {
-                fetchFEVisitReport(selectedUserId, formattedFromDate, formattedToDate)
+                fetchFEVisitReport(selectedUserId, formattedFromDate.trim(), formattedToDate.trim(), statusFilter, categoryFilter)
                     .then((data) => {
                         setVisitReports(data);
+                        // Assuming the API returns visits array in the response
+                        setVisits(data.visits || []);
                     })
                     .catch((error) => {
                         console.error("Error fetching visit report:", error);
                         setVisitReports(defaultVisitReport);
+                        setVisits([]);
                     });
             } else {
-                fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate)
+                
+                fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter)
                     .then((data) => {
                         setVisitReports(data);
+                        setVisits(data.visits || []);
+                        console.log("manager visits", visits)
                     })
                     .catch((error) => {
                         console.error("Error fetching visit report:", error);
                         setVisitReports(defaultVisitReport);
+                        setVisits([]);
                     });
             }
         }
-    }, [selectedUserId, fromDate, toDate]);
+    }
 
     const getAllFieldExecutives = async () => {
         try {
@@ -174,6 +183,7 @@ const AdminVisitReports = () => {
         const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
+
     const users = userType === "field_executive" ? fieldExecutives : managers;
 
     const filteredUsers = useMemo(() => {
@@ -188,20 +198,19 @@ const AdminVisitReports = () => {
 
     const selectedUser = users.find((u) => u.id === selectedUserId);
 
+    // Filter visits by status and category
     const filteredVisits = useMemo(() => {
-        if (!selectedUserId) return [];
-        const visits = allVisits[selectedUserId] || [];
-        return visits.filter((v) => {
-            const d = new Date(v.date);
-            if (fromDate && d < fromDate) return false;
-            if (toDate) {
-                const end = new Date(toDate);
-                end.setHours(23, 59, 59, 999);
-                if (d > end) return false;
-            }
-            return true;
-        });
-    }, [selectedUserId, fromDate, toDate]);
+        if (statusFilter === "all") return visits;
+        return visits.filter((v) => v.status === statusFilter && v.category === categoryFilter);
+    }, [visits, statusFilter, categoryFilter]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredVisits.length / itemsPerPage);
+    const paginatedVisits = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredVisits.slice(startIndex, endIndex);
+    }, [filteredVisits, currentPage, itemsPerPage]);
 
     const handleUserTypeChange = (type: UserType) => {
         setUserType(type);
@@ -209,7 +218,28 @@ const AdminVisitReports = () => {
         setUserSearch("");
         setFromDate(undefined);
         setToDate(undefined);
+        setStatusFilter("all");
+        setCurrentPage(1);
         setVisitReports(defaultVisitReport);
+        setVisits([]);
+    };
+
+    const handleStatusFilterChange = (value: string) => {
+        setStatusFilter(value);
+        setCurrentPage(1);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Completed":
+                return "bg-green-100 text-green-700 border-green-200";
+            case "Missed":
+                return "bg-red-100 text-red-700 border-red-200";
+            case "Pending":
+                return "bg-yellow-100 text-yellow-700 border-yellow-200";
+            default:
+                return "bg-gray-100 text-gray-700 border-gray-200";
+        }
     };
 
     return (
@@ -276,6 +306,8 @@ const AdminVisitReports = () => {
                                                 setSelectedUserId(user.id);
                                                 setFromDate(undefined);
                                                 setToDate(undefined);
+                                                setStatusFilter("all");
+                                                setCurrentPage(1);
                                             }}
                                             className={cn(
                                                 "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
@@ -304,303 +336,304 @@ const AdminVisitReports = () => {
                     {/* Date Pickers & Visit Table — only if user selected */}
                     {selectedUser && (
                         <>
-                            {/* Date Range */}
-                            <div className="animate-fade-in flex flex-col sm:flex-row items-start sm:items-end gap-3" style={{ animationDelay: "0.15s" }}>
-                                <div className="space-y-1">
-                                    <Label className="text-sm">From Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
+                            {/* Filters Section */}
+                            <div className="animate-fade-in space-y-3" style={{ animationDelay: "0.15s" }}>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">From Date</Label>
+                                        <div>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {fromDate ? format(fromDate, "PPP") : "Pick a date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={fromDate}
+                                                    onSelect={setFromDate}
+                                                    initialFocus
+                                                    className={cn("p-3 pointer-events-auto")}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">To Date</Label>
+                                        <div>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {toDate ? format(toDate, "PPP") : "Pick a date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={toDate}
+                                                    onSelect={setToDate}
+                                                    initialFocus
+                                                    className={cn("p-3 pointer-events-auto")}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">Status</Label>
+                                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Filter by status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All</SelectItem>
+                                                <SelectItem value="COMPLETED">Completed</SelectItem>
+                                                <SelectItem value="MISSED">Missed</SelectItem>
+                                                <SelectItem value="SCHEDULED">Pending</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">Category</Label>
+                                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Filter by category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Categories</SelectItem>
+                                                <SelectItem value="A_PLUS">A+</SelectItem>
+                                                <SelectItem value="A">A</SelectItem>
+                                                <SelectItem value="B">B</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={() => {
+                                                apply();
+                                            }}
+                                            className="bg-primary hover:bg-primary/90"
+                                        >
+                                            Apply
+                                        </Button>
+                                        {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
                                             <Button
-                                                variant="outline"
-                                                className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                                                variant="ghost"
+                                                onClick={() => {
+                                                    setFromDate(undefined);
+                                                    setToDate(undefined);
+                                                    setStatusFilter("all");
+                                                    setCategoryFilter("all");
+                                                    setCurrentPage(1);
+                                                }}
                                             >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {fromDate ? format(fromDate, "PPP") : "Pick a date"}
+                                                Clear Filters
                                             </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={fromDate}
-                                                onSelect={setFromDate}
-                                                initialFocus
-                                                className={cn("p-3 pointer-events-auto")}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-sm">To Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {toDate ? format(toDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={toDate}
-                                                onSelect={setToDate}
-                                                initialFocus
-                                                className={cn("p-3 pointer-events-auto")}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                {(fromDate || toDate) && (
-                                    <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); }}>
-                                        Clear Dates
-                                    </Button>
-                                )}
+                            </div>
+                            {/* Summary Stats */}
+                            <div className="animate-fade-in grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
+                                <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
+                                    <CardContent className="pt-4 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground">Total Visits</p>
+                                                <p className="text-2xl font-bold text-emerald-700">
+                                                    {visits.length}
+                                                </p>
+                                            </div>
+                                            <div className="p-2 rounded-full bg-emerald-200/50">
+                                                <ClipboardList className="h-5 w-5 text-emerald-600" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100/50">
+                                    <CardContent className="pt-4 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground">Completed</p>
+                                                <p className="text-2xl font-bold text-green-700">
+                                                    {visitReports.completedVisitCount}
+                                                </p>
+                                            </div>
+                                            <div className="p-2 rounded-full bg-green-200/50">
+                                                <ClipboardList className="h-5 w-5 text-green-600" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="border-red-200 bg-gradient-to-br from-red-50 to-red-100/50">
+                                    <CardContent className="pt-4 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground">Missed</p>
+                                                <p className="text-2xl font-bold text-red-700">
+                                                    {visitReports.missedVisitCount}
+                                                </p>
+                                            </div>
+                                            <div className="p-2 rounded-full bg-red-200/50">
+                                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100/50">
+                                    <CardContent className="pt-4 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground">Pending</p>
+                                                <p className="text-2xl font-bold text-yellow-700">
+                                                    {visitReports.pendingVisitCount}
+                                                </p>
+                                            </div>
+                                            <div className="p-2 rounded-full bg-yellow-200/50">
+                                                <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
 
-                            {/* Visit Summary Cards */}
-                            <div className="animate-fade-in space-y-6" style={{ animationDelay: "0.2s" }}>
-    {/* Summary Cards - Overall Stats */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
-            <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Total Completed</p>
-                        <p className="text-3xl font-bold text-emerald-700">
-                            {visitReports.completedVisitCount}
-                        </p>
-                    </div>
-                    <div className="p-3 rounded-full bg-emerald-200/50">
-                        <ClipboardList className="h-6 w-6 text-emerald-600" />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-        
-        <Card className="border-red-200 bg-gradient-to-br from-red-50 to-red-100/50">
-            <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Total Missed</p>
-                        <p className="text-3xl font-bold text-red-700">
-                            {visitReports.missedVisitCount}
-                        </p>
-                    </div>
-                    <div className="p-3 rounded-full bg-red-200/50">
-                        <AlertTriangle className="h-6 w-6 text-red-600" />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
+                            {/* Visit Table */}
+                            <Card className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
+                                <CardHeader>
+                                    <CardTitle className="text-base">
+                                        Visit Details
+                                        {filteredVisits.length > 0 && (
+                                            <span className="ml-2 text-sm font-normal text-muted-foreground">
+                                                ({filteredVisits.length} {filteredVisits.length === 1 ? 'record' : 'records'})
+                                            </span>
+                                        )}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {paginatedVisits.length === 0 ? (
+                                        <div className="text-center py-12">
+                                            <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                                            <p className="text-muted-foreground">No visits found for the selected filters</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="overflow-x-auto">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead className="w-[100px]">Visit ID</TableHead>
+                                                            <TableHead>Doctor Name</TableHead>
+                                                            <TableHead>Category</TableHead>
+                                                            {userType==="field_executive" && <TableHead>Prescription Type</TableHead>}
+                                                            {userType==="manager" && <TableHead>Field Executive</TableHead>}
+                                                            
+                                                            <TableHead>Visit Date</TableHead>
+                                                            <TableHead className="w-[100px]">Status</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {paginatedVisits.map((visit) => (
+                                                            <TableRow key={visit.id} className="hover:bg-muted/50">
+                                                                <TableCell className="font-medium">
+                                                                    {visit.visitId}
+                                                                </TableCell>
+                                                                <TableCell>{visit?.doctorName || visit?.pharmacyName}</TableCell>
+                                                                <TableCell>{visit?.category}</TableCell>
+                                                                {userType==="field_executive" && 
+                                                                <TableCell>{visit?.practiceType}</TableCell>}
 
-    {/* Doctor Visits Section */}
-    <div className="space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-blue-500 rounded-full"></div>
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Doctor Visits</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
-                            <p className="text-2xl font-bold text-blue-700">
-                                {visitReports.completedDoctorVisitCount}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-blue-100">
-                            <ClipboardList className="h-4 w-4 text-blue-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Missed</p>
-                            <p className="text-2xl font-bold text-orange-700">
-                                {visitReports.missedDoctorVisitCount}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-orange-100">
-                            <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
+                                                                {userType==="manager" && <TableCell>{visit?.fieldExecutiveName}</TableCell>}
+                                                                
+                                                                <TableCell>
+                                                                    {format(new Date(visit.visitDate), "dd MMM yyyy")}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <span className={cn(
+                                                                        "inline-flex px-2 py-1 rounded-full text-xs font-medium border",
+                                                                        getStatusColor(visit.status)
+                                                                    )}>
+                                                                        {visit.status}
+                                                                    </span>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
 
-    {/* A+ Visits Section */}
-    <div className="space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-purple-500 rounded-full"></div>
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">A+ Visits</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-            <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
-                            <p className="text-2xl font-bold text-purple-700">
-                                {visitReports.completedAPlusVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-purple-100">
-                            <ClipboardList className="h-4 w-4 text-purple-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card className="border-pink-200 bg-gradient-to-br from-pink-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Missed</p>
-                            <p className="text-2xl font-bold text-pink-700">
-                                {visitReports.missedAPlusVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-pink-100">
-                            <AlertTriangle className="h-4 w-4 text-pink-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
+                                            {/* Pagination */}
+                                            {totalPages > 1 && (
+                                                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                                                    <div className="text-sm text-muted-foreground">
+                                                        Showing {((currentPage - 1) * itemsPerPage) + 1} to{" "}
+                                                        {Math.min(currentPage * itemsPerPage, filteredVisits.length)} of{" "}
+                                                        {filteredVisits.length} entries
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                            disabled={currentPage === 1}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                            Previous
+                                                        </Button>
+                                                        <div className="flex gap-1">
+                                                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                                let pageNum;
+                                                                if (totalPages <= 5) {
+                                                                    pageNum = i + 1;
+                                                                } else if (currentPage <= 3) {
+                                                                    pageNum = i + 1;
+                                                                } else if (currentPage >= totalPages - 2) {
+                                                                    pageNum = totalPages - 4 + i;
+                                                                } else {
+                                                                    pageNum = currentPage - 2 + i;
+                                                                }
 
-    {/* A Visits Section */}
-    <div className="space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-indigo-500 rounded-full"></div>
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">A Visits</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-            <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
-                            <p className="text-2xl font-bold text-indigo-700">
-                                {visitReports.completedAVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-indigo-100">
-                            <ClipboardList className="h-4 w-4 text-indigo-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card className="border-rose-200 bg-gradient-to-br from-rose-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Missed</p>
-                            <p className="text-2xl font-bold text-rose-700">
-                                {visitReports.missedAVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-rose-100">
-                            <AlertTriangle className="h-4 w-4 text-rose-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
-
-    {/* B Visits Section */}
-    <div className="space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-cyan-500 rounded-full"></div>
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">B Visits</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-            <Card className="border-cyan-200 bg-gradient-to-br from-cyan-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
-                            <p className="text-2xl font-bold text-cyan-700">
-                                {visitReports.completedBVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-cyan-100">
-                            <ClipboardList className="h-4 w-4 text-cyan-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Missed</p>
-                            <p className="text-2xl font-bold text-amber-700">
-                                {visitReports.missedBVisits}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-amber-100">
-                            <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
-
-    {/* Pharmacist Visits Section */}
-    <div className="space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-teal-500 rounded-full"></div>
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Pharmacist Visits</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-            <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
-                            <p className="text-2xl font-bold text-teal-700">
-                                {visitReports.completedPharmacistVisitCount}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-teal-100">
-                            <ClipboardList className="h-4 w-4 text-teal-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-white">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Missed</p>
-                            <p className="text-2xl font-bold text-amber-700">
-                                {visitReports.missedPharmacistVisitCount}
-                            </p>
-                        </div>
-                        <div className="p-2 rounded-full bg-amber-100">
-                            <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
-</div>
+                                                                return (
+                                                                    <Button
+                                                                        key={pageNum}
+                                                                        variant={currentPage === pageNum ? "default" : "outline"}
+                                                                        size="sm"
+                                                                        onClick={() => setCurrentPage(pageNum)}
+                                                                        className="w-9"
+                                                                    >
+                                                                        {pageNum}
+                                                                    </Button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                                            disabled={currentPage === totalPages}
+                                                        >
+                                                            Next
+                                                            <ChevronRight className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </CardContent>
+                            </Card>
                         </>
                     )}
                 </div>
