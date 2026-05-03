@@ -242,8 +242,8 @@ export const fetchDoctorVisitTrack  = async (feId,doctorId) => {
 
 }
 
-export const fetchFEVisitReport = async (feId, fromDate, toDate) => {
-  const response = await API.get(`/visit/visit-report?fieldExecutiveId=${feId}&from=${fromDate}&to=${toDate}`,{ 
+export const fetchFEVisitReport = async (feId, fromDate, toDate, status, category) => {
+  const response = await API.get(`/visit/visit-report?fieldExecutiveId=${feId}&from=${fromDate}&to=${toDate}&status=${status}&category=${category}`,{ 
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",

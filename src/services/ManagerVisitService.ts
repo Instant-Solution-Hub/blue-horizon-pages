@@ -224,8 +224,8 @@ export const fetchAllCurrentMonthVisits = async (managerId: number, week: number
     return response.data;
 }
 
-export const fetchManagerVisitReport = async (managerId: number, fromDate: any, toDate: any) => {
-  const response = await API.get(`/manager-visits/reports?managerId=${managerId}&from=${fromDate}&to=${toDate}`, {
+export const fetchManagerVisitReport = async (managerId: number, fromDate: any, toDate: any, status: string, category: string) => {
+  const response = await API.get(`/manager-visits/reports?managerId=${managerId}&from=${fromDate}&to=${toDate}&status=${status}&category=${category}`, {
     headers: { 
         "Content-Type": "application/json",
         "Accept": "application/json", 

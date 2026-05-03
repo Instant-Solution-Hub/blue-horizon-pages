@@ -110,7 +110,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedVisit) return;
 
     if (!isMissed && selectedActivities.length === 0) {
@@ -191,6 +191,68 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
         maximumAge: 0,
       }
     );
+
+    // let { latitude, longitude } = await getAccurateLocation()
+    // onSubmit({
+    //   ...payload,
+    //   location: {
+    //     lat: latitude,
+    //     lng: longitude,
+    //   },
+    // });
+  };
+
+  const getAccurateLocation = async () => {
+    const readings = [];
+
+    for (let i = 0; i < 3; i++) {
+      try {
+        const pos: any = await getLocation();
+
+        // Optional: filter bad accuracy
+        if (pos.coords.accuracy <= 50) {
+          readings.push(pos.coords);
+        }
+      } catch (e) {
+        console.error("Location error:", e);
+      }
+    }
+
+    if (readings.length === 0) {
+      throw new Error("No accurate location found");
+    }
+
+    return averageCoordinates(readings);
+  };
+
+  const getLocation = () => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(pos),
+        (err) => reject(err),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
+  };
+
+  const averageCoordinates = (coordsArray) => {
+    const sum = coordsArray.reduce(
+      (acc, curr) => {
+        acc.lat += curr.latitude;
+        acc.lng += curr.longitude;
+        return acc;
+      },
+      { lat: 0, lng: 0 }
+    );
+
+    return {
+      latitude: sum.lat / coordsArray.length,
+      longitude: sum.lng / coordsArray.length,
+    };
   };
 
   const handleAddRow = () => {
