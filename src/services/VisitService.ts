@@ -251,3 +251,26 @@ export const fetchFEVisitReport = async (feId, fromDate, toDate, status, categor
   });
     return response.data;
 }
+
+export const exportManagerVisits = async (obj: any) => {
+  const response = await API.post(`/visits/export/manager/excel`, obj, {
+    responseType: "blob",
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const exportFeVisits = async (obj: any) => {
+  const response = await API.post(`/visits/export/excel`, obj,  {
+    responseType: "blob",
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
