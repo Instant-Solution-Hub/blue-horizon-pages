@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ClipboardList, Search, CalendarIcon, User, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ClipboardList, Search, CalendarIcon, User, AlertTriangle, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { format } from "date-fns";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,7 @@ import {
 import { cn } from "@/lib/utils";
 import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
-import { fetchFEVisitReport } from "@/services/VisitService";
+import { exportFeVisits, fetchFEVisitReport } from "@/services/VisitService";
 import { fetchManagerVisitReport } from "@/services/ManagerVisitService";
 
 type UserType = "field_executive" | "manager";
@@ -47,7 +47,7 @@ interface Visit {
     visitId: string;
     doctorName: string;
     pharmacyName: string;
-    fieldExecutiveName:string;
+    fieldExecutiveName: string;
     category: string;
     practiceType: string;
     visitDate: string;
@@ -143,7 +143,7 @@ const AdminVisitReports = () => {
                         setVisits([]);
                     });
             } else {
-                
+
                 fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter)
                     .then((data) => {
                         setVisitReports(data);
@@ -158,6 +158,69 @@ const AdminVisitReports = () => {
             }
         }
     }
+
+    const handleExportFeVisits = async () => {
+        try {
+            let obj = {
+                "startDate": formatDateLocal(fromDate),
+                "endDate": formatDateLocal(toDate),
+                "fieldExecutiveId": selectedUserId,
+                "visitStatus": statusFilter === "all" ? null : statusFilter,
+                "category": categoryFilter === "all" ? null : categoryFilter
+            }
+            const response = await exportFeVisits(obj)
+            // const blob = await response.blob();
+            const url = window.URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visits_report_${selectedUser.name}_${formatDate(fromDate)}_${formatDate(toDate)}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error("Error downloading file", error);
+        }
+    }
+    const handleExportManagerVisits = async () => {
+        try {
+            let obj = {
+                "startDate": formatDateLocal(fromDate),
+                "endDate": formatDateLocal(toDate),
+                "managerId": selectedUserId,
+                "visitStatus": statusFilter === "all" ? null : statusFilter,
+                "category": categoryFilter === "all" ? null : categoryFilter
+            }
+            const response = await exportFeVisits(obj)
+
+            const url = window.URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visits_report_${selectedUser.name}_${formatDate(fromDate)}_${formatDate(toDate)}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error("Error downloading file", error);
+        }
+
+    }
+
+    const handleExport = async () => {
+        if (userType === "field_executive") {
+            handleExportFeVisits();
+        } else {
+            handleExportManagerVisits();
+        }
+    }
+
+    const formatDateLocal = (date) => {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
 
     const getAllFieldExecutives = async () => {
         try {
@@ -342,51 +405,51 @@ const AdminVisitReports = () => {
                                     <div className="space-y-1">
                                         <Label className="text-sm">From Date</Label>
                                         <div>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {fromDate ? format(fromDate, "PPP") : "Pick a date"}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={fromDate}
-                                                    onSelect={setFromDate}
-                                                    initialFocus
-                                                    className={cn("p-3 pointer-events-auto")}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {fromDate ? format(fromDate, "PPP") : "Pick a date"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={fromDate}
+                                                        onSelect={setFromDate}
+                                                        initialFocus
+                                                        className={cn("p-3 pointer-events-auto")}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-sm">To Date</Label>
                                         <div>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {toDate ? format(toDate, "PPP") : "Pick a date"}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={toDate}
-                                                    onSelect={setToDate}
-                                                    initialFocus
-                                                    className={cn("p-3 pointer-events-auto")}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {toDate ? format(toDate, "PPP") : "Pick a date"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={toDate}
+                                                        onSelect={setToDate}
+                                                        initialFocus
+                                                        className={cn("p-3 pointer-events-auto")}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                     </div>
                                     <div className="space-y-1">
@@ -512,7 +575,7 @@ const AdminVisitReports = () => {
 
                             {/* Visit Table */}
                             <Card className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-                                <CardHeader>
+                                <CardHeader className="flex flex-row items-center justify-between">
                                     <CardTitle className="text-base">
                                         Visit Details
                                         {filteredVisits.length > 0 && (
@@ -521,6 +584,17 @@ const AdminVisitReports = () => {
                                             </span>
                                         )}
                                     </CardTitle>
+                                    {filteredVisits.length > 0 && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleExport}
+                                            className="gap-2"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            Export
+                                        </Button>
+                                    )}
                                 </CardHeader>
                                 <CardContent>
                                     {paginatedVisits.length === 0 ? (
@@ -537,9 +611,9 @@ const AdminVisitReports = () => {
                                                             <TableHead className="w-[100px]">Visit ID</TableHead>
                                                             <TableHead>Doctor Name</TableHead>
                                                             <TableHead>Category</TableHead>
-                                                            {userType==="field_executive" && <TableHead>Prescription Type</TableHead>}
-                                                            {userType==="manager" && <TableHead>Field Executive</TableHead>}
-                                                            
+                                                            {userType === "field_executive" && <TableHead>Prescription Type</TableHead>}
+                                                            {userType === "manager" && <TableHead>Field Executive</TableHead>}
+
                                                             <TableHead>Visit Date</TableHead>
                                                             <TableHead className="w-[100px]">Status</TableHead>
                                                         </TableRow>
@@ -552,11 +626,11 @@ const AdminVisitReports = () => {
                                                                 </TableCell>
                                                                 <TableCell>{visit?.doctorName || visit?.pharmacyName}</TableCell>
                                                                 <TableCell>{visit?.category}</TableCell>
-                                                                {userType==="field_executive" && 
-                                                                <TableCell>{visit?.practiceType}</TableCell>}
+                                                                {userType === "field_executive" &&
+                                                                    <TableCell>{visit?.practiceType}</TableCell>}
 
-                                                                {userType==="manager" && <TableCell>{visit?.fieldExecutiveName}</TableCell>}
-                                                                
+                                                                {userType === "manager" && <TableCell>{visit?.fieldExecutiveName}</TableCell>}
+
                                                                 <TableCell>
                                                                     {format(new Date(visit.visitDate), "dd MMM yyyy")}
                                                                 </TableCell>
