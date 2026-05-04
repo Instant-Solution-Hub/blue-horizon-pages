@@ -55,6 +55,7 @@ import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 import AdminVisitReports from "./pages/AdminVisitReports";
 import ManagerLeaveData from "./pages/ManagerLeaveData";
 import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
+import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
 
 
 
@@ -122,6 +123,7 @@ const App = () => (
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
           <Route path="/super-admin-dashboard/work-approvals" element={<SuperAdminWorkApprovals />} />
+         <Route path="/super-admin-dashboard/manager-joinings" element={<SuperAdminManagerJoinings />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>

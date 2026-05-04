@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import SuperAdminSidebar from "@/components/super-admin-dashboard/SuperAdminSidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +13,18 @@ import {
   Calendar,
   FileText,
   UserCircle,
+  CalendarIcon,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { fetchManagerJoiningsByDateRange } from "@/services/ManagerJoiningService";
 
-interface JoiningRecord {
-  id: string;
+export interface JoiningRecord {
+  id: number;
   managerId: string;
   managerName: string;
   feId: string;
@@ -32,78 +39,7 @@ interface JoiningRecord {
 }
 
 // Mock data: manager joinings recorded by FEs (current month)
-const MOCK_JOININGS: JoiningRecord[] = [
-  {
-    id: "1",
-    managerId: "M001",
-    managerName: "Saleesh Kumar",
-    feId: "FE001",
-    feName: "Rahul Verma",
-    doctorName: "Dr. Sharma",
-    hospital: "City Hospital",
-    date: new Date(),
-    scheduledTime: "10:00",
-    joiningTime: "10:05",
-    notes: "Discussed new product launch",
-    status: "on-time",
-  },
-  {
-    id: "2",
-    managerId: "M001",
-    managerName: "Saleesh Kumar",
-    feId: "FE001",
-    feName: "Rahul Verma",
-    doctorName: "Dr. Patel",
-    hospital: "Metro Clinic",
-    date: new Date(),
-    scheduledTime: "14:00",
-    joiningTime: "13:45",
-    notes: "",
-    status: "early",
-  },
-  {
-    id: "3",
-    managerId: "M001",
-    managerName: "Saleesh Kumar",
-    feId: "FE002",
-    feName: "Priya Singh",
-    doctorName: "Dr. Gupta",
-    hospital: "Care Hospital",
-    date: new Date(),
-    scheduledTime: "16:00",
-    joiningTime: "16:20",
-    notes: "Traffic delay",
-    status: "late",
-  },
-  {
-    id: "4",
-    managerId: "M002",
-    managerName: "Akhil Menon",
-    feId: "FE003",
-    feName: "Amit Kumar",
-    doctorName: "Dr. Reddy",
-    hospital: "Apollo Hospital",
-    date: new Date(),
-    scheduledTime: "09:00",
-    joiningTime: "09:15",
-    notes: "",
-    status: "late",
-  },
-  {
-    id: "5",
-    managerId: "M002",
-    managerName: "Akhil Menon",
-    feId: "FE004",
-    feName: "Sneha Iyer",
-    doctorName: "Dr. Nair",
-    hospital: "KIMS",
-    date: new Date(),
-    scheduledTime: "11:00",
-    joiningTime: "11:00",
-    notes: "Smooth visit",
-    status: "on-time",
-  },
-];
+const MOCK_JOININGS: JoiningRecord[] = [];
 
 const getStatusBadge = (status: JoiningRecord["status"]) => {
   switch (status) {
@@ -116,15 +52,69 @@ const getStatusBadge = (status: JoiningRecord["status"]) => {
   }
 };
 
+const getCurrentMonthRange = () => {
+  const now = new Date();
+
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+
+
 const SuperAdminManagerJoinings = () => {
   const [selectedManagerId, setSelectedManagerId] = useState<string | null>(null);
   const [selectedFeId, setSelectedFeId] = useState<string | null>(null);
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  const [joinings, setJoinings] = useState<JoiningRecord[]>([]);
+const [loading, setLoading] = useState(false);
 
   const currentMonth = format(new Date(), "MMMM yyyy");
 
+  const loadData = async (from: Date, to: Date) => {
+  try {
+    setLoading(true);
+    const data = await fetchManagerJoiningsByDateRange(from, to);
+    setJoinings(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  const { start, end } = getCurrentMonthRange();
+  loadData(start, end);
+}, []);
+
+useEffect(() => {
+  if (!fromDate || !toDate) return;
+
+  const from = new Date(fromDate);
+  from.setHours(0, 0, 0, 0);
+
+  const to = new Date(toDate);
+  to.setHours(23, 59, 59, 999);
+
+  loadData(from, to);
+}, [fromDate, toDate]);
+
+
+  const filteredJoinings = useMemo(() => {
+  return joinings.map((j) => ({
+    ...j,
+    date: new Date(j.date),
+  }));
+}, [joinings]);
+
   const managers = useMemo(() => {
     const map = new Map<string, { managerId: string; managerName: string; count: number; feCount: number }>();
-    MOCK_JOININGS.forEach((j) => {
+    filteredJoinings.forEach((j) => {
       const existing = map.get(j.managerId);
       if (existing) {
         existing.count += 1;
@@ -132,32 +122,32 @@ const SuperAdminManagerJoinings = () => {
         map.set(j.managerId, { managerId: j.managerId, managerName: j.managerName, count: 1, feCount: 0 });
       }
     });
-    // compute unique FE count per manager
     map.forEach((m) => {
       m.feCount = new Set(
-        MOCK_JOININGS.filter((j) => j.managerId === m.managerId).map((j) => j.feId)
+        filteredJoinings.filter((j) => j.managerId === m.managerId).map((j) => j.feId)
       ).size;
     });
     return Array.from(map.values());
-  }, []);
+  }, [filteredJoinings]);
 
   const fesUnderManager = useMemo(() => {
     if (!selectedManagerId) return [];
     const map = new Map<string, { feId: string; feName: string; count: number }>();
-    MOCK_JOININGS.filter((j) => j.managerId === selectedManagerId).forEach((j) => {
+    filteredJoinings.filter((j) => j.managerId === selectedManagerId).forEach((j) => {
       const existing = map.get(j.feId);
       if (existing) existing.count += 1;
       else map.set(j.feId, { feId: j.feId, feName: j.feName, count: 1 });
     });
     return Array.from(map.values());
-  }, [selectedManagerId]);
+  }, [selectedManagerId, filteredJoinings]);
 
   const joiningsForFe = useMemo(() => {
     if (!selectedManagerId || !selectedFeId) return [];
-    return MOCK_JOININGS.filter(
+    return filteredJoinings.filter(
       (j) => j.managerId === selectedManagerId && j.feId === selectedFeId
     );
-  }, [selectedManagerId, selectedFeId]);
+  }, [selectedManagerId, selectedFeId, filteredJoinings]);
+
 
   const selectedManager = managers.find((m) => m.managerId === selectedManagerId);
   const selectedFe = fesUnderManager.find((f) => f.feId === selectedFeId);
@@ -174,6 +164,82 @@ const SuperAdminManagerJoinings = () => {
               All manager joinings recorded by Field Executives for {currentMonth}
             </p>
           </div>
+
+          {/* Date filter */}
+          <Card>
+            <CardContent className="p-4 flex flex-wrap items-end gap-4">
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs">From Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[200px] justify-start text-left font-normal",
+                        !fromDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {fromDate ? format(fromDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={fromDate}
+                      onSelect={setFromDate}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs">To Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[200px] justify-start text-left font-normal",
+                        !toDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {toDate ? format(toDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={toDate}
+                      onSelect={setToDate}
+                      disabled={(date) => (fromDate ? date < fromDate : false)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              {(fromDate || toDate) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setFromDate(undefined);
+                    setToDate(undefined);
+                     const { start, end } = getCurrentMonthRange();
+                     loadData(start, end); // ✅ reload current month
+                   
+                  }}
+                  className="gap-1"
+                >
+                  <X className="w-4 h-4" /> Clear
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
