@@ -13,8 +13,14 @@ import {
   Calendar,
   FileText,
   UserCircle,
+  CalendarIcon,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 interface JoiningRecord {
   id: string;
