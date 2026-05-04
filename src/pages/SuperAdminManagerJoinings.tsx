@@ -125,12 +125,26 @@ const getStatusBadge = (status: JoiningRecord["status"]) => {
 const SuperAdminManagerJoinings = () => {
   const [selectedManagerId, setSelectedManagerId] = useState<string | null>(null);
   const [selectedFeId, setSelectedFeId] = useState<string | null>(null);
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
   const currentMonth = format(new Date(), "MMMM yyyy");
 
+  const filteredJoinings = useMemo(() => {
+    return MOCK_JOININGS.filter((j) => {
+      if (fromDate && j.date < new Date(fromDate.setHours(0, 0, 0, 0))) return false;
+      if (toDate) {
+        const end = new Date(toDate);
+        end.setHours(23, 59, 59, 999);
+        if (j.date > end) return false;
+      }
+      return true;
+    });
+  }, [fromDate, toDate]);
+
   const managers = useMemo(() => {
     const map = new Map<string, { managerId: string; managerName: string; count: number; feCount: number }>();
-    MOCK_JOININGS.forEach((j) => {
+    filteredJoinings.forEach((j) => {
       const existing = map.get(j.managerId);
       if (existing) {
         existing.count += 1;
@@ -138,32 +152,32 @@ const SuperAdminManagerJoinings = () => {
         map.set(j.managerId, { managerId: j.managerId, managerName: j.managerName, count: 1, feCount: 0 });
       }
     });
-    // compute unique FE count per manager
     map.forEach((m) => {
       m.feCount = new Set(
-        MOCK_JOININGS.filter((j) => j.managerId === m.managerId).map((j) => j.feId)
+        filteredJoinings.filter((j) => j.managerId === m.managerId).map((j) => j.feId)
       ).size;
     });
     return Array.from(map.values());
-  }, []);
+  }, [filteredJoinings]);
 
   const fesUnderManager = useMemo(() => {
     if (!selectedManagerId) return [];
     const map = new Map<string, { feId: string; feName: string; count: number }>();
-    MOCK_JOININGS.filter((j) => j.managerId === selectedManagerId).forEach((j) => {
+    filteredJoinings.filter((j) => j.managerId === selectedManagerId).forEach((j) => {
       const existing = map.get(j.feId);
       if (existing) existing.count += 1;
       else map.set(j.feId, { feId: j.feId, feName: j.feName, count: 1 });
     });
     return Array.from(map.values());
-  }, [selectedManagerId]);
+  }, [selectedManagerId, filteredJoinings]);
 
   const joiningsForFe = useMemo(() => {
     if (!selectedManagerId || !selectedFeId) return [];
-    return MOCK_JOININGS.filter(
+    return filteredJoinings.filter(
       (j) => j.managerId === selectedManagerId && j.feId === selectedFeId
     );
-  }, [selectedManagerId, selectedFeId]);
+  }, [selectedManagerId, selectedFeId, filteredJoinings]);
+
 
   const selectedManager = managers.find((m) => m.managerId === selectedManagerId);
   const selectedFe = fesUnderManager.find((f) => f.feId === selectedFeId);
