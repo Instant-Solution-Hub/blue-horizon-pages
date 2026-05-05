@@ -17,6 +17,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+
 const AdminDoctorConversions = () => {
   const { toast } = useToast();
   const [conversions, setConversions] = useState<DoctorConversion[]>([]);
@@ -29,6 +33,43 @@ const AdminDoctorConversions = () => {
   const [toDate, setToDate] = useState<Date>();
 
   const feId = parseInt(sessionStorage.getItem("feID") || "0");
+
+  const handleExport = () => {
+  if (!conversions || conversions.length === 0) {
+    toast({
+      title: "No Data",
+      description: "Nothing to export",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  const formattedData = conversions.map((c) => ({
+    "Field Executive": c.fieldExecutiveName,
+    "Doctor": c.doctorName,
+    "Hospital": c.hospitalName,
+    "Product": c.productName,
+    "Date": format(new Date(c.createdAt), "dd-MM-yyyy"),
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Conversions");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([excelBuffer], {
+    type:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Doctor_Conversions.xlsx");
+};
+
 
   const loadConversions = async (fDate?: Date, tDate?: Date) => {
   try {
@@ -212,12 +253,18 @@ useEffect(() => {
             </p>
           </div>
 
-          <div className="flex justify-end mb-4">
-            <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Conversion
-            </Button>
-          </div>
+         
+            <div className="flex justify-end gap-2 mb-4">
+  <Button onClick={handleExport} variant="outline">
+    Export Excel
+  </Button>
+
+  <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
+    <Plus className="w-4 h-4 mr-2" />
+    Add Conversion
+  </Button>
+</div>
+          
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="space-y-1">
               <Label className="text-sm">From Date</Label>
