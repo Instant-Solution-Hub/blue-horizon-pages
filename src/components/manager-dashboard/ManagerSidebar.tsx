@@ -14,7 +14,8 @@ import {
   ChevronRight,
   FileText,
   Package,
-  PackageOpen
+  PackageOpen,
+  ClipboardList
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/manager-dashboard/sales-progress" },
   { icon: ClipboardCheck, label: "Work Approvals", href: "/manager-dashboard/work-approvals" },
+  { icon: ClipboardList, label: "Visit Reports", href: "/manager-dashboard/visit-reports" },
 ];
 
 const ManagerSidebar = () => {
