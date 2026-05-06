@@ -238,11 +238,12 @@ const ManagerVisitReports = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
-                  <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); setStatusFilter("all"); setCategoryFilter("all"); }}>
-                    Clear Filters
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  <Button onClick={applyFilters}>Apply</Button>
+                  {(appliedFrom || appliedTo || appliedStatus !== "all" || appliedCategory !== "all" || fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
+                    <Button variant="ghost" onClick={clearFilters}>Clear Filters</Button>
+                  )}
+                </div>
               </div>
 
               <div className="animate-fade-in grid grid-cols-2 lg:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
