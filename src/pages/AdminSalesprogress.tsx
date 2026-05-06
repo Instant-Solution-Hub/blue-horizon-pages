@@ -5,51 +5,15 @@ import { getTerritoryOverview, getTerritoryTargets } from "@/services/ManagerTar
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { CalendarIcon, TrendingUp, MapPin, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import AdminFEMarketTable from "@/components/admin-sales-progress/AdminFEMarketTable";
 import AdminFEProductTable from "@/components/admin-sales-progress/AdminFEProductTable";
 import AdminFEStockistTable from "@/components/admin-sales-progress/AdminFEStockistTable";
 import {getAllMonthlyMarketSales, getAllMonthlyProductSales, getAllMonthlyStockistSales,} from "@/services/SalesProgressService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Mock data with manager names
-// const feMarketData = [
-//   { feName: "Arun Mehta", marketName: "North Region", secondarySales: 45000, date: "2025-06-10" },
-//   { feName: "Arun Mehta", marketName: "East Region", secondarySales: 32000, date: "2025-06-11" },
-//   { feName: "Deepak Joshi", marketName: "South Region", secondarySales: 58000, date: "2025-06-10" },
-//   { feName: "Deepak Joshi", marketName: "West Region", secondarySales: 41000, date: "2025-06-13" },
-//   { feName: "Kavita Nair", marketName: "Central Region", secondarySales: 37000, date: "2025-06-09" },
-//   { feName: "Kavita Nair", marketName: "North Region", secondarySales: 29000, date: "2025-06-12" },
-//   { feName: "Rahul Desai", marketName: "South Region", secondarySales: 62000, date: "2025-06-14" },
-//   { feName: "Rahul Desai", marketName: "East Region", secondarySales: 48000, date: "2025-06-08" },
-// ];
-
-// const feProductData = [
-//   { feName: "Arun Mehta", productName: "Larimar-500", newPTS: 150, qty: 30, sales: 4500, date: "2025-06-10" },
-//   { feName: "Arun Mehta", productName: "Larimar-Plus", newPTS: 200, qty: 25, sales: 5000, date: "2025-06-11" },
-//   { feName: "Deepak Joshi", productName: "Larimar-D3", newPTS: 100, qty: 40, sales: 4000, date: "2025-06-10" },
-//   { feName: "Deepak Joshi", productName: "Larimar-Forte", newPTS: 175, qty: 35, sales: 6125, date: "2025-06-13" },
-//   { feName: "Kavita Nair", productName: "Larimar-500", newPTS: 150, qty: 28, sales: 4200, date: "2025-06-09" },
-//   { feName: "Kavita Nair", productName: "Larimar-Gel", newPTS: 80, qty: 50, sales: 4000, date: "2025-06-12" },
-//   { feName: "Rahul Desai", productName: "Larimar-Plus", newPTS: 200, qty: 45, sales: 9000, date: "2025-06-14" },
-//   { feName: "Rahul Desai", productName: "Larimar-Forte", newPTS: 175, qty: 32, sales: 5600, date: "2025-06-08" },
-// ];
-
-// const feStockistData = [
-//   { feName: "Arun Mehta", feRegion: "North Region", stockistName: "MedPlus Distributors", primarySales: 85000, date: "2025-06-10" },
-//   { feName: "Arun Mehta", feRegion: "North Region", stockistName: "HealthCare Traders", primarySales: 62000, date: "2025-06-11" },
-//   { feName: "Deepak Joshi", feRegion: "South Region", stockistName: "PharmaCare Agencies", primarySales: 94000, date: "2025-06-10" },
-//   { feName: "Deepak Joshi", feRegion: "South Region", stockistName: "Apollo Supply Chain", primarySales: 71000, date: "2025-06-13" },
-//   { feName: "Kavita Nair", feRegion: "Central Region", stockistName: "LifeLine Distributors", primarySales: 53000, date: "2025-06-09" },
-//   { feName: "Kavita Nair", feRegion: "Central Region", stockistName: "MedPlus Distributors", primarySales: 47000, date: "2025-06-12" },
-//   { feName: "Rahul Desai", feRegion: "East Region", stockistName: "HealthCare Traders", primarySales: 78000, date: "2025-06-14" },
-//   { feName: "Rahul Desai", feRegion: "East Region", stockistName: "PharmaCare Agencies", primarySales: 66000, date: "2025-06-08" },
-// ];
 
 
 
@@ -99,6 +63,126 @@ const months = [
   } catch (err) {
     console.error("Failed to load sales data", err);
   }
+};
+
+const handleTerritoryExport = () => {
+  if (!filteredTerritory || filteredTerritory.length === 0) return;
+
+  const calculateDeficit = (target: number, sale: number) =>
+    Math.max(0, target - sale);
+
+  const exportData = filteredTerritory.map((row) => {
+    const priDef = calculateDeficit(row.primaryTarget, row.weeklyPrimarySale);
+    const secDef = calculateDeficit(row.secondaryTarget, row.weeklySecondarySale);
+
+    return {
+      Territory: row.territory,
+      Manager: row.managerName,
+      "Pri Target": row.primaryTarget,
+      "Sec Target": row.secondaryTarget,
+      "Wk Pri Sale": row.weeklyPrimarySale,
+      "Wk Sec Sale": row.weeklySecondarySale,
+      "Pri Def": priDef,
+      "Sec Def": secDef,
+      "Sub Stock": row.totalSubstockistStock,
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Territory Sales");
+
+  const buffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Territory_Sales.xlsx");
+};
+
+const handleMarketExport = () => {
+  if (!filteredFEMarket || filteredFEMarket.length === 0) return;
+
+  const exportData = filteredFEMarket.map((row) => ({
+    "Field Executive": row.feName,
+    "Market": row.market,
+    "Sec Sales": row.salesAmount,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Market Sales");
+
+  const buffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Market_Sales.xlsx");
+};
+
+const handleProductExport = () => {
+  if (!filteredFEProduct || filteredFEProduct.length === 0) return;
+
+  const exportData = filteredFEProduct.map((row) => ({
+    "Field Executive": row.feName,
+    "Product": row.productName,
+    "New PTS": row.pts,
+    "Qty": row.quantity,
+    "Sales": row.sales,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Product Sales");
+
+  const buffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Product_Sales.xlsx");
+};
+
+const handleStockistExport = () => {
+  if (!filteredFEStockist || filteredFEStockist.length === 0) return;
+
+  const exportData = filteredFEStockist.map((row) => ({
+    "Field Executive": row.feName,
+    "Stockist": row.stockistName,
+    "Pri Sales": row.price,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stockist Sales");
+
+  const buffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Stockist_Sales.xlsx");
 };
 
 useEffect(() => {
@@ -269,33 +353,64 @@ const filteredFEMarket = useMemo(() => {
                 </div>
               </div>
               <div className="p-4 space-y-3">
-                <div className="relative max-w-sm">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by manager name..."
-                    value={managerSearch}
-                    onChange={(e) => setManagerSearch(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
+               <div className="flex items-center justify-between gap-3 flex-wrap">
+  
+  {/* Search */}
+  <div className="relative max-w-sm w-full sm:w-auto">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Input
+      placeholder="Search by manager name..."
+      value={managerSearch}
+      onChange={(e) => setManagerSearch(e.target.value)}
+      className="pl-9"
+    />
+  </div>
+
+  {/* Export Button */}
+  <Button size="sm" variant="outline" onClick={handleTerritoryExport}>
+    Export Excel
+  </Button>
+
+</div>
                 <AdminTerritoryTable data={filteredTerritory} />
               </div>
             </div>
           </div>
           )}
               <div className="animate-fade-in space-y-4" style={{ animationDelay: "0.2s" }}>
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by FE name..."
-                value={feSearch}
-                onChange={(e) => setFeSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+           <div className="flex items-center justify-between gap-3 flex-wrap">
+  
+  {/* Search */}
+  <div className="relative max-w-sm w-full sm:w-auto">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Input
+      placeholder="Search by FE name..."
+      value={feSearch}
+      onChange={(e) => setFeSearch(e.target.value)}
+      className="pl-9"
+    />
+  </div>
+
+  {/* Export Button */}
+  <Button size="sm" variant="outline" onClick={handleMarketExport}>
+    Export Excel
+  </Button>
+
+</div>
 
             <AdminFEMarketTable data={filteredFEMarket} />
+            <div className="flex items-center justify-end">
+  <Button size="sm" variant="outline" onClick={handleProductExport}>
+    Export Excel
+  </Button>
+</div>
             <AdminFEProductTable data={filteredFEProduct} />
+
+            <div className="flex items-center justify-end">
+  <Button size="sm" variant="outline" onClick={handleStockistExport}>
+    Export Excel
+  </Button>
+</div>
             <AdminFEStockistTable data={filteredFEStockist} />
           </div>
         

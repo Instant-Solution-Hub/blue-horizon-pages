@@ -1,6 +1,18 @@
 import { JoiningFormData } from "@/components/manager-joining/RecordJoiningModal";
 import axios from "axios";
 import { ManagerJoiningRecord } from "@/components/manager-joining/ManagerJoiningView";
+import { JoiningRecord } from "@/pages/SuperAdminManagerJoinings";
+
+const formatLocalDateTime = (date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
+const parseDate = (dateStr: string): Date => {
+  const [day, month, year] = dateStr.split("-");
+  return new Date(Number(year), Number(month) - 1, Number(day));
+};
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -78,4 +90,26 @@ export const fetchAllCurrentMonthManagerJoinings = async (): Promise<ManagerJoin
   );
  console.log(res);
   return res.data;
+};
+
+export const fetchManagerJoiningsByDateRange = async (
+  from: Date,
+  to: Date
+): Promise<JoiningRecord[]> => {
+  console.log(from);
+  console.log(to);
+
+  const res = await API.get("/manager-joinings/date-wise", {
+  params: {
+      from: formatLocalDateTime(from),
+      to: formatLocalDateTime(to),
+    },
+  });
+
+  console.log(res);
+  return res.data.map((item: any) => ({
+    ...item,
+    date: parseDate(item.date), // FIX HERE
+    status: item.status.toLowerCase(), // optional (matches UI type)
+  }));
 };

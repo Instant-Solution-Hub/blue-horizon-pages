@@ -55,6 +55,9 @@ import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 import AdminVisitReports from "./pages/AdminVisitReports";
 import ManagerLeaveData from "./pages/ManagerLeaveData";
 import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
+import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
+import SuperAdminVisitReports from "./pages/SuperAdminVisitReports";
+import ManagerVisitReports from "./pages/ManagerVisitReports";
 
 
 
@@ -98,6 +101,7 @@ const App = () => (
             <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
               <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
             <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
+                <Route path="/manager-dashboard/visit-reports" element={<ManagerVisitReports />} />
                    <Route path="/manager-dashboard/leave-requests" element={<ManagerLeaveData />} />
              
 
@@ -122,6 +126,8 @@ const App = () => (
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
           <Route path="/super-admin-dashboard/work-approvals" element={<SuperAdminWorkApprovals />} />
+         <Route path="/super-admin-dashboard/manager-joinings" element={<SuperAdminManagerJoinings />} />
+         <Route path="/super-admin-dashboard/visit-reports" element={<SuperAdminVisitReports />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>
