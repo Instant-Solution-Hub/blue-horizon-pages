@@ -158,10 +158,7 @@ const ManagerVisitReports = () => {
                     key={user.id}
                     onClick={() => {
                       setSelectedUserId(user.id);
-                      setFromDate(undefined);
-                      setToDate(undefined);
-                      setStatusFilter("all");
-                      setCategoryFilter("all");
+                      clearFilters();
                     }}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
