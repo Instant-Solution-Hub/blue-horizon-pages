@@ -41,6 +41,7 @@ import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalRequests";
 import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
+import ManagerVisitReports from "./pages/ManagerVisitReports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
           <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
           <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
+          <Route path="/manager-dashboard/visit-reports" element={<ManagerVisitReports />} />
           {/* Admin Dashboard Routes */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
