@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PhotoCaptureFallback } from "./PhotoCaptureFallback";
 
 interface ScheduledDoctor {
   id: string;
@@ -58,6 +59,8 @@ export interface DoctorVisitData {
   activitiesPerformed: string[];
   notes: string;
   location: { lat: number; lng: number } | null;
+  photoProof?: string;
+  locationMethod?: "gps" | "photo";
   convertedProducts?: {
     productId: number;
     quantity: number;
@@ -92,6 +95,35 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     { productId: 0, quantity: 1, value: 0 },
   ]);
 
+  const [showPhotoCapture, setShowPhotoCapture] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLocationFallback = (payload: any) => {
+    setPendingPayload(payload);
+    setShowPhotoCapture(true);
+  };
+
+  const handlePhotoCapture = (photoDataUrl: string) => {
+    if (pendingPayload) {
+      onSubmit({
+        ...pendingPayload,
+        location: null,
+        photoProof: photoDataUrl,
+        locationMethod: "photo",
+      });
+    }
+    setShowPhotoCapture(false);
+    setPendingPayload(null);
+    setIsSubmitting(false);
+  };
+
+  const handlePhotoCancel = () => {
+    setShowPhotoCapture(false);
+    setPendingPayload(null);
+    setIsSubmitting(false);
+  };
+
   useEffect(() => {
     console.log("Doctor Visits in DoctorVisitForm:", doctorVisits);
   }, []);
@@ -113,8 +145,11 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
   const handleSubmit = async () => {
     if (!selectedVisit) return;
 
+    setIsSubmitting(true);
+
     if (!isMissed && selectedActivities.length === 0) {
       alert("Please select at least one activity performed");
+      setIsSubmitting(false);
       return;
     }
 
@@ -123,11 +158,13 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
       conversionRows.some((r) => !r.productId || r.quantity <= 0)
     ) {
       alert("Please select product and quantity for all conversion rows");
+      setIsSubmitting(false);
       return;
     }
 
     if (isMissed && !notes.trim()) {
       alert("Notes are mandatory for missed visits");
+      setIsSubmitting(false);
       return;
     }
 
@@ -142,7 +179,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
           }))
         : [];
 
-    const payload = {
+    const basePayload = {
       visitType: "doctor" as const,
       doctorId: selectedVisit.id,
       visitId: selectedVisit.visitId,
@@ -158,49 +195,154 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
       convertedProducts,
     };
 
-    // ✅ If missed, no need to capture location
+    // If missed, no location needed
     if (isMissed) {
       onSubmit({
-        ...payload,
+        ...basePayload,
         location: null,
+        locationMethod: undefined,
       });
+      setIsSubmitting(false);
       return;
     }
 
-    // Otherwise capture location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        console.log("Location Accuracy:", position.coords.accuracy);
+    // Try to get location with timeout
+    const locationTimeout = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Location timeout')), 10000);
+    });
+
+    try {
+      const position = await Promise.race([
+        getAccurateLocationWithPromise(),
+        locationTimeout
+      ]) as GeolocationPosition;
+
+      console.log("Location Accuracy:", position.coords.accuracy);
+
+      // If location accuracy is good (within 100 meters), use GPS
+      if (position.coords.accuracy <= 100) {
         onSubmit({
-          ...payload,
+          ...basePayload,
           location: {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           },
+          locationMethod: "gps",
         });
-      },
-      () => {
-        onSubmit({
-          ...payload,
-          location: null,
-        });
-      },
-      {
+        setIsSubmitting(false);
+      } else {
+        // Location accuracy is poor, fallback to photo
+        handleLocationFallback(basePayload);
+      }
+    } catch (error) {
+      console.error("Location capture failed:", error);
+      // Location failed completely, fallback to photo
+      handleLocationFallback(basePayload);
+    }
+  };
+
+  const getAccurateLocationWithPromise = (): Promise<GeolocationPosition> => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
-    );
-
-    // let { latitude, longitude } = await getAccurateLocation()
-    // onSubmit({
-    //   ...payload,
-    //   location: {
-    //     lat: latitude,
-    //     lng: longitude,
-    //   },
-    // });
+      });
+    });
   };
+
+
+  // const handleSubmit = async () => {
+  //   if (!selectedVisit) return;
+
+  //   if (!isMissed && selectedActivities.length === 0) {
+  //     alert("Please select at least one activity performed");
+  //     return;
+  //   }
+
+  //   if (
+  //     selectedActivities.includes("Product Conversion") &&
+  //     conversionRows.some((r) => !r.productId || r.quantity <= 0)
+  //   ) {
+  //     alert("Please select product and quantity for all conversion rows");
+  //     return;
+  //   }
+
+  //   if (isMissed && !notes.trim()) {
+  //     alert("Notes are mandatory for missed visits");
+  //     return;
+  //   }
+
+  //   const convertedProducts =
+  //     selectedActivities.includes("Product Conversion")
+  //       ? conversionRows
+  //         .filter((r) => r.productId)
+  //         .map((r) => ({
+  //           productId: Number(r.productId),
+  //           quantity: r.quantity,
+  //           value: r.value,
+  //         }))
+  //       : [];
+
+  //   const payload = {
+  //     visitType: "doctor" as const,
+  //     doctorId: selectedVisit.id,
+  //     visitId: selectedVisit.visitId,
+  //     doctorName: selectedVisit.doctorName,
+  //     hospital: selectedVisit.hospital,
+  //     designation: selectedVisit.designation,
+  //     category: selectedVisit.category,
+  //     practiceType: selectedVisit.practiceType,
+  //     isMissed,
+  //     isPreviouslyMissed: selectedVisit.status === "MISSED",
+  //     activitiesPerformed: selectedActivities,
+  //     notes,
+  //     convertedProducts,
+  //   };
+
+  //   // ✅ If missed, no need to capture location
+  //   if (isMissed) {
+  //     onSubmit({
+  //       ...payload,
+  //       location: null,
+  //     });
+  //     return;
+  //   }
+
+  //   // Otherwise capture location
+  //   navigator.geolocation.getCurrentPosition(
+  //     (position) => {
+  //       console.log("Location Accuracy:", position.coords.accuracy);
+  //       onSubmit({
+  //         ...payload,
+  //         location: {
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude,
+  //         },
+  //       });
+  //     },
+  //     () => {
+  //       onSubmit({
+  //         ...payload,
+  //         location: null,
+  //       });
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 10000,
+  //       maximumAge: 0,
+  //     }
+  //   );
+
+  //   // let { latitude, longitude } = await getAccurateLocation()
+  //   // onSubmit({
+  //   //   ...payload,
+  //   //   location: {
+  //   //     lat: latitude,
+  //   //     lng: longitude,
+  //   //   },
+  //   // });
+  // };
 
   const getAccurateLocation = async () => {
     const readings = [];
@@ -455,14 +597,29 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
         />
       </div>
 
-      <div className="flex gap-2 justify-end pt-4">
+      {/* <div className="flex gap-2 justify-end pt-4">
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button onClick={handleSubmit} disabled={!selectedVisit}>
           Submit Visit
         </Button>
+      </div> */}
+      <div className="flex gap-2 justify-end pt-4">
+        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} disabled={!selectedVisit || isSubmitting}>
+          {isSubmitting ? "Processing..." : "Submit Visit"}
+        </Button>
       </div>
+
+      {/* Photo Capture Fallback Modal */}
+      <PhotoCaptureFallback
+        isOpen={showPhotoCapture}
+        onPhotoCapture={handlePhotoCapture}
+        onCancel={handlePhotoCancel}
+      />
     </div>
   );
 }

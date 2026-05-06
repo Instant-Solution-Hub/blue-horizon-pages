@@ -46,6 +46,7 @@ export function AddVisitModal({ isOpen, onClose, onSubmit, todaysVisits, stockis
   }, []);
 
   const handleSubmit = (data: DoctorVisitData | PharmacistVisitData | StockistVisitData) => {
+    console.log("handle submit", data);
     onSubmit(data);
     handleClose();
   };
