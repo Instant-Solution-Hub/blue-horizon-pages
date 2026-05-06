@@ -197,9 +197,9 @@ const applyFilters = async () => {
                     <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="Completed">COMPLETED</SelectItem>
-                      <SelectItem value="Missed">MISSED</SelectItem>
-                      <SelectItem value="Pending">PENDING</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="MISSED">Missed</SelectItem>
+                      <SelectItem value="SCHEDULED">Pending</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -209,9 +209,9 @@ const applyFilters = async () => {
                     <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="Doctor">Doctor</SelectItem>
-                      <SelectItem value="Pharmacist">Pharmacist</SelectItem>
-                      <SelectItem value="Stockist">Stockist</SelectItem>
+                      <SelectItem value="A_PLUS">A+</SelectItem>
+                      <SelectItem value="A">A</SelectItem>
+                      <SelectItem value="B">B</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
