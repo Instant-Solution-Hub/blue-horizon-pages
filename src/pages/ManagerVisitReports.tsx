@@ -83,8 +83,8 @@ const applyFilters = async () => {
       selectedUserId,
       format(fromDate, "yyyy-MM-dd"),
       format(toDate, "yyyy-MM-dd"),
-      statusFilter === "all" ? null : statusFilter,
-      categoryFilter === "all" ? null : categoryFilter
+      statusFilter,
+      categoryFilter
     );
 
     const mappedVisits: Visit[] = (data.visits || []).map((v: any) => ({
