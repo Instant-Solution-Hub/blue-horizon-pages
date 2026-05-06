@@ -87,8 +87,29 @@ const applyFilters = async () => {
       categoryFilter === "all" ? null : categoryFilter
     );
 
+    const mappedVisits: Visit[] = (data.visits || []).map((v: any) => ({
+      id: v.visitId,
+      date: v.visitDate, // ✅ FIX
+      doctorName: v.doctorName,
+      hospitalName: v.hospital, // ✅ FIX
+      visitType:
+        v.visitType === "DOCTOR"
+          ? "Doctor"
+          : v.visitType === "PHARMACIST"
+          ? "Pharmacist"
+          : "Stockist",
+      status:
+        v.status === "COMPLETED"
+          ? "Completed"
+          : v.status === "MISSED"
+          ? "Missed"
+          : "Pending",
+      notes: v.designation || "-", // or any field you want
+    }));
+
     setVisitReports(data);
-    setVisits(data.visits || []);
+    setVisits(mappedVisits);
+
   } catch (err) {
     console.error(err);
     setVisitReports(defaultVisitReport);
@@ -106,6 +127,13 @@ const applyFilters = async () => {
     setAppliedStatus("all");
     setAppliedCategory("all");
   };
+
+  const safeFormatDate = (dateStr: string) => {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "-";
+  return format(d, "dd MMM yyyy");
+};
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -305,7 +333,7 @@ const applyFilters = async () => {
                       <TableBody>
                         {visits.map((v) => (
                           <TableRow key={v.id}>
-                            <TableCell className="whitespace-nowrap">{format(new Date(v.date), "dd MMM yyyy")}</TableCell>
+                            <TableCell className="whitespace-nowrap">{safeFormatDate(v.date)}</TableCell>
                             <TableCell className="font-medium">{v.doctorName}</TableCell>
                             <TableCell>{v.hospitalName}</TableCell>
                             <TableCell><Badge variant="outline">{v.visitType}</Badge></TableCell>
