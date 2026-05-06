@@ -46,6 +46,18 @@ export const fetchFEs = async (): Promise<FieldExecutive[]> => {
 
   return res.data; // ApiResponseDto → data
 };
+
+export const fetchFEsByManager = async (managerId: number): Promise<FieldExecutive[]> => {
+  try {
+    const res = await API.get(`/field-executives/manager/${managerId}`);
+    console.log(managerId);
+    console.log(res);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching FEs by manager:", error);
+    return [];
+  }
+};
 export const fetchFieldExecutiveInfos = async () : Promise<FEInfo[]> => {
   const res = await API.get(`/field-executives`);
   console.log(res);

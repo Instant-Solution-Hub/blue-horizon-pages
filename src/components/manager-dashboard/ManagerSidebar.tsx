@@ -15,7 +15,8 @@ import {
   FileText,
   Target,
   Package,
-  PackageOpen
+  PackageOpen,
+  ClipboardList
 
 } from "lucide-react";
 import { useState } from "react";
@@ -39,6 +40,7 @@ const navItems: NavItem[] = [
       { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },
        { icon: PackageOpen, label: "Stock Liquidation", href: "/manager-dashboard/stock-liquidation" },
        { icon: User, label: "Visit Compliance", href: "/manager-dashboard/visit-compliance" },
+        { icon: ClipboardList, label: "Visit Reports", href: "/manager-dashboard/visit-reports" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   
 ];
