@@ -71,10 +71,16 @@ const statusVariant: Record<Visit["status"], string> = {
 
 const ManagerVisitReports = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  // Draft (form) filter state - changes here do not filter until Apply is clicked
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  // Applied filter state - actually used for filtering
+  const [appliedFrom, setAppliedFrom] = useState<Date>();
+  const [appliedTo, setAppliedTo] = useState<Date>();
+  const [appliedStatus, setAppliedStatus] = useState<string>("all");
+  const [appliedCategory, setAppliedCategory] = useState<string>("all");
 
   const selectedUser = fieldExecutives.find((u) => u.id === selectedUserId);
 
@@ -83,23 +89,23 @@ const ManagerVisitReports = () => {
     const visits = allVisits[selectedUserId] || [];
     return visits.filter((v) => {
       const d = new Date(v.date);
-      if (fromDate && d < fromDate) return false;
-      if (toDate) {
-        const end = new Date(toDate);
+      if (appliedFrom && d < appliedFrom) return false;
+      if (appliedTo) {
+        const end = new Date(appliedTo);
         end.setHours(23, 59, 59, 999);
         if (d > end) return false;
       }
       return true;
     });
-  }, [selectedUserId, fromDate, toDate]);
+  }, [selectedUserId, appliedFrom, appliedTo]);
 
   const filteredVisits = useMemo(() => {
     return dateFilteredVisits.filter((v) => {
-      if (statusFilter !== "all" && v.status !== statusFilter) return false;
-      if (categoryFilter !== "all" && v.visitType !== categoryFilter) return false;
+      if (appliedStatus !== "all" && v.status !== appliedStatus) return false;
+      if (appliedCategory !== "all" && v.visitType !== appliedCategory) return false;
       return true;
     });
-  }, [dateFilteredVisits, statusFilter, categoryFilter]);
+  }, [dateFilteredVisits, appliedStatus, appliedCategory]);
 
   const totals = useMemo(() => ({
     total: dateFilteredVisits.length,
@@ -107,6 +113,24 @@ const ManagerVisitReports = () => {
     missed: dateFilteredVisits.filter((v) => v.status === "Missed").length,
     pending: dateFilteredVisits.filter((v) => v.status === "Pending").length,
   }), [dateFilteredVisits]);
+
+  const applyFilters = () => {
+    setAppliedFrom(fromDate);
+    setAppliedTo(toDate);
+    setAppliedStatus(statusFilter);
+    setAppliedCategory(categoryFilter);
+  };
+
+  const clearFilters = () => {
+    setFromDate(undefined);
+    setToDate(undefined);
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setAppliedFrom(undefined);
+    setAppliedTo(undefined);
+    setAppliedStatus("all");
+    setAppliedCategory("all");
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -134,10 +158,7 @@ const ManagerVisitReports = () => {
                     key={user.id}
                     onClick={() => {
                       setSelectedUserId(user.id);
-                      setFromDate(undefined);
-                      setToDate(undefined);
-                      setStatusFilter("all");
-                      setCategoryFilter("all");
+                      clearFilters();
                     }}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
@@ -217,11 +238,12 @@ const ManagerVisitReports = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
-                  <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); setStatusFilter("all"); setCategoryFilter("all"); }}>
-                    Clear Filters
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  <Button onClick={applyFilters}>Apply</Button>
+                  {(appliedFrom || appliedTo || appliedStatus !== "all" || appliedCategory !== "all" || fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
+                    <Button variant="ghost" onClick={clearFilters}>Clear Filters</Button>
+                  )}
+                </div>
               </div>
 
               <div className="animate-fade-in grid grid-cols-2 lg:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
