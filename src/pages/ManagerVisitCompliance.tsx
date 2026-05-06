@@ -43,6 +43,7 @@ const ManagerVisitCompliance = () => {
       setLoading(true);
       setError(null);
       const managerId = sessionStorage.getItem("userID");
+     
       const result = await fetchManagerVisitComplianceData(Number(managerId), selectedWeek);
       setData(result);
     } catch (err) {

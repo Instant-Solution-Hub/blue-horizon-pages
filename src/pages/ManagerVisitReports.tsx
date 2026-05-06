@@ -62,9 +62,7 @@ const ManagerVisitReports = () => {
   const [fieldExecutives, setFieldExecutives] = useState<any[]>([]);
 
 useEffect(() => {
-
-  const managerId = Number(sessionStorage.getItem("userId"));
-
+  const managerId = Number(sessionStorage.getItem("userID"));
 
   fetchFEsByManager(managerId)
     .then((res) => setFieldExecutives(res))
