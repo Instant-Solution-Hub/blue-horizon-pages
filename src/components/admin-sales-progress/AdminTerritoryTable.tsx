@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 
+
 export interface TerritoryData {
   territory: string;
   managerName: string;
@@ -55,6 +56,9 @@ const AdminTerritoryTable = ({ data }: AdminTerritoryTableProps) => {
   }
 
   return (
+     
+     
+    
     <div className="rounded-lg border overflow-x-auto">
       <Table className="text-xs md:text-sm">
         <TableHeader>
@@ -124,6 +128,7 @@ const AdminTerritoryTable = ({ data }: AdminTerritoryTableProps) => {
         </TableBody>
       </Table>
     </div>
+    
   );
 };
 

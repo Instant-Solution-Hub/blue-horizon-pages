@@ -143,6 +143,8 @@ export default function TrackVisits() {
       notes: data.notes,
       latitude: data.location?.lat,
       longitude: data.location?.lng,
+      locationMethod:data?.locationMethod,
+      photoProof:data?.photoProof,
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
     };
@@ -186,6 +188,8 @@ export default function TrackVisits() {
       notes: data.notes,
       latitude: data.location?.lat,
       longitude: data.location?.lng,
+      locationMethod:data?.locationMethod,
+      photoProof:data?.photoProof,
       // latitude: 10.588423,
       // longitude: 76.686770,
       activitiesPerformed: data.activitiesPerformed,

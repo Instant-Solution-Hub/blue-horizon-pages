@@ -6,6 +6,8 @@ import {
   ClipboardCheck,
   ChevronLeft,
   ChevronRight,
+  UserPlus,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,8 @@ const SuperAdminSidebar = () => {
     { icon: TrendingUp, label: "Sales Progress", path: "/super-admin-dashboard/sales-progress" },
     { icon: Package, label: "Products", path: "/super-admin-dashboard/products" },
     { icon: ClipboardCheck, label: "Work Approvals", path: "/super-admin-dashboard/work-approvals" },
+     { icon: UserPlus, label: "Manager Joinings", path: "/super-admin-dashboard/manager-joinings" },
+     { icon: ClipboardList, label: "Visit Reports", path: "/super-admin-dashboard/visit-reports" },
   ];
 
   return (

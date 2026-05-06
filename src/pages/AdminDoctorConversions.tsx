@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Loader, CalendarIcon} from "lucide-react";
+import { Plus, Loader, CalendarIcon, Search} from "lucide-react";
 import AddDoctorConversionModal from "@/components/admin-doctor-conversions/AddDoctorConversionModal";
 import DoctorConversionList from "@/components/admin-doctor-conversions/DoctorConversionList";
 import { FieldExecutive, fetchFEs } from "@/services/FEService";
@@ -17,6 +17,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { Input } from "@/components/ui/input";
+
+
 const AdminDoctorConversions = () => {
   const { toast } = useToast();
   const [conversions, setConversions] = useState<DoctorConversion[]>([]);
@@ -27,8 +32,12 @@ const AdminDoctorConversions = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
    const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
+  const [feSearch, setFeSearch] = useState("");
 
   const feId = parseInt(sessionStorage.getItem("feID") || "0");
+
+ 
+
 
   const loadConversions = async (fDate?: Date, tDate?: Date) => {
   try {
@@ -66,6 +75,47 @@ const AdminDoctorConversions = () => {
   } finally {
     setLoading(false);
   }
+};
+
+const filteredConversions = conversions.filter((c) =>
+  (c.fieldExecutiveName || "")
+    .toLowerCase()
+    .includes(feSearch.toLowerCase())
+);
+
+const handleExport = () => {
+  if (!filteredConversions || filteredConversions.length === 0) {
+    toast({
+      title: "No Data",
+      description: "Nothing to export",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  const formattedData = filteredConversions.map((c) => ({
+    "Field Executive": c.fieldExecutiveName,
+    "Doctor": c.doctorName,
+    "Hospital": c.hospitalName,
+    "Product": c.productName,
+    "Date": format(new Date(c.createdAt), "dd-MM-yyyy"),
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Conversions");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([excelBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(file, "Doctor_Conversions.xlsx");
 };
 
 useEffect(() => {
@@ -212,12 +262,18 @@ useEffect(() => {
             </p>
           </div>
 
-          <div className="flex justify-end mb-4">
-            <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Conversion
-            </Button>
-          </div>
+         
+            <div className="flex justify-end gap-2 mb-4">
+  <Button onClick={handleExport} variant="outline">
+    Export Excel
+  </Button>
+
+  <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
+    <Plus className="w-4 h-4 mr-2" />
+    Add Conversion
+  </Button>
+</div>
+          
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="space-y-1">
               <Label className="text-sm">From Date</Label>
@@ -271,6 +327,7 @@ useEffect(() => {
                 </PopoverContent>
               </Popover>
             </div>
+            
             {(fromDate || toDate) && (
               <Button
                 variant="ghost"
@@ -285,6 +342,17 @@ useEffect(() => {
               </Button>
             )}
           </div>
+       <div className="mt-4 mb-4 flex items-center gap-3 max-w-sm">
+  <div className="relative w-full">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Input
+      placeholder="Search by FE name..."
+      value={feSearch}
+      onChange={(e) => setFeSearch(e.target.value)}
+      className="pl-9"
+    />
+  </div>
+</div>
 
           {conversions.length === 0 && !loading ? (
             <Card>
@@ -298,7 +366,7 @@ useEffect(() => {
             </Card>
           ) : (
             <DoctorConversionList
-              conversions={conversions}
+              conversions={filteredConversions}
               onDelete={handleDeleteConversion}
             />
           )}
