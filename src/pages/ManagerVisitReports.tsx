@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ClipboardList, CalendarIcon, User, AlertTriangle } from "lucide-react";
+import { ClipboardList, CalendarIcon, User, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface UserOption {
@@ -26,7 +29,6 @@ interface Visit {
   notes: string;
 }
 
-// FEs under this manager
 const fieldExecutives: UserOption[] = [
   { id: 1, name: "Arun Mehta", employeeCode: "FE001", territory: "North Region" },
   { id: 2, name: "Deepak Joshi", employeeCode: "FE002", territory: "South Region" },
@@ -61,14 +63,22 @@ const allVisits: Record<number, Visit[]> = {
   ],
 };
 
+const statusVariant: Record<Visit["status"], string> = {
+  Completed: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  Missed: "bg-red-100 text-red-700 border-red-200",
+  Pending: "bg-amber-100 text-amber-700 border-amber-200",
+};
+
 const ManagerVisitReports = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const selectedUser = fieldExecutives.find((u) => u.id === selectedUserId);
 
-  const filteredVisits = useMemo(() => {
+  const dateFilteredVisits = useMemo(() => {
     if (!selectedUserId) return [];
     const visits = allVisits[selectedUserId] || [];
     return visits.filter((v) => {
@@ -83,12 +93,26 @@ const ManagerVisitReports = () => {
     });
   }, [selectedUserId, fromDate, toDate]);
 
+  const filteredVisits = useMemo(() => {
+    return dateFilteredVisits.filter((v) => {
+      if (statusFilter !== "all" && v.status !== statusFilter) return false;
+      if (categoryFilter !== "all" && v.visitType !== categoryFilter) return false;
+      return true;
+    });
+  }, [dateFilteredVisits, statusFilter, categoryFilter]);
+
+  const totals = useMemo(() => ({
+    total: dateFilteredVisits.length,
+    completed: dateFilteredVisits.filter((v) => v.status === "Completed").length,
+    missed: dateFilteredVisits.filter((v) => v.status === "Missed").length,
+    pending: dateFilteredVisits.filter((v) => v.status === "Pending").length,
+  }), [dateFilteredVisits]);
+
   return (
     <div className="flex min-h-screen bg-background">
       <ManagerSidebar />
       <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
-          {/* Page Header */}
           <div className="animate-fade-in bg-primary rounded-xl p-6 shadow-md">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 bg-white/20 rounded-xl">
@@ -96,12 +120,9 @@ const ManagerVisitReports = () => {
               </div>
               <h1 className="text-2xl font-bold text-white">Visit Reports</h1>
             </div>
-            <p className="text-white/80 ml-14">
-              View visit reports of Field Executives under you
-            </p>
+            <p className="text-white/80 ml-14">View visit reports of Field Executives under you</p>
           </div>
 
-          {/* FE List */}
           <Card className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <CardHeader>
               <CardTitle className="text-base">Select Field Executive</CardTitle>
@@ -115,6 +136,8 @@ const ManagerVisitReports = () => {
                       setSelectedUserId(user.id);
                       setFromDate(undefined);
                       setToDate(undefined);
+                      setStatusFilter("all");
+                      setCategoryFilter("all");
                     }}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
@@ -141,7 +164,7 @@ const ManagerVisitReports = () => {
 
           {selectedUser && (
             <>
-              <div className="animate-fade-in flex flex-col sm:flex-row items-start sm:items-end gap-3" style={{ animationDelay: "0.15s" }}>
+              <div className="animate-fade-in flex flex-col sm:flex-row items-start sm:items-end gap-3 flex-wrap" style={{ animationDelay: "0.15s" }}>
                 <div className="space-y-1">
                   <Label className="text-sm">From Date</Label>
                   <Popover>
@@ -170,25 +193,60 @@ const ManagerVisitReports = () => {
                     </PopoverContent>
                   </Popover>
                 </div>
-                {(fromDate || toDate) && (
-                  <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); }}>
-                    Clear Dates
+                <div className="space-y-1">
+                  <Label className="text-sm">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Missed">Missed</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm">Category</Label>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="Doctor">Doctor</SelectItem>
+                      <SelectItem value="Pharmacist">Pharmacist</SelectItem>
+                      <SelectItem value="Stockist">Stockist</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
+                  <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); setStatusFilter("all"); setCategoryFilter("all"); }}>
+                    Clear Filters
                   </Button>
                 )}
               </div>
 
-              <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ animationDelay: "0.2s" }}>
+              <div className="animate-fade-in grid grid-cols-2 lg:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-blue-100">
+                        <ClipboardList className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Visits</p>
+                        <p className="text-3xl font-bold text-blue-700">{totals.total}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 <Card className="border-emerald-200 bg-emerald-50/50">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
                       <div className="p-3 rounded-full bg-emerald-100">
-                        <ClipboardList className="h-6 w-6 text-emerald-600" />
+                        <CheckCircle2 className="h-6 w-6 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Completed Visits</p>
-                        <p className="text-3xl font-bold text-emerald-700">
-                          {filteredVisits.filter((v) => v.status === "Completed").length}
-                        </p>
+                        <p className="text-sm text-muted-foreground">Completed</p>
+                        <p className="text-3xl font-bold text-emerald-700">{totals.completed}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -200,15 +258,62 @@ const ManagerVisitReports = () => {
                         <AlertTriangle className="h-6 w-6 text-red-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Missed Visits</p>
-                        <p className="text-3xl font-bold text-red-700">
-                          {filteredVisits.filter((v) => v.status === "Missed").length}
-                        </p>
+                        <p className="text-sm text-muted-foreground">Missed</p>
+                        <p className="text-3xl font-bold text-red-700">{totals.missed}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-amber-200 bg-amber-50/50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-amber-100">
+                        <Clock className="h-6 w-6 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Pending</p>
+                        <p className="text-3xl font-bold text-amber-700">{totals.pending}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
+
+              <Card className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
+                <CardHeader>
+                  <CardTitle className="text-base">Visit Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {filteredVisits.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">No visits found for the selected filters</p>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Category</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Notes</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredVisits.map((v) => (
+                          <TableRow key={v.id}>
+                            <TableCell className="whitespace-nowrap">{format(new Date(v.date), "dd MMM yyyy")}</TableCell>
+                            <TableCell className="font-medium">{v.doctorName}</TableCell>
+                            <TableCell>{v.hospitalName}</TableCell>
+                            <TableCell><Badge variant="outline">{v.visitType}</Badge></TableCell>
+                            <TableCell><Badge className={cn("border", statusVariant[v.status])} variant="outline">{v.status}</Badge></TableCell>
+                            <TableCell className="text-sm text-muted-foreground max-w-xs">{v.notes}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
             </>
           )}
         </div>
