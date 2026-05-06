@@ -249,6 +249,8 @@ export const fetchFEVisitReport = async (feId, fromDate, toDate, status, categor
         "Accept": "application/json",
     },
   });
+
+  console.log(response);
     return response.data;
 }
 
