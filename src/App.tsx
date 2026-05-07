@@ -42,6 +42,7 @@ import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalRequests";
 import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 import ManagerVisitReports from "./pages/ManagerVisitReports";
+import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
           <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
           <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
           <Route path="/manager-dashboard/visit-reports" element={<ManagerVisitReports />} />
+          <Route path="/manager-dashboard/sales-progress" element={<ManagerSalesProgress />} />
           {/* Admin Dashboard Routes */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-dashboard/profile" element={<AdminProfile />} />
