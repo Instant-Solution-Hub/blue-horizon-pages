@@ -58,6 +58,7 @@ import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
 import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
 import SuperAdminVisitReports from "./pages/SuperAdminVisitReports";
 import ManagerVisitReports from "./pages/ManagerVisitReports";
+import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 
 
 
@@ -95,6 +96,7 @@ const App = () => (
           <Route path="/manager-dashboard/slot-planning" element={<ManagerSlotPlanning />} />
            <Route path="/manager-dashboard/target-plan" element={<ManagerTargetPlan />} />
             <Route path="/manager-dashboard/profile" element={<ManagerProfile />} />
+             <Route path="/manager-dashboard/sales-progress" element={<ManagerSalesProgress />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
             <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
