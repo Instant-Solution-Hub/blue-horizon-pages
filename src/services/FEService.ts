@@ -15,6 +15,7 @@ export interface FieldExecutive {
 }
 
 export interface FEInfo{
+  isPortalLocked: boolean;
    id: number;
     name: string;
     email: string;

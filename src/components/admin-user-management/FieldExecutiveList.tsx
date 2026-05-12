@@ -8,6 +8,7 @@ export interface FieldExecutive {
   email: string;
   phone: string;
   employeeCode: string;
+  isPortalLocked:boolean;
   territory: string;
   region: string;
   markets: string[];
@@ -18,9 +19,10 @@ export interface FieldExecutive {
 interface FieldExecutiveListProps {
   fieldExecutives: FieldExecutive[];
   onEdit: (fe: FieldExecutive) => void;
+  onLockPortal: (fe: FieldExecutive) => void; // Callback for lock portal action with field executive
 }
 
-const FieldExecutiveList = ({ fieldExecutives, onEdit }: FieldExecutiveListProps) => {
+const FieldExecutiveList = ({ fieldExecutives, onEdit, onLockPortal }: FieldExecutiveListProps) => {
   return (
     <div className="space-y-3">
       {fieldExecutives.length === 0 ? (
@@ -61,14 +63,24 @@ const FieldExecutiveList = ({ fieldExecutives, onEdit }: FieldExecutiveListProps
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(fe)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onLockPortal(fe)}
+                    className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+                  >
+                    {fe.isPortalLocked ? "Unlock Portal" : "Lock Portal"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(fe)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

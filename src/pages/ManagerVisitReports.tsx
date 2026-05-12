@@ -129,6 +129,7 @@ const applyFilters = async () => {
   };
 
   const safeFormatDate = (dateStr: string) => {
+    console.log(dateStr);
   if (!dateStr) return "-";
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return "-";

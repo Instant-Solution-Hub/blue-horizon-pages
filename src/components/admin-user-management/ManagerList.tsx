@@ -8,6 +8,7 @@ export interface Manager {
   email: string;
   phone: string;
   employeeCode: string;
+  isPortalLocked:boolean;
   department: string;
   designation: string;
   managedTerritories: string[];
@@ -16,9 +17,10 @@ export interface Manager {
 interface ManagerListProps {
   managers: Manager[];
   onEdit: (manager: Manager) => void;
+  onLockPortal: (manager: Manager) => void; // Callback for lock portal action with manager
 }
 
-const ManagerList = ({ managers, onEdit }: ManagerListProps) => {
+const ManagerList = ({ managers, onEdit, onLockPortal }: ManagerListProps) => {
   return (
     <div className="space-y-3">
       {managers.length === 0 ? (
@@ -55,14 +57,24 @@ const ManagerList = ({ managers, onEdit }: ManagerListProps) => {
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(manager)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onLockPortal(manager)}
+                    className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+                  >
+                   {manager.isPortalLocked ? "Unlock Portal" : "Lock Portal"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(manager)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

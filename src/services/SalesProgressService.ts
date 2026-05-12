@@ -132,3 +132,49 @@ export const getAllMonthlyStockistSales = async (year:number, month:number) => {
   console.log(res);
   return res.data;
 };
+
+export const getManagerMonthlyMarketSales = async (
+  managerId: number,
+  year: number,
+  month: number
+) => {
+  const res = await API.get(`/fe/market-sales/manager/${managerId}`, {
+    params: {
+      year,
+      month,
+    },
+  });
+
+  return res.data;
+};
+
+export const getManagerMonthlyProductSales = async (
+  managerId: number,
+  year: number,
+  month: number
+) => {
+  const res = await API.get(`/fe/monthly-sales/manager/${managerId}`, {
+    params: {
+      year,
+      month,
+    },
+  });
+
+  return res.data;
+};
+
+export const getManagerMonthlyStockistSales = async (
+  managerId: number,
+  year: number,
+  month: number
+) => {
+  const res = await API.get(`/fe/monthly-stockist-sales/manager/summary`, {
+    params: {
+      managerId,
+      year,
+      month,
+    },
+  });
+
+  return res.data;
+};

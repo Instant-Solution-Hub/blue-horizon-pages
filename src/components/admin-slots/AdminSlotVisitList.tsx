@@ -16,7 +16,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { MapPin, Camera, ExternalLink } from "lucide-react";
+import { MapPin, Camera, ExternalLink, X, Check } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { changeFeVisitStatus } from "@/services/AdminSlotService";
 
 export interface AdminSlotVisit {
   id: number;
@@ -37,6 +39,7 @@ export interface AdminSlotVisit {
 interface AdminSlotVisitListProps {
   doctorVisits: AdminSlotVisit[];
   pharmacistVisits: AdminSlotVisit[];
+  handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
 }
 
 const categoryColors: Record<string, string> = {
@@ -54,15 +57,15 @@ const practiceTypeLabels: Record<string, string> = {
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 // Photo Viewer Dialog Component
-function PhotoViewerDialog({ 
-  isOpen, 
-  onClose, 
-  photoUrl, 
-  visitName 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  photoUrl: string; 
+function PhotoViewerDialog({
+  isOpen,
+  onClose,
+  photoUrl,
+  visitName
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  photoUrl: string;
   visitName: string;
 }) {
   return (
@@ -72,8 +75,8 @@ function PhotoViewerDialog({
           <DialogTitle>Visit Photo Proof - {visitName}</DialogTitle>
         </DialogHeader>
         <div className="flex justify-center items-center p-4">
-          <img 
-            src={baseUrl+photoUrl} 
+          <img
+            src={baseUrl + photoUrl}
             alt={`Proof for ${visitName}`}
             className="max-w-full max-h-[70vh] object-contain rounded-lg"
           />
@@ -89,16 +92,16 @@ function PhotoViewerDialog({
 }
 
 // Location Display Component
-function LocationDisplay({ 
-  latitude, 
-  longitude, 
-  photoProofUrl, 
+function LocationDisplay({
+  latitude,
+  longitude,
+  photoProofUrl,
   locationMethod,
-  visitName 
-}: { 
-  latitude?: string; 
-  longitude?: string; 
-  photoProofUrl?: string; 
+  visitName
+}: {
+  latitude?: string;
+  longitude?: string;
+  photoProofUrl?: string;
   locationMethod?: string;
   visitName: string;
 }) {
@@ -224,14 +227,49 @@ function PharmacistVisitTable({
   );
 }
 
+
+
 function DoctorVisitTable({
   title,
   visits,
+  handleStatusChange
 }: {
   title: string;
   visits: any[];
+  handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
 }) {
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; name: string } | null>(null);
+
+
+
+  const [pendingStatus, setPendingStatus] = useState<Record<string, string>>({});
+
+  const handleStatusSelect = (visitId: string, newStatus: string) => {
+    setPendingStatus(prev => ({ ...prev, [visitId]: newStatus }));
+  };
+
+  const handleConfirmStatus = (visitId: string) => {
+    const newStatus = pendingStatus[visitId];
+    if (newStatus) {
+      // Apply the status change
+      handleStatusChange(visitId, newStatus as any);
+      // Clear pending status
+      setPendingStatus(prev => {
+        const updated = { ...prev };
+        delete updated[visitId];
+        return updated;
+      });
+    }
+  };
+
+  const handleCancelStatus = (visitId: string) => {
+    setPendingStatus(prev => {
+      const updated = { ...prev };
+      delete updated[visitId];
+      return updated;
+    });
+  };
+
 
   if (visits.length === 0) {
     return (
@@ -266,11 +304,12 @@ function DoctorVisitTable({
               <TableHead>Hospital</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Visit Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {visits.map((visit) => (
-              <TableRow key={visit.id}>
+              <TableRow key={visit.visitId}>
                 <TableCell className="font-medium">{visit.doctorName}</TableCell>
                 <TableCell>
                   {visit.category ? (
@@ -306,7 +345,57 @@ function DoctorVisitTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{visit.status}</Badge>
+                  <Badge
+                    variant="secondary"
+                    className={
+                      visit.status === "COMPLETED"
+                        ? "bg-green-100 text-green-700"
+                        : visit.status === "MISSED"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
+                    }
+                  >
+                    {visit.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {pendingStatus[visit.visitId] ? (
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium mr-1">
+                        → {pendingStatus[visit.visitId]}
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleConfirmStatus(visit.visitId)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleCancelStatus(visit.visitId)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select
+                      onValueChange={(value) => handleStatusSelect(visit.visitId, value)}
+                      value={undefined}
+                    >
+                      <SelectTrigger className="w-[130px]">
+                        <SelectValue placeholder="Change status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                        <SelectItem value="COMPLETED">Completed</SelectItem>
+                        <SelectItem value="MISSED">Missed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -320,10 +409,11 @@ function DoctorVisitTable({
 export function AdminSlotVisitList({
   doctorVisits,
   pharmacistVisits,
+  handleStatusChange,
 }: AdminSlotVisitListProps) {
   return (
     <div className="space-y-4">
-      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} />
+      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} handleStatusChange={handleStatusChange}  />
       <PharmacistVisitTable title="Pharmacist Visits" visits={pharmacistVisits} />
     </div>
   );

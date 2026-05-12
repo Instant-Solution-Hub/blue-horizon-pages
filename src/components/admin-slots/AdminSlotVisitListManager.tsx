@@ -8,6 +8,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "../ui/button";
+import { Check, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useState } from "react";
 
 export interface AdminSlotVisit {
   id: number;
@@ -23,6 +27,7 @@ export interface AdminSlotVisit {
 interface AdminSlotVisitListProps {
   doctorVisits: AdminSlotVisit[];
   pharmacistVisits: AdminSlotVisit[];
+  handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
 }
 
 const categoryColors: Record<string, string> = {
@@ -41,10 +46,41 @@ const practiceTypeLabels: Record<string, string> = {
 function DoctorVisitTable({
   title,
   visits,
+  handleStatusChange
 }: {
   title: string;
   visits: any[];
+ handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
 }) {
+
+   const [pendingStatus, setPendingStatus] = useState<Record<string, string>>({});
+  
+    const handleStatusSelect = (visitId: string, newStatus: string) => {
+      setPendingStatus(prev => ({ ...prev, [visitId]: newStatus }));
+    };
+  
+    const handleConfirmStatus = (visitId: string) => {
+      const newStatus = pendingStatus[visitId];
+      if (newStatus) {
+        // Apply the status change
+        handleStatusChange(visitId, newStatus as any);
+        // Clear pending status
+        setPendingStatus(prev => {
+          const updated = { ...prev };
+          delete updated[visitId];
+          return updated;
+        });
+      }
+    };
+  
+    const handleCancelStatus = (visitId: string) => {
+      setPendingStatus(prev => {
+        const updated = { ...prev };
+        delete updated[visitId];
+        return updated;
+      });
+    };
+
   if (visits.length === 0) {
     return (
       <Card>
@@ -77,6 +113,7 @@ function DoctorVisitTable({
               <TableHead>Designation</TableHead>
               <TableHead>Hospital</TableHead>
               <TableHead>Visit Status</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -110,6 +147,45 @@ function DoctorVisitTable({
                 <TableCell>
                   <Badge variant="secondary">{visit.status}</Badge>
                 </TableCell>
+                <TableCell>
+                  {pendingStatus[visit.visitId] ? (
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium mr-1">
+                        → {pendingStatus[visit.visitId]}
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleConfirmStatus(visit.visitId)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleCancelStatus(visit.visitId)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select
+                      onValueChange={(value) => handleStatusSelect(visit.visitId, value)}
+                      value={undefined}
+                    >
+                      <SelectTrigger className="w-[130px]">
+                        <SelectValue placeholder="Change status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                        <SelectItem value="COMPLETED">Completed</SelectItem>
+                        <SelectItem value="MISSED">Missed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -121,10 +197,11 @@ function DoctorVisitTable({
 
 export function AdminSlotVisitListManager({
   doctorVisits,
+  handleStatusChange
 }: AdminSlotVisitListProps) {
   return (
     <div className="space-y-4">
-      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} />
+      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} handleStatusChange={handleStatusChange} />
     </div>
   );
 }

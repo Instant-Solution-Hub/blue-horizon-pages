@@ -48,3 +48,13 @@ export const processPortalUnlockRequest = async (requestId: number, obj) => {
   });
     return response.data;
 }
+
+export const manualLockPortal = async (obj) => {
+  const res = await apiClient.post("/portal/admin/manual-lock", obj);
+  return res.data;
+}
+
+export const manualUnlockPortal = async (obj) => {
+  const res = await apiClient.post("/portal/admin/manual-unlock", obj);
+  return res.data;
+}
