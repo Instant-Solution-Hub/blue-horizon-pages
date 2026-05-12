@@ -58,3 +58,14 @@ export const reviewSlotPlanDayRequest = async (requestId: number, adminId: numbe
   console.log(res);
   return res.data; // ApiResponseDto → data
 }
+
+export const changeFeVisitStatus = async (visitId, status):Promise<any[]> => {
+  const res = await API.post(`/visit/change-status/${visitId}/${status}`);
+  return res.data.data;
+}
+
+export const changeManagerVisitStatus = async (visitId, status):Promise<any[]> => {
+  const res = await API.post(`/manager-visit/change-status/${visitId}/${status}`);
+  return res.data.data;
+}
+

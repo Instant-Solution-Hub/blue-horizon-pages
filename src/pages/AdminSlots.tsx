@@ -13,7 +13,7 @@ import { SlotRequestsModal, SlotRequest } from "@/components/admin-slots/SlotReq
 import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
 import { set } from "date-fns";
-import { fetchFEVisitsByWeekDay, fetchManagerVisitsByWeekDay } from "@/services/AdminSlotService";
+import { changeFeVisitStatus, changeManagerVisitStatus, fetchFEVisitsByWeekDay, fetchManagerVisitsByWeekDay } from "@/services/AdminSlotService";
 import { AdminSlotVisitListManager } from "@/components/admin-slots/AdminSlotVisitListManager";
 import { getAllPendingRequests, reviewSlotChangeRequest } from "@/services/SlotRequestService";
 import { holidayList } from "./SlotPlanning";
@@ -203,6 +203,28 @@ export default function AdminSlots() {
     return { currentWeek, currentDay };
   }
 
+    const handleFeStatusChange =async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
+    try {
+      let response = await changeFeVisitStatus(visitId, newStatus);
+      fetchFEVisits(selectedPersonId, selectedWeek, selectedDay);
+      toast({ title: "Status Updated", description: "Status has been updated successfully." });
+    } catch (error) {
+      toast({ title: "Status Updation Failed", description: "Status updation failed."});
+    }
+
+  };
+
+    const handleManagerStatusChange =async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
+    try {
+      let response = await changeManagerVisitStatus(visitId, newStatus);
+      fetchManagerVisits(selectedPersonId, selectedWeek, selectedDay);
+      toast({ title: "Status Updated", description: "Status has been updated successfully." });
+    } catch (error) {
+      toast({ title: "Status Updation Failed", description: "Status updation failed."});
+    }
+
+  };
+
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
@@ -309,10 +331,10 @@ export default function AdminSlots() {
                     holidays={holidayList}
                   />
                   {slotType === "manager" ? (
-                    <AdminSlotVisitListManager doctorVisits={managerVisits} pharmacistVisits={[]} />
+                    <AdminSlotVisitListManager doctorVisits={managerVisits} pharmacistVisits={[]} handleStatusChange={handleManagerStatusChange} />
                   ) : (
 
-                    <AdminSlotVisitList doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} />
+                    <AdminSlotVisitList doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} handleStatusChange={handleFeStatusChange} />
                   )}
                 </CardContent>
               </Card>

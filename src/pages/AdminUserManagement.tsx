@@ -8,34 +8,41 @@ import UpdateManagerModal from "@/components/admin-user-management/UpdateManager
 import FieldExecutiveList, { type FieldExecutive } from "@/components/admin-user-management/FieldExecutiveList";
 import AddFieldExecutiveModal from "@/components/admin-user-management/AddFieldExecutiveModal";
 import UpdateFieldExecutiveModal from "@/components/admin-user-management/UpdateFieldExecutiveModal";
-    
-    import { fetchManagerInfos, addManager, updateManager } from "@/services/ManagerService";
-    import { fetchFieldExecutiveInfos, addFieldExecutive, updateFieldExecutive } from "@/services/FEService";
 
-    export interface ManagerInfo {
-      password: string;
-      name: string;
-      email: string;
-      phone: string;
-      employeeCode: string;
-      department: string;
-      designation: string;
-      managedTerritories: string[];
-    }
+import { fetchManagerInfos, addManager, updateManager } from "@/services/ManagerService";
+import { fetchFieldExecutiveInfos, addFieldExecutive, updateFieldExecutive } from "@/services/FEService";
+import { boolean } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { manualLockPortal, manualUnlockPortal, processPortalUnlockRequest } from "@/services/PortalService";
+import { formatToIST } from "@/lib/utils";
 
-      export interface FEInfo {
-      password: string;
-      name: string;
-      email: string;
-      phone: string;
-      employeeCode: string;
-      territory: string;
-      region: string;
-      markets: string[];
-      managerId: number;
-    }
+export interface ManagerInfo {
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  employeeCode: string;
+  department: string;
+  designation: string;
+  managedTerritories: string[];
+}
+
+export interface FEInfo {
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  employeeCode: string;
+  isPortalLocked: boolean;
+  territory: string;
+  region: string;
+  markets: string[];
+  managerId: number;
+}
 
 const AdminUserManagement = () => {
+  const { toast } = useToast();
+  const adminId = Number(sessionStorage.getItem("userID"));
   // Managers state
   const [managers, setManagers] = useState<Manager[]>([]);
   const [isAddManagerOpen, setIsAddManagerOpen] = useState(false);
@@ -46,20 +53,21 @@ const AdminUserManagement = () => {
   const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
 
 
-    // Fetch managers and field executives from backend
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const managersData = await fetchManagerInfos();
-          setManagers(managersData);
-          const feData = await fetchFieldExecutiveInfos();
-          setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
-        } catch (error) {
-          // Handle error (show toast, etc.)
-        }
-      };
-      fetchData();
-    }, []);
+  // Fetch managers and field executives from backend
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const managersData = await fetchManagerInfos();
+      setManagers(managersData);
+      const feData = await fetchFieldExecutiveInfos();
+      setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId), isPortalLocked: fe.isPortalLocked ?? false })));
+    } catch (error) {
+      // Handle error (show toast, etc.)
+    }
+  };
   const [isAddFEOpen, setIsAddFEOpen] = useState(false);
   const [isUpdateFEOpen, setIsUpdateFEOpen] = useState(false);
   const [selectedFE, setSelectedFE] = useState<FieldExecutive | null>(null);
@@ -68,8 +76,8 @@ const AdminUserManagement = () => {
   const handleAddManager = async (manager: ManagerInfo) => {
     try {
       // Always include password from form data
-     const newManager = await addManager(manager);
-     setManagers((prev) => [...prev, newManager]);
+      const newManager = await addManager(manager);
+      setManagers((prev) => [...prev, newManager]);
     } catch (error) {
       // Handle error (show toast, etc.)
     }
@@ -82,20 +90,20 @@ const AdminUserManagement = () => {
 
   const handleUpdateManager = async (updatedManager: Manager) => {
     try {
-       await updateManager(Number(updatedManager.id), {
-      name: updatedManager.name,
-      employeeCode: updatedManager.employeeCode,
-      phone: updatedManager.phone,
-      department: updatedManager.department,
-      designation: updatedManager.designation,
-    });
-    
-    const managers = await fetchManagerInfos();
-      
+      await updateManager(Number(updatedManager.id), {
+        name: updatedManager.name,
+        employeeCode: updatedManager.employeeCode,
+        phone: updatedManager.phone,
+        department: updatedManager.department,
+        designation: updatedManager.designation,
+      });
+
+      const managers = await fetchManagerInfos();
+
       setManagers(managers);
       // Optionally refetch field executives if manager name changes
       const feData = await fetchFieldExecutiveInfos();
-        setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
+      setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
     } catch (error) {
       // Handle error (show toast, etc.)
     }
@@ -106,10 +114,10 @@ const AdminUserManagement = () => {
     try {
       await addFieldExecutive(fe);
       const feData = await fetchFieldExecutiveInfos();
-        setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
+      setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
 
-          const managers = await fetchManagerInfos();
-      
+      const managers = await fetchManagerInfos();
+
       setManagers(managers);
     } catch (error) {
       // Handle error (show toast, etc.)
@@ -121,24 +129,115 @@ const AdminUserManagement = () => {
     setIsUpdateFEOpen(true);
   };
 
+  const lockOrUnlockFePortal = async (fe: FieldExecutive) => {
+    if (fe.isPortalLocked) {
+      let obj = {
+        "adminId": adminId,
+        "userId": fe.id,
+        "userType": "FIELD_EXECUTIVE",
+       "lockDate": new Date(),
+        "reason": ""
+      }
+      let response = await manualUnlockPortal(obj);
+      toast({
+        title: "Portal Unlocked",
+        description: "Portal unlocked successfully.",
+      });
+    } else {
+
+      let obj = {
+        "adminId": adminId,
+        "userId": fe.id,
+        "userType": "FIELD_EXECUTIVE",
+        "lockDate": new Date(),
+        "reason": "Locked By admin"
+      }
+      let response = await manualLockPortal(obj);
+      toast({
+        title: "Portal locked",
+        description: "Portal Locked successfully.",
+      });
+
+    }
+    fetchData();
+
+  }
+
+  const lockOrUnlockManagerPortal = async (manager: Manager) => {
+    if (manager.isPortalLocked) {
+      let obj = {
+        "adminId": adminId,
+        "userId": manager.id,
+        "userType": "MANAGER",
+        "lockDate": new Date(),
+        "reason": ""
+      }
+      let response = await manualUnlockPortal(obj);
+      toast({
+        title: "Portal Unlocked",
+        description: "Portal unlocked successfully.",
+      });
+    } else {
+
+      let obj = {
+        "adminId": adminId,
+        "userId": manager.id,
+        "userType": "MANAGER",
+       "lockDate": new Date(),
+        "reason": "Locked By admin"
+      }
+      let response = await manualLockPortal(obj);
+      toast({
+        title: "Portal locked",
+        description: "Portal Locked successfully.",
+      });
+
+    }
+    fetchData();
+  }
+
+  const handleApproveRequest = async (requestId: number) => {
+    try {
+      let obj = {
+        "adminId": adminId,
+        "approve": true,
+        "comments": "Approved by admin"
+      }
+      const response = await processPortalUnlockRequest(requestId, obj);
+
+      toast({
+        title: "Portal Unlocked",
+        description: "Portal unlocked successfully.",
+      });
+
+    } catch (error) {
+      console.error("Error approving request:", error);
+      toast({
+        title: "Unlock Failed",
+        description: "Failed to unlock. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleUpdateFE = async (updatedFE: FieldExecutive) => {
     try {
       await updateFieldExecutive(
         Number(updatedFE.id),
         {
-            name: updatedFE.name,
-            phone: updatedFE.phone,
-            territory: updatedFE.territory,
-            markets: updatedFE.markets,
-            managerId: Number(updatedFE.managerId),
-            region: updatedFE.region
+          name: updatedFE.name,
+          phone: updatedFE.phone,
+          territory: updatedFE.territory,
+          markets: updatedFE.markets,
+          managerId: Number(updatedFE.managerId),
+          region: updatedFE.region
         }
       );
       const feData = await fetchFieldExecutiveInfos();
-       setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
+      setFieldExecutives(feData.map(fe => ({ ...fe, id: String(fe.id), managerId: String(fe.managerId) })));
 
-         const managers = await fetchManagerInfos();
-      
+      const managers = await fetchManagerInfos();
+
       setManagers(managers);
     } catch (error) {
       // Handle error (show toast, etc.)
@@ -159,7 +258,10 @@ const AdminUserManagement = () => {
                 Add Manager
               </Button>
             </div>
-            <ManagerList managers={managers} onEdit={handleEditManager} />
+            <ManagerList managers={managers} onEdit={handleEditManager}
+              onLockPortal={(manager) => {
+                lockOrUnlockManagerPortal(manager)
+              }} />
           </section>
 
           {/* Field Executives Section */}
@@ -171,7 +273,11 @@ const AdminUserManagement = () => {
                 Add Field Executive
               </Button>
             </div>
-            <FieldExecutiveList fieldExecutives={fieldExecutives} onEdit={handleEditFE} />
+            <FieldExecutiveList fieldExecutives={fieldExecutives} onEdit={handleEditFE}
+              onLockPortal={(fe) => {
+                lockOrUnlockFePortal(fe);
+              }}
+            />
           </section>
         </div>
       </main>
