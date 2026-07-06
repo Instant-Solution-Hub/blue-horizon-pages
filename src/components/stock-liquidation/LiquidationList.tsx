@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, X, Package } from "lucide-react";
 import { LiquidationPlan } from "./AddLiquidationModal";
 import { ProductStock } from "./StockUpdateTab";
+import { cn } from "@/lib/utils";
 
 interface LiquidationListProps {
   plans: LiquidationPlan[];
@@ -168,19 +169,43 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
                       const l2 = plan.liquidated2 ?? 0;
                       const l3 = plan.liquidated3 ?? 0;
                       const total = l1 + l2 + l3;
+                      const progress = plan.targetLiquidation
+                        ? Math.min(100, Math.round((total / plan.targetLiquidation) * 100))
+                        : 0;
 
-                      const renderBlockInput = (
+                      const renderBlockCard = (
                         blockNum: 1 | 2 | 3,
                         value: number,
                         label: string,
+                        range: string,
                       ) => {
                         const isActive = activeBlock === blockNum;
+                        const isPast = activeBlock > blockNum;
                         const others =
                           total - (blockNum === 1 ? l1 : blockNum === 2 ? l2 : l3);
                         const maxAllowed = Math.max(0, plan.targetLiquidation - others);
                         return (
-                          <div>
-                            <p className="text-xs text-muted-foreground">{label}</p>
+                          <div
+                            className={cn(
+                              "rounded-lg border p-3 transition-colors",
+                              isActive
+                                ? "border-primary/40 bg-primary/5"
+                                : "bg-muted/30",
+                            )}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-xs font-medium text-foreground">{label}</p>
+                              {isActive ? (
+                                <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-[10px] px-1.5 py-0">
+                                  Active
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                  {isPast ? "Closed" : "Upcoming"}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mb-2">{range}</p>
                             <Input
                               type="number"
                               min={0}
@@ -199,22 +224,51 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
                                     : "liquidated3";
                                 onUpdate(plan.id, { [key]: v } as Partial<LiquidationPlan>);
                               }}
-                              className="mt-1 h-8 text-sm"
+                              className="h-8 text-sm"
                             />
                           </div>
                         );
                       };
 
                       return (
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-4 flex-1">
+                        <div className="space-y-4">
+                          {/* Header row: doctor + status + edit */}
+                          <div className="flex items-start justify-between gap-2">
                             <div>
                               <p className="text-xs text-muted-foreground">Doctor</p>
-                              <p className="font-medium text-sm">{plan.doctor}</p>
+                              <p className="font-semibold text-base text-foreground">
+                                {plan.doctor}
+                              </p>
                             </div>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={plan.status === "APPROVED" ? "default" : "secondary"}
+                                className={
+                                  plan.status === "APPROVED"
+                                    ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                    : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                                }
+                              >
+                                {plan.status}
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEdit(plan)}
+                              >
+                                <Pencil className="w-4 h-4 mr-1" />
+                                Edit
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Info grid */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-lg bg-muted/30 p-3">
                             <div>
                               <p className="text-xs text-muted-foreground">Available Qty</p>
-                              <p className="font-medium text-sm">{getProductStock(plan.product)}</p>
+                              <p className="font-medium text-sm">
+                                {getProductStock(plan.product)}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Target</p>
@@ -232,34 +286,32 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
                                 {plan.medicalShopName || "-"}
                               </p>
                             </div>
-                            {renderBlockInput(1, l1, "Day 1-10")}
-                            {renderBlockInput(2, l2, "Day 11-20")}
-                            {renderBlockInput(3, l3, "Day 21-30")}
-                            <div>
-                              <p className="text-xs text-muted-foreground">
-                                Total ({total}/{plan.targetLiquidation})
+                          </div>
+
+                          {/* Progress */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="text-xs font-medium text-foreground">
+                                Liquidation Progress
                               </p>
-                              <Badge
-                                variant={plan.status === "APPROVED" ? "default" : "secondary"}
-                                className={
-                                  plan.status === "APPROVED"
-                                    ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                                    : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                                }
-                              >
-                                {plan.status}
-                              </Badge>
+                              <p className="text-xs text-muted-foreground">
+                                {total} / {plan.targetLiquidation} ({progress}%)
+                              </p>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                              <div
+                                className="h-full bg-primary transition-all"
+                                style={{ width: `${progress}%` }}
+                              />
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(plan)}
-                            className="self-end lg:self-center"
-                          >
-                            <Pencil className="w-4 h-4 mr-1" />
-                            Edit
-                          </Button>
+
+                          {/* 10-day blocks */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {renderBlockCard(1, l1, "Block 1", "Day 1 – 10")}
+                            {renderBlockCard(2, l2, "Block 2", "Day 11 – 20")}
+                            {renderBlockCard(3, l3, "Block 3", "Day 21 – 30")}
+                          </div>
                         </div>
                       );
                     })()
