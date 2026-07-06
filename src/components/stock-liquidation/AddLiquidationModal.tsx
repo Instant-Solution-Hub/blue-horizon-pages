@@ -43,6 +43,9 @@ export interface LiquidationPlan {
   medicalShopName?: string;
   status: "PENDING" | "APPROVED";
   createdAt: Date;
+  liquidated1?: number;
+  liquidated2?: number;
+  liquidated3?: number;
 }
 
 export interface ProductStockData {
