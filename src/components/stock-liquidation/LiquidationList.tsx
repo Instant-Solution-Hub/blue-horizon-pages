@@ -161,57 +161,108 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
                       </div>
                     </div>
                   ) : (
-                    // View Mode
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 flex-1">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Doctor</p>
-                          <p className="font-medium text-sm">{plan.doctor}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Available Qty</p>
-                          <p className="font-medium text-sm">{getProductStock(plan.product)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Target</p>
-                          <p className="font-medium text-sm text-primary">
-                            {plan.targetLiquidation}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Market</p>
-                          <p className="font-medium text-sm">{plan.marketName}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Medical Shop</p>
-                          <p className="font-medium text-sm">
-                            {plan.medicalShopName || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Status</p>
-                          <Badge
-                            variant={plan.status === "APPROVED" ? "default" : "secondary"}
-                            className={
-                              plan.status === "APPROVED"
-                                ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                                : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                            }
+                    (() => {
+                      const day = new Date().getDate();
+                      const activeBlock = day <= 10 ? 1 : day <= 20 ? 2 : 3;
+                      const l1 = plan.liquidated1 ?? 0;
+                      const l2 = plan.liquidated2 ?? 0;
+                      const l3 = plan.liquidated3 ?? 0;
+                      const total = l1 + l2 + l3;
+
+                      const renderBlockInput = (
+                        blockNum: 1 | 2 | 3,
+                        value: number,
+                        label: string,
+                      ) => {
+                        const isActive = activeBlock === blockNum;
+                        const others =
+                          total - (blockNum === 1 ? l1 : blockNum === 2 ? l2 : l3);
+                        const maxAllowed = Math.max(0, plan.targetLiquidation - others);
+                        return (
+                          <div>
+                            <p className="text-xs text-muted-foreground">{label}</p>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={maxAllowed}
+                              value={value}
+                              disabled={!isActive}
+                              onChange={(e) => {
+                                let v = Number(e.target.value) || 0;
+                                if (v < 0) v = 0;
+                                if (v > maxAllowed) v = maxAllowed;
+                                const key =
+                                  blockNum === 1
+                                    ? "liquidated1"
+                                    : blockNum === 2
+                                    ? "liquidated2"
+                                    : "liquidated3";
+                                onUpdate(plan.id, { [key]: v } as Partial<LiquidationPlan>);
+                              }}
+                              className="mt-1 h-8 text-sm"
+                            />
+                          </div>
+                        );
+                      };
+
+                      return (
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-4 flex-1">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Doctor</p>
+                              <p className="font-medium text-sm">{plan.doctor}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Available Qty</p>
+                              <p className="font-medium text-sm">{getProductStock(plan.product)}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Target</p>
+                              <p className="font-medium text-sm text-primary">
+                                {plan.targetLiquidation}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Market</p>
+                              <p className="font-medium text-sm">{plan.marketName}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Medical Shop</p>
+                              <p className="font-medium text-sm">
+                                {plan.medicalShopName || "-"}
+                              </p>
+                            </div>
+                            {renderBlockInput(1, l1, "Day 1-10")}
+                            {renderBlockInput(2, l2, "Day 11-20")}
+                            {renderBlockInput(3, l3, "Day 21-30")}
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Total ({total}/{plan.targetLiquidation})
+                              </p>
+                              <Badge
+                                variant={plan.status === "APPROVED" ? "default" : "secondary"}
+                                className={
+                                  plan.status === "APPROVED"
+                                    ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                    : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                                }
+                              >
+                                {plan.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(plan)}
+                            className="self-end lg:self-center"
                           >
-                            {plan.status}
-                          </Badge>
+                            <Pencil className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
                         </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(plan)}
-                        className="self-end lg:self-center"
-                      >
-                        <Pencil className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
+                      );
+                    })()
                   )}
                 </div>
               ))}
