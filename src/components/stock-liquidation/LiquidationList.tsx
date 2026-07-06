@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, X, Package } from "lucide-react";
 import { LiquidationPlan } from "./AddLiquidationModal";
 import { ProductStock } from "./StockUpdateTab";
+import { cn } from "@/lib/utils";
 
 interface LiquidationListProps {
   plans: LiquidationPlan[];
