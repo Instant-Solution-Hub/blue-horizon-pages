@@ -19,6 +19,7 @@ import {
   UsersRound,
   CalendarRange,
   CalendarCheck,
+  PackageOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ const AdminSidebar = () => {
     { icon: FileText, label: "Leave Requests", path: "/admin-dashboard/leave-requests" },
     { icon: UserPlus, label: "Manager Joining", path: "/admin-dashboard/manager-joining" },
     { icon: Package, label: "Stock Update", path: "/admin-dashboard/stock-update" },
+    { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
