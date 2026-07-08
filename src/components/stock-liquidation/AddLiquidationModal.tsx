@@ -41,7 +41,7 @@ export interface LiquidationPlan {
   achievedUnits: number;
   marketName: string;
   medicalShopName?: string;
-  status: "PENDING" | "APPROVED";
+  status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: Date;
   liquidated1?: number;
   liquidated2?: number;
