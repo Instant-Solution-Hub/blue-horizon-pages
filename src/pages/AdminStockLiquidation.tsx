@@ -6,8 +6,7 @@ import StatsCards from "@/components/stock-liquidation/StatsCards";
 import { PersonSelector, Person } from "@/components/admin-slots/PersonSelector";
 import { LiquidationPlan } from "@/components/stock-liquidation/AddLiquidationModal";
 
-interface LiquidationPlanWithMeta extends Omit<LiquidationPlan, "status"> {
-  status: "PENDING" | "APPROVED" | "REJECTED";
+interface LiquidationPlanWithMeta extends LiquidationPlan {
   submittedBy: string;
   employeeId: number;
 }
