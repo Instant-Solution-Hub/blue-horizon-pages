@@ -1,20 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Package, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { LiquidationPlan } from "@/components/stock-liquidation/AddLiquidationModal";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-interface ManagerLiquidationListProps {
+interface AdminLiquidationListProps {
   plans: LiquidationPlan[];
-  onUpdateStatus: (id: string, status: "APPROVED" | "REJECTED") => Promise<void>;
 }
 
-const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationListProps) => {
-  const { toast } = useToast();
-
+const AdminLiquidationList = ({ plans }: AdminLiquidationListProps) => {
+    console.log("AdminLiquidationList plans:", plans);
   const groupedPlans = plans.reduce((acc, plan) => {
     if (!acc[plan.product]) acc[plan.product] = [];
     acc[plan.product].push(plan);
@@ -22,20 +18,6 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
   }, {} as Record<string, LiquidationPlan[]>);
 
   const sortedProducts = Object.keys(groupedPlans).sort();
-
-  const handleApprove = async (id: string) => {
-    await onUpdateStatus(id, "APPROVED");
-    toast({ title: "Approved", description: "Liquidation plan has been approved." });
-  };
-
-  const handleReject = async (id: string) => {
-    await onUpdateStatus(id, "REJECTED");
-    toast({
-      title: "Rejected",
-      description: "Liquidation plan has been rejected.",
-      variant: "destructive",
-    });
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -66,7 +48,7 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Package className="w-12 h-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground text-center">
-            No liquidation plans submitted by your team yet.
+            No liquidation plans found for the selected employee.
           </p>
         </CardContent>
       </Card>
@@ -79,12 +61,11 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
   const renderBlockCard = (blockNum: 1 | 2 | 3, value: number, label: string, range: string) => {
     const isActive = activeBlock === blockNum;
     const isPast = activeBlock > blockNum;
-
     return (
       <div
         className={cn(
           "rounded-lg border p-3 transition-colors",
-          isActive ? "border-primary/40 bg-primary/5" : "bg-muted/30"
+          isActive ? "border-primary/40 bg-primary/5" : "bg-muted/30",
         )}
       >
         <div className="flex items-center justify-between mb-2">
@@ -134,6 +115,7 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                     key={plan.id}
                     className="border rounded-lg p-4 bg-card hover:bg-accent/5 transition-colors space-y-4"
                   >
+                    {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-xs text-muted-foreground">Doctor</p>
@@ -141,28 +123,10 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                       </div>
                       <div className="flex items-center gap-2">
                         {getStatusBadge(plan.status)}
-                        {plan.status === "PENDING" && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleApprove(plan.id)}
-                              className="gap-1 bg-emerald-600 hover:bg-emerald-700"
-                            >
-                              <CheckCircle2 className="w-4 h-4" /> Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleReject(plan.id)}
-                              className="gap-1"
-                            >
-                              <XCircle className="w-4 h-4" /> Reject
-                            </Button>
-                          </>
-                        )}
                       </div>
                     </div>
 
+                    {/* Info grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-lg bg-muted/30 p-3">
                       <div>
                         <p className="text-xs text-muted-foreground">Available Qty</p>
@@ -182,6 +146,7 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                       </div>
                     </div>
 
+                    {/* Progress */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <p className="text-xs font-medium text-foreground">Liquidation Progress</p>
@@ -190,13 +155,11 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
                         </p>
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full bg-primary transition-all"
-                          style={{ width: `${progress}%` }}
-                        />
+                        <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
 
+                    {/* Blocks */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {renderBlockCard(1, l1, "Block 1", "Day 1 – 10")}
                       {renderBlockCard(2, l2, "Block 2", "Day 11 – 20")}
@@ -213,4 +176,4 @@ const ManagerLiquidationList = ({ plans, onUpdateStatus }: ManagerLiquidationLis
   );
 };
 
-export default ManagerLiquidationList;
+export default AdminLiquidationList;

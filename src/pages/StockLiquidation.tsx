@@ -59,19 +59,26 @@ export const StockLiquidation = () => {
 
 
   const mapApiToLiquidationPlan = (apiPlan: any): LiquidationPlan => ({
-  id: apiPlan.id.toString(),
+    id: apiPlan.id.toString(),
     productId: apiPlan.productId,
-  doctorId: apiPlan.doctorId,
-  product: apiPlan.productName,
-  quantity: apiPlan.quantity, // or remaining if you add later
-  doctor: apiPlan.doctorName,
-  targetLiquidation: apiPlan.targetLiquidation,
-  achievedUnits: apiPlan.achievedUnits,
-  marketName: apiPlan.marketName,
-  medicalShopName: apiPlan.medicalShopName,
-  status: apiPlan.managerApprovalStatus, // backend status optional for now
-  createdAt: new Date(apiPlan.createdAt),
-});
+    doctorId: apiPlan.doctorId,
+    product: apiPlan.productName,
+    quantity: apiPlan.quantity, // or remaining if you add later
+    doctor: apiPlan.doctorName,
+    targetLiquidation: apiPlan.targetLiquidation,
+    achievedUnits:
+      apiPlan.achievedUnits ??
+      ((apiPlan.liquidated1 || 0) +
+        (apiPlan.liquidated2 || 0) +
+        (apiPlan.liquidated3 || 0)),
+    liquidated1: apiPlan.liquidated1 ?? 0,
+    liquidated2: apiPlan.liquidated2 ?? 0,
+    liquidated3: apiPlan.liquidated3 ?? 0,
+    marketName: apiPlan.marketName,
+    medicalShopName: apiPlan.medicalShopName,
+    status: apiPlan.managerApprovalStatus, // backend status optional for now
+    createdAt: new Date(apiPlan.createdAt),
+  });
   const[loading,setLoading] = useState(false);
 
  const handleAddPlan = async (payload: any , quantity:number) => {
@@ -90,7 +97,10 @@ export const StockLiquidation = () => {
         status: "PENDING",
         createdAt: new Date(response.createdAt),
         productId: response.productId,
-        doctorId: response.doctorId
+        doctorId: response.doctorId,
+        liquidated1: 0,
+        liquidated2: 0,
+        liquidated3: 0,
     };
     
 
@@ -137,45 +147,44 @@ export const StockLiquidation = () => {
  }
 
   const handleUpdatePlan = async (
-  plan: LiquidationPlan,
-  updates: Partial<LiquidationPlan>
-) => {
-  try {
-    const payload = {
-      productId: plan.productId,
-      doctorId: plan.doctorId,
-      marketName: updates.marketName ?? plan.marketName,
-      medicalShopName: updates.medicalShopName ?? plan.medicalShopName,
-      targetLiquidation: updates.targetLiquidation ?? plan.targetLiquidation,
-      deadline: new Date().toISOString().replace("Z", ""),
-      strategy: "",
-    };
+    plan: LiquidationPlan,
+    updates: Partial<LiquidationPlan>
+  ) => {
+    try {
+      const payload = {
+        productId: plan.productId,
+        doctorId: plan.doctorId,
+        marketName: updates.marketName ?? plan.marketName,
+        medicalShopName: updates.medicalShopName ?? plan.medicalShopName,
+        targetLiquidation: updates.targetLiquidation ?? plan.targetLiquidation,
+        liquidated1: updates.liquidated1 ?? plan.liquidated1 ?? 0,
+        liquidated2: updates.liquidated2 ?? plan.liquidated2 ?? 0,
+        liquidated3: updates.liquidated3 ?? plan.liquidated3 ?? 0,
+        deadline: new Date().toISOString().replace("Z", ""),
+        strategy: "",
+      };
 
-    const updated = await updateLiquidationPlan(
-      plan.id,
-      feId,
-      payload
-    );
+      const updated = await updateLiquidationPlan(plan.id, feId, payload);
 
-    setPlans((prev) =>
-      prev.map((p) =>
-        p.id === plan.id ? mapApiToLiquidationPlan(updated) : p
-      )
-    );
+      setPlans((prev) =>
+        prev.map((p) =>
+          p.id === plan.id ? mapApiToLiquidationPlan(updated) : p
+        )
+      );
 
-    toast({
-      title: "Success",
-      description: "Liquidation plan updated successfully",
-    });
-  } catch (e) {
-    console.log(e);
-    toast({
-      title: "Error",
-      description: "Failed to update liquidation plan",
-      variant: "destructive",
-    });
-  }
-};
+      toast({
+        title: "Success",
+        description: "Liquidation plan updated successfully",
+      });
+    } catch (e) {
+      console.log(e);
+      toast({
+        title: "Error",
+        description: "Failed to update liquidation plan",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);

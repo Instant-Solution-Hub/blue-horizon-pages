@@ -63,10 +63,22 @@ export const updateLiquidationPlan = async (
   return res.data;
 };
 
- export const updateLiquidationPlanStatus = async (id: string, status: "APPROVED" | "REJECTED") => {
+export const fetchCurrentMonthLiquidationPlans = async () => {
+  const res = await API.get(`/fe/liquidation-plans/current-month`);
+  return res.data.data ?? res.data;
+};
+
+export const fetchLiquidationPlansByDateRange = async (fromDate: string, toDate: string) => {
+  const res = await API.get(`/fe/liquidation-plans/date-range`, {
+    params: { fromDate, toDate },
+  });
+  return res.data.data ?? res.data;
+};
+
+export const updateLiquidationPlanStatus = async (id: string, status: "APPROVED" | "REJECTED") => {
   const res = await API.put(`/fe/liquidation-plans/${id}/approval`, {
         status,
       });
 
-      return res.data;
-    }
+  return res.data;
+}

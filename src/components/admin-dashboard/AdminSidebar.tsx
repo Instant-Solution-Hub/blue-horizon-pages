@@ -20,6 +20,7 @@ import {
   BellDot,
   ClipboardList,
   CalendarCheck,
+  PackageOpen,
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ const AdminSidebar = () => {
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     // { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
      { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
+      { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
     { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
     { icon: CalendarCheck, label: "Slot Plan Requests", path: "/admin-dashboard/slot-plan-day-requests" },

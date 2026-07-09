@@ -14,6 +14,13 @@ export interface FieldExecutive {
   managerName:string;
 }
 
+export interface FieldExecutiveBasic {
+  id: number;
+  name: string;
+  employeeCode: string;
+  territory?: string;
+}
+
 export interface FEInfo{
   isPortalLocked: boolean;
    id: number;
@@ -59,6 +66,12 @@ export const fetchFEsByManager = async (managerId: number): Promise<FieldExecuti
     return [];
   }
 };
+
+export const fetchFieldExecutivesBasic = async (): Promise<FieldExecutiveBasic[]> => {
+  const res = await API.get(`/field-executives/basic`);
+  return res.data.data ?? res.data;
+};
+
 export const fetchFieldExecutiveInfos = async () : Promise<FEInfo[]> => {
   const res = await API.get(`/field-executives`);
   console.log(res);

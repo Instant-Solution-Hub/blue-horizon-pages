@@ -1,35 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
-import { PackageOpen } from "lucide-react";
+import { PackageOpen, X, CalendarIcon } from "lucide-react";
 import ManagerLiquidationList from "@/components/manager-stock-liquidation/ManagerLiquidationList";
 import StatsCards from "@/components/stock-liquidation/StatsCards";
 import { PersonSelector, Person } from "@/components/admin-slots/PersonSelector";
-import { fetchEmployees , fetchLiquidationPlansForManager } from "@/services/ManagerService";
+import {
+  fetchEmployees,
+  fetchLiquidationPlansForManager,
+  fetchLiquidationPlansByDateRange,
+} from "@/services/ManagerService";
 import { updateLiquidationPlanStatus } from "@/services/LiquidationService";
+import { LiquidationPlan } from "@/components/stock-liquidation/AddLiquidationModal";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
-
-interface LiquidationPlanWithMeta {
-  id: string;
-  product: string;
-  quantity: number;
-  doctor: string;
-  targetLiquidation: number;
-  achievedUnits: number;
-  marketName: string;
-  medicalShopName?: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  createdAt: Date;
+interface ManagerLiquidationPlan extends LiquidationPlan {
   employeeId: number;
 }
 
 const ManagerStockLiquidation = () => {
   const managerId = Number(sessionStorage.getItem("userID"));
 
-  const [plans, setPlans] = useState<LiquidationPlanWithMeta[]>([]);
+  const [plans, setPlans] = useState<ManagerLiquidationPlan[]>([]);
   const [employees, setEmployees] = useState<Person[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] =
     useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [toDate, setToDate] = useState<Date | undefined>();
 
   // 🔹 Fetch Employees
   const fetchEmployeesData = async () => {
@@ -41,10 +43,40 @@ const ManagerStockLiquidation = () => {
   const fetchLiquidationPlans = async () => {
     const res = await fetchLiquidationPlansForManager(managerId);
 
-    const mappedPlans = res.map((p: any) => ({
+    const mappedPlans: ManagerLiquidationPlan[] = res.map((p: any) => ({
       ...p,
       id: String(p.id),
       createdAt: new Date(p.createdAt),
+      product: p.productName ?? p.product ?? "",
+      doctor: p.doctorName ?? p.doctor ?? "",
+      productId: p.productId ?? p.productID ?? 0,
+      doctorId: p.doctorId ?? p.doctorID ?? 0,
+      liquidated1: Number(p.liquidated1 ?? 0),
+      liquidated2: Number(p.liquidated2 ?? 0),
+      liquidated3: Number(p.liquidated3 ?? 0),
+      status: p.managerApprovalStatus ?? p.status ?? "PENDING",
+    }));
+
+    setPlans(mappedPlans);
+  };
+
+  const fetchLiquidationPlansInRange = async (from: Date, to: Date) => {
+    const fromStr = format(from, "yyyy-MM-dd");
+    const toStr = format(to, "yyyy-MM-dd");
+    const res = await fetchLiquidationPlansByDateRange(managerId, fromStr, toStr);
+
+    const mappedPlans: ManagerLiquidationPlan[] = res.map((p: any) => ({
+      ...p,
+      id: String(p.id),
+      createdAt: new Date(p.createdAt),
+      product: p.productName ?? p.product ?? "",
+      doctor: p.doctorName ?? p.doctor ?? "",
+      productId: p.productId ?? p.productID ?? 0,
+      doctorId: p.doctorId ?? p.doctorID ?? 0,
+      liquidated1: Number(p.liquidated1 ?? 0),
+      liquidated2: Number(p.liquidated2 ?? 0),
+      liquidated3: Number(p.liquidated3 ?? 0),
+      status: p.managerApprovalStatus ?? p.status ?? "PENDING",
     }));
 
     setPlans(mappedPlans);
@@ -67,6 +99,21 @@ const ManagerStockLiquidation = () => {
 
     init();
   }, []);
+
+  useEffect(() => {
+    if (fromDate && toDate) {
+      (async () => {
+        try {
+          setLoading(true);
+          await fetchLiquidationPlansInRange(fromDate, toDate);
+        } catch (err) {
+          console.error("Error fetching manager liquidation plans by date range:", err);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [fromDate, toDate]);
 
   const filteredPlans = selectedEmployeeId
     ? plans.filter((p) => p.employeeId === selectedEmployeeId)
@@ -108,6 +155,58 @@ const ManagerStockLiquidation = () => {
             </div>
           </div>
 
+          {/* Date Filter */}
+          <div className="flex flex-wrap items-end gap-3 p-4 border rounded-lg bg-card">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs">From Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "PPP") : "Pick date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs">To Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "PPP") : "Pick date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Button variant="ghost" onClick={async () => {
+              setFromDate(undefined);
+              setToDate(undefined);
+              setLoading(true);
+              try {
+                await fetchLiquidationPlans();
+              } catch (err) {
+                console.error("Error reloading current month plans:", err);
+              } finally {
+                setLoading(false);
+              }
+            }} className="gap-2">
+              <X className="h-4 w-4" /> Clear
+            </Button>
+          </div>
+
           {/* Employee Selector */}
           <PersonSelector
             persons={employees}
@@ -118,9 +217,9 @@ const ManagerStockLiquidation = () => {
 
           {selectedEmployeeId && !loading && (
             <>
-              <StatsCards plans={filteredPlans as any} />
+              <StatsCards plans={filteredPlans} />
               <ManagerLiquidationList
-                plans={filteredPlans as any}
+                plans={filteredPlans}
                 onUpdateStatus={handleUpdateStatus}
               />
             </>
