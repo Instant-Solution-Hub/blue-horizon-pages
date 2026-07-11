@@ -75,7 +75,7 @@ interface AddPOBModalProps {
 interface Product {
   id: number;
   name: string;
-  newPts: number;
+  pts: number;
 }
 
 
@@ -109,7 +109,7 @@ const [loadingProducts, setLoadingProducts] = useState(false);
     
 
       setProductsMaster(res || []);
-      console.log(res.data);
+      console.log(res);
     } catch (err) {
       console.error("Failed to fetch products", err);
     } finally {
@@ -178,8 +178,8 @@ const addProductRow = () => {
     productId: selectedProduct.id,
     productName: selectedProduct.name,
     qty: newQty,
-    price: selectedProduct.newPts,
-    total: selectedProduct.newPts * newQty,
+    price: selectedProduct.pts,
+    total: selectedProduct.pts * newQty,
   };
 
   setProducts([...products, newRow]);
@@ -362,7 +362,7 @@ const filteredProducts = productsMaster
                                   newProduct === product.name ? "opacity-100" : "opacity-0"
                                 )}
                               />
-                              {product.name} - ₹{product.newPts}
+                              {product.name} - ₹{product.pts}
                             </CommandItem>
                           ))}
                         </CommandGroup>

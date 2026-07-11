@@ -126,7 +126,7 @@ const handleSave = async (product: ProductSale) => {
               <TableRow className="bg-primary/5 hover:bg-primary/5">
                 <TableHead className="w-16 font-semibold text-primary">SL.NO</TableHead>
                 <TableHead className="font-semibold text-primary">Product Name</TableHead>
-                <TableHead className="font-semibold text-primary">New PTS (₹)</TableHead>
+                <TableHead className="font-semibold text-primary">PTS (₹)</TableHead>
                 <TableHead className="font-semibold text-primary">Qty</TableHead>
                 <TableHead className="font-semibold text-primary">Sales (₹)</TableHead>
                 <TableHead className="w-24 text-center font-semibold text-primary">Actions</TableHead>
