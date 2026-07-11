@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
@@ -20,12 +20,21 @@ import {
   CalendarRange,
   CalendarCheck,
   PackageOpen,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPendingCount, subscribe } from "@/lib/prescriptionStore";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [pendingChangeRequests, setPendingChangeRequests] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    const update = () => setPendingChangeRequests(getPendingCount());
+    update();
+    return subscribe(update);
+  }, []);
 
   const menuItems = [
     { icon: Home, label: "Home", path: "/admin-dashboard" },
@@ -39,6 +48,7 @@ const AdminSidebar = () => {
     { icon: Package, label: "Stock Update", path: "/admin-dashboard/stock-update" },
     { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+    { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
@@ -102,7 +112,12 @@ const AdminSidebar = () => {
                 )}
               />
               {!isCollapsed && (
-                <span className="font-medium text-sm">{item.label}</span>
+                <span className="font-medium text-sm flex-1">{item.label}</span>
+              )}
+              {"badge" in item && (item as any).badge > 0 && (
+                <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-xs font-semibold flex items-center justify-center">
+                  {(item as any).badge}
+                </span>
               )}
             </Link>
           );

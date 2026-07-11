@@ -44,6 +44,8 @@ import ManagerStockLiquidation from "./pages/ManagerStockLiquidation";
 import ManagerVisitReports from "./pages/ManagerVisitReports";
 import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
+import AssignedDoctors from "./pages/AssignedDoctors";
+import AdminDoctorChangeRequests from "./pages/AdminDoctorChangeRequests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,7 @@ const App = () => (
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
           <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
+          <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
           {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
@@ -94,6 +97,7 @@ const App = () => (
           <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
           <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
           <Route path="/admin-dashboard/stock-liquidation" element={<AdminStockLiquidation />} />
+          <Route path="/admin-dashboard/doctor-change-requests" element={<AdminDoctorChangeRequests />} />
           {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
           <Route path="/super-admin-dashboard/products" element={<SuperAdminProducts />} />
