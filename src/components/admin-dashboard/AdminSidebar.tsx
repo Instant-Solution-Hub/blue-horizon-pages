@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
@@ -20,8 +20,10 @@ import {
   CalendarRange,
   CalendarCheck,
   PackageOpen,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPendingCount, subscribe } from "@/lib/prescriptionStore";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
