@@ -27,7 +27,14 @@ import { getPendingCount, subscribe } from "@/lib/prescriptionStore";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [pendingChangeRequests, setPendingChangeRequests] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    const update = () => setPendingChangeRequests(getPendingCount());
+    update();
+    return subscribe(update);
+  }, []);
 
   const menuItems = [
     { icon: Home, label: "Home", path: "/admin-dashboard" },
@@ -41,6 +48,7 @@ const AdminSidebar = () => {
     { icon: Package, label: "Stock Update", path: "/admin-dashboard/stock-update" },
     { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+    { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
     { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
