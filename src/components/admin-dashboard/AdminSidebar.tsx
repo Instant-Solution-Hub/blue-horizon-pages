@@ -112,7 +112,12 @@ const AdminSidebar = () => {
                 )}
               />
               {!isCollapsed && (
-                <span className="font-medium text-sm">{item.label}</span>
+                <span className="font-medium text-sm flex-1">{item.label}</span>
+              )}
+              {"badge" in item && (item as any).badge > 0 && (
+                <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-xs font-semibold flex items-center justify-center">
+                  {(item as any).badge}
+                </span>
               )}
             </Link>
           );
