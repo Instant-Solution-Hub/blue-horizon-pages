@@ -15,6 +15,8 @@ import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { StockLiquidation } from "./pages/StockLiquidation";
+import AssignedDoctors from "./pages/AssignedDoctors";
+import AdminDoctorChangeRequests from "./pages/AdminDoctorChangeRequests";
 
 
 
@@ -64,6 +66,7 @@ import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 
 
 
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -88,6 +91,8 @@ const App = () => (
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
+                    <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
+
 
            <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/visit-compliance" element={<VisitCompliance />} />
@@ -124,6 +129,7 @@ const App = () => (
                <Route path="/admin-portal-requests" element={<AdminPortalRequests />} />
                <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
                <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
+               <Route path="/admin-dashboard/doctor-change-requests" element={<AdminDoctorChangeRequests />} />
                <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
                 <Route path="/admin-dashboard/stock-liquidation" element={<AdminStockLiquidation />} />
              {/* Super Admin Dashboard Routes */}

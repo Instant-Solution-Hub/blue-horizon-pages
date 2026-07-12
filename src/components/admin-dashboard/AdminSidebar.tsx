@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { getPendingCount, subscribe } from "@/lib/prescriptionStore";
 import {
   Home,
   Users,
@@ -21,13 +22,21 @@ import {
   ClipboardList,
   CalendarCheck,
   PackageOpen,
+  Stethoscope
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+   const [pendingChangeRequests, setPendingChangeRequests] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    const update = () => setPendingChangeRequests(getPendingCount());
+    update();
+    return subscribe(update);
+  }, []);
 
   const menuItems = [
     { icon: Home, label: "Home", path: "/admin-dashboard" },
@@ -38,6 +47,8 @@ const AdminSidebar = () => {
     { icon: FileText, label: "BDE Leave Requests", path: "/admin-dashboard/manager-leave-requests" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
+     { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
+
     // { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },
      { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
       { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
@@ -104,7 +115,13 @@ const AdminSidebar = () => {
                 )}
               />
               {!isCollapsed && (
-                <span className="font-medium text-sm">{item.label}</span>
+                                <span className="font-medium text-sm flex-1">{item.label}</span>
+              )}
+              {"badge" in item && (item as any).badge > 0 && (
+                <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-xs font-semibold flex items-center justify-center">
+                  {(item as any).badge}
+                </span>
+
               )}
             </Link>
           );

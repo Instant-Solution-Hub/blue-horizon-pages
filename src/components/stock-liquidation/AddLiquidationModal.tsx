@@ -76,10 +76,9 @@ export interface Product {
 }
 
 export interface Doctor {
-  id: string;
+  id: number;
   name: string;
   hospitalName: string;
-
 }
 
 interface AddLiquidationModalProps {
@@ -155,8 +154,7 @@ const getExistingTotalForProduct = () => {
 useEffect(() => {
     if (!isOpen) return;
 
-    fetchDoctorsByFE(feId)
-      .then(setDoctors)
+    fetchDoctorsByFE(feId).then(setDoctors)
       .catch(() =>
         toast({
           title: "Error",
