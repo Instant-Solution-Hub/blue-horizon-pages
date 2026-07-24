@@ -13,46 +13,49 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        // if there is no userId or userType in sessionStorage, navigate to login
-        if (!sessionStorage.getItem("userID") || !sessionStorage.getItem("userRole")) {
-          navigate("/");
-          throw new Error("User not authenticated");
-        }
-        const res = await checkPortalStatus();
+  const init = async () => {
+    try {
+      // Check authentication
+      const userId = sessionStorage.getItem("userID");
+      const userRole = sessionStorage.getItem("userRole")?.toLowerCase();
 
-        if (res.isLocked) {
-          setState("locked");
-          navigate("/portal-locked");
-        } else {
-          setState("ready");
-          if (location.pathname.match(/^\/(portal-locked)/)) {
-            let userRole = sessionStorage.getItem("userRole").toLowerCase();
-            if (userRole === "manager") {
-              navigate("/manager-dashboard");
-              return;
-            } else if (userRole === "admin") {
-              navigate("/admin-dashboard/profile");
-              return;
-            } else if (userRole === "fe") {
-              navigate("/dashboard");
-              return;
-            } else {
-              navigate("/");
-            }
-          }
-
-        }
-      } catch (err) {
-        console.error("Portal status check failed", err);
-        // optional: allow app or show error page
-        setState("ready");
+      if (!userId || !userRole) {
+        navigate("/");
+        throw new Error("User not authenticated");
       }
-    };
 
-    init();
-  }, [location.pathname]);
+      // Skip portal status check for Admin and Super Admin
+      if (userRole === "admin" || userRole === "super_admin") {
+        setState("ready");
+        return;
+      }
+
+      const res = await checkPortalStatus();
+
+      if (res.isLocked) {
+        setState("locked");
+        navigate("/portal-locked");
+      } else {
+        setState("ready");
+
+        if (location.pathname.match(/^\/portal-locked/)) {
+          if (userRole === "manager") {
+            navigate("/manager-dashboard");
+          } else if (userRole === "fe") {
+            navigate("/dashboard");
+          } else {
+            navigate("/");
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Portal status check failed", err);
+      setState("ready");
+    }
+  };
+
+  init();
+}, [location.pathname]);
 
   if (state === "loading") {
     return <div className="h-screen flex flex-col items-center justify-center text-center px-4">
