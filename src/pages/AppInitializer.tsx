@@ -15,11 +15,21 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        // if there is no userId or userType in sessionStorage, navigate to login
-        if (!sessionStorage.getItem("userID") || !sessionStorage.getItem("userRole")) {
+        // Check authentication
+        const userId = sessionStorage.getItem("userID");
+        const userRole = sessionStorage.getItem("userRole")?.toLowerCase();
+
+        if (!userId || !userRole) {
           navigate("/");
           throw new Error("User not authenticated");
         }
+
+        // Skip portal status check for Admin and Super Admin
+        if (userRole === "admin" || userRole === "super_admin") {
+          setState("ready");
+          return;
+        }
+
         const res = await checkPortalStatus();
 
         if (res.isLocked) {
@@ -27,26 +37,19 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           navigate("/portal-locked");
         } else {
           setState("ready");
-          if (location.pathname.match(/^\/(portal-locked)/)) {
-            let userRole = sessionStorage.getItem("userRole").toLowerCase();
+
+          if (location.pathname.match(/^\/portal-locked/)) {
             if (userRole === "manager") {
               navigate("/manager-dashboard");
-              return;
-            } else if (userRole === "admin") {
-              navigate("/admin-dashboard/profile");
-              return;
             } else if (userRole === "fe") {
               navigate("/dashboard");
-              return;
             } else {
               navigate("/");
             }
           }
-
         }
       } catch (err) {
         console.error("Portal status check failed", err);
-        // optional: allow app or show error page
         setState("ready");
       }
     };
