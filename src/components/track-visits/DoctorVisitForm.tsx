@@ -66,6 +66,7 @@ export interface DoctorVisitData {
     quantity: number;
     value: number;
   }[];
+  detailedProductId?: number | null;
 }
 
 // const products: Product[] = [
@@ -98,6 +99,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
   const [showPhotoCapture, setShowPhotoCapture] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [detailedProductId, setDetailedProductId] = useState<number>(0);
 
   const handleLocationFallback = (payload: any) => {
     setPendingPayload(payload);
@@ -154,6 +156,15 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     }
 
     if (
+      selectedActivities.includes("Product Detailing") &&
+      !detailedProductId
+    ) {
+      alert("Please select the detailed product");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (
       selectedActivities.includes("Product Conversion") &&
       conversionRows.some((r) => !r.productId || r.quantity <= 0)
     ) {
@@ -193,6 +204,10 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
       activitiesPerformed: selectedActivities,
       notes,
       convertedProducts,
+      detailedProductId:
+        selectedActivities.includes("Product Detailing")
+          ? detailedProductId
+          : null,
     };
 
     // If missed, no location needed
@@ -507,6 +522,30 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
         </div>
       )}
 
+      {selectedActivities.includes("Product Detailing") && (
+        <div className="space-y-3 border rounded-lg p-3">
+          <Label className="font-medium">Detailed Product</Label>
+
+          <Select
+            value={detailedProductId ? detailedProductId.toString() : ""}
+            onValueChange={(value) => setDetailedProductId(Number(value))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select product" />
+            </SelectTrigger>
+            <SelectContent>
+              {products.map((product) => (
+                <SelectItem
+                  key={product.id}
+                  value={product.id.toString()}
+                >
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       {selectedActivities.includes("Product Conversion") && (
         <div className="space-y-3 border rounded-lg p-3">
           <Label className="font-medium">Product Conversion Details</Label>
