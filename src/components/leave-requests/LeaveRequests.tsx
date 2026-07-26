@@ -7,14 +7,15 @@ import { format, differenceInDays } from "date-fns";
 import {toast} from "sonner";
 import { fetchTeamLeaveRequests , LeaveRequest , approveLeaveRequest , rejectLeaveRequest, fetchLeaveRequests} from "@/services/ManagerLeaveService";
 import { Input } from "../ui/input";
+import { isZonalManager } from "@/lib/userRoleUtils";
 
 
 
 const LeaveRequestsTab = () => {
-
+  const isZonal = isZonalManager();
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
-   const [searchQuery, setSearchQuery] = useState("");
-   const managerId = Number(sessionStorage.getItem("userID"));
+  const [searchQuery, setSearchQuery] = useState("");
+  const managerId = Number(sessionStorage.getItem("userID"));
 
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -216,26 +217,34 @@ const handleReject = async (id: number) => {
                         Applied on: {format(request.appliedDate, "dd MMM yyyy")}
                       </p>
                     </div>
-                    <div className="flex gap-2 ml-11 lg:ml-0">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(request.id)}
-                        disabled ={request.status !== "PENDING"}
-                        className="gap-1"
-                      >
-                        <Check className="w-4 h-4" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleReject(request.id)}
-                        disabled ={request.status !== "PENDING"}
-                        className="gap-1"
-                      >
-                        <X className="w-4 h-4" />
-                        Reject
-                      </Button>
+                    <div className="flex flex-col gap-2 ml-11 lg:ml-0">
+                      {isZonal ? (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                          Zonal Sales Manager can only view BDE leave requests.
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleApprove(request.id)}
+                            disabled={request.status !== "PENDING"}
+                            className="gap-1"
+                          >
+                            <Check className="w-4 h-4" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleReject(request.id)}
+                            disabled={request.status !== "PENDING"}
+                            className="gap-1"
+                          >
+                            <X className="w-4 h-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

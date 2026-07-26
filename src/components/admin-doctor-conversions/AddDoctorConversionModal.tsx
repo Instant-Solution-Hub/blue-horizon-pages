@@ -16,8 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FieldExecutive } from "@/services/FEService";
-import { Doctor } from "@/components/manager-joining/RecordJoiningModal";
 import { Product } from "@/services/ProductService";
+
+interface ConversionDoctor {
+  id: number;
+  name: string;
+  hospitalName: string;
+}
 
 interface AddDoctorConversionModalProps {
   open: boolean;
@@ -28,7 +33,7 @@ interface AddDoctorConversionModalProps {
     productId: number;
   }) => void;
   fieldExecutives: FieldExecutive[];
-  doctors: Doctor[];
+  doctors: ConversionDoctor[];
   products: Product[];
   onFEChange: (feId: number) => void; 
 }

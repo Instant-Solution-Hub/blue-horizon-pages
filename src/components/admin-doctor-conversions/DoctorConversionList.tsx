@@ -14,12 +14,14 @@ import { format } from "date-fns";
 
 interface DoctorConversionListProps {
   conversions: DoctorConversion[];
-  onDelete: (feId: number, id: number) => void;
+  onDelete?: (feId: number, id: number) => void;
+  showActions?: boolean;
 }
 
 const DoctorConversionList = ({
   conversions,
   onDelete,
+  showActions = true,
 }: DoctorConversionListProps) => {
   const formatDate = (dateString: string): string => {
     try {
@@ -92,7 +94,9 @@ const DoctorConversionList = ({
                   <TableHead className="font-semibold text-[rgb(61,83,209)]">Doctor (Hospital)</TableHead>
                   <TableHead className="font-semibold text-[rgb(61,83,209)]">Product</TableHead>
                   <TableHead className="font-semibold text-[rgb(61,83,209)]">Date</TableHead>
-                  <TableHead className="font-semibold text-[rgb(61,83,209)] w-[80px] text-center">Actions</TableHead>
+                  {showActions && (
+                    <TableHead className="font-semibold text-[rgb(61,83,209)] w-[80px] text-center">Actions</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -122,16 +126,20 @@ const DoctorConversionList = ({
                     <TableCell className="text-slate-500 text-sm">
                       {formatDate(conversion.createdAt)}
                     </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(conversion.fieldExecutiveId, conversion.id)}
-                        className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
+                    {showActions && (
+                      <TableCell className="text-center">
+                        {onDelete && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDelete(conversion.fieldExecutiveId, conversion.id)}
+                            className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

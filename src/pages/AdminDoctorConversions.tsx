@@ -6,10 +6,11 @@ import { Plus, Loader, CalendarIcon, Search} from "lucide-react";
 import AddDoctorConversionModal from "@/components/admin-doctor-conversions/AddDoctorConversionModal";
 import DoctorConversionList from "@/components/admin-doctor-conversions/DoctorConversionList";
 import { FieldExecutive, fetchFEs } from "@/services/FEService";
-import { Doctor } from "@/components/manager-joining/RecordJoiningModal";
+import type { Doctor as DoctorType } from "@/hooks/useDoctors";
 import { DoctorConversion, fetchDoctorConversions ,addDoctorConversion, fetchDoctorConversionsForTheMonth, deleteDoctorConversion, DoctorConversionReqDto } from "@/services/DoctorConversion";
 import { fetchDoctorsByFE } from "@/services/DoctorService";
 import { getProducts, Product as ProductType } from "@/services/ProductService";
+import { isZonalManager } from "@/lib/userRoleUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ const AdminDoctorConversions = () => {
   const { toast } = useToast();
   const [conversions, setConversions] = useState<DoctorConversion[]>([]);
   const [fieldExecutives, setFieldExecutives] = useState<FieldExecutive[]>([]);
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<DoctorType[]>([]);
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,6 +36,7 @@ const AdminDoctorConversions = () => {
   const [feSearch, setFeSearch] = useState("");
 
   const feId = parseInt(sessionStorage.getItem("feID") || "0");
+  const isZonal = isZonalManager();
 
  
 
@@ -264,15 +266,17 @@ useEffect(() => {
 
          
             <div className="flex justify-end gap-2 mb-4">
-  <Button onClick={handleExport} variant="outline">
-    Export Excel
-  </Button>
+              <Button onClick={handleExport} variant="outline">
+                Export Excel
+              </Button>
 
-  <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
-    <Plus className="w-4 h-4 mr-2" />
-    Add Conversion
-  </Button>
-</div>
+              {!isZonal && (
+                <Button onClick={() => setIsAddModalOpen(true)} disabled={loading}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Conversion
+                </Button>
+              )}
+            </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="space-y-1">
@@ -367,7 +371,8 @@ useEffect(() => {
           ) : (
             <DoctorConversionList
               conversions={filteredConversions}
-              onDelete={handleDeleteConversion}
+              onDelete={isZonal ? undefined : handleDeleteConversion}
+              showActions={!isZonal}
             />
           )}
 
