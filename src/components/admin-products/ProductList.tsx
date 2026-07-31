@@ -13,9 +13,10 @@ import { Product } from "@/services/ProductService";
 interface ProductListProps {
   products: Product[];
   onEdit: (product: Product) => void;
+  isReadOnly?: boolean;
 }
 
-const ProductList = ({ products, onEdit }: ProductListProps) => {
+const ProductList = ({ products, onEdit, isReadOnly = false }: ProductListProps) => {
   return (
     <div className="rounded-xl border border-blue-100 bg-white shadow-lg shadow-indigo-100 overflow-hidden">
       <Table>
@@ -28,7 +29,7 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
             <TableHead className="text-right text-white font-semibold">PTS (₹)</TableHead>
              <TableHead className="text-right text-white font-semibold">New PTS (₹)</TableHead>
             <TableHead className="text-right text-white font-semibold">PTR (₹)</TableHead>
-            <TableHead className="text-center text-white font-semibold">Actions</TableHead>
+            <TableHead className="text-center text-white font-semibold">{isReadOnly ? "View" : "Actions"}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -59,14 +60,18 @@ const ProductList = ({ products, onEdit }: ProductListProps) => {
                 {product.ptr.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(product)}
-                  className="text-slate-400 hover:text-[rgb(61,83,209)] hover:bg-[rgb(61,83,209)]/10 rounded-full h-8 w-8"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                {isReadOnly ? (
+                  <span className="text-xs font-medium text-slate-500">View only</span>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(product)}
+                    className="text-slate-400 hover:text-[rgb(61,83,209)] hover:bg-[rgb(61,83,209)]/10 rounded-full h-8 w-8"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
