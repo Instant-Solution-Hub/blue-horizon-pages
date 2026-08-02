@@ -57,6 +57,7 @@ export interface ManagerDoctorVisitData {
   isPreviouslyMissed: boolean;
   activitiesPerformed: string[];
   notes: string;
+  detailedProductId?: number | null;
 }
 
 // const products: Product[] = [
@@ -71,17 +72,18 @@ const activities = [
   "Sample Distribution",
   "Study Distribution",
   "Stock Updates",
-//   "Product Conversion",
+  //   "Product Conversion",
   "Prescription Review",
   "Follow-up Discussion",
   "New Product Introduction",
 ];
 
-export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVisits,onDesignationChange }: DoctorVisitFormProps) {
+export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVisits, onDesignationChange }: DoctorVisitFormProps) {
   const [selectedVisit, setSelectedVisit] = useState<ScheduledDoctor | null>(null);
   const [isMissed, setIsMissed] = useState(false);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [detailedProductId, setDetailedProductId] = useState<number>(0);
   const [conversionRows, setConversionRows] = useState<ConversionRow[]>([
     { productId: 0, quantity: 1, value: 0 },
   ]);
@@ -108,27 +110,39 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
       return;
     }
 
+    if (
+      selectedActivities.includes("Product Detailing") &&
+      !detailedProductId
+    ) {
+      alert("Please select the detailed product");
+      return;
+    }
+
     if (isMissed && !notes.trim()) {
       alert("Notes are mandatory for missed visits");
       return;
     }
 
-     onSubmit({
-          visitType: "doctor",
-          doctorId: selectedVisit.id,
-          visitId: selectedVisit.visitId,
-          doctorName: selectedVisit.doctorName,
-          hospital: selectedVisit.hospital,
-          designation: selectedVisit.designation,
-          category: selectedVisit.category,
-          practiceType: selectedVisit.practiceType,
-          isMissed,
-          isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
-          activitiesPerformed: selectedActivities,
-          notes,
-        });
+    onSubmit({
+      visitType: "doctor",
+      doctorId: selectedVisit.id,
+      visitId: selectedVisit.visitId,
+      doctorName: selectedVisit.doctorName,
+      hospital: selectedVisit.hospital,
+      designation: selectedVisit.designation,
+      category: selectedVisit.category,
+      practiceType: selectedVisit.practiceType,
+      isMissed,
+      isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
+      activitiesPerformed: selectedActivities,
+      notes,
+      detailedProductId:
+        selectedActivities.includes("Product Detailing")
+          ? detailedProductId
+          : null,
+    });
 
-    
+
   };
 
   const handleAddRow = () => {
@@ -228,6 +242,31 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {selectedActivities.includes("Product Detailing") && (
+        <div className="space-y-3 border rounded-lg p-3">
+          <Label className="font-medium">Detailed Product</Label>
+
+          <Select
+            value={detailedProductId ? detailedProductId.toString() : ""}
+            onValueChange={(value) => setDetailedProductId(Number(value))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select product" />
+            </SelectTrigger>
+            <SelectContent>
+              {products.map((product) => (
+                <SelectItem
+                  key={product.id}
+                  value={product.id.toString()}
+                >
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 

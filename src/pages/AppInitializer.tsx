@@ -13,49 +13,47 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-  const init = async () => {
-    try {
-      // Check authentication
-      const userId = sessionStorage.getItem("userID");
-      const userRole = sessionStorage.getItem("userRole")?.toLowerCase();
+    const init = async () => {
+      try {
+        const userId = sessionStorage.getItem("userID");
+        const userRole = sessionStorage.getItem("userRole")?.toLowerCase();
 
-      if (!userId || !userRole) {
-        navigate("/");
-        throw new Error("User not authenticated");
-      }
+        if (!userId || !userRole) {
+          navigate("/");
+          throw new Error("User not authenticated");
+        }
 
-      // Skip portal status check for Admin and Super Admin
-      if (userRole === "admin" || userRole === "super_admin") {
-        setState("ready");
-        return;
-      }
+        if (userRole === "admin" || userRole === "super_admin") {
+          setState("ready");
+          return;
+        }
 
-      const res = await checkPortalStatus();
+        const res = await checkPortalStatus();
 
-      if (res.isLocked) {
-        setState("locked");
-        navigate("/portal-locked");
-      } else {
-        setState("ready");
+        if (res.isLocked) {
+          setState("locked");
+          navigate("/portal-locked");
+        } else {
+          setState("ready");
 
-        if (location.pathname.match(/^\/portal-locked/)) {
-          if (userRole === "manager") {
-            navigate("/manager-dashboard");
-          } else if (userRole === "fe") {
-            navigate("/dashboard");
-          } else {
-            navigate("/");
+          if (location.pathname.match(/^\/portal-locked/)) {
+            if (userRole === "manager") {
+              navigate("/manager-dashboard");
+            } else if (userRole === "fe") {
+              navigate("/dashboard");
+            } else {
+              navigate("/");
+            }
           }
         }
+      } catch (err) {
+        console.error("Portal status check failed", err);
+        setState("ready");
       }
-    } catch (err) {
-      console.error("Portal status check failed", err);
-      setState("ready");
-    }
-  };
+    };
 
-  init();
-}, [location.pathname]);
+    init();
+  }, [location.pathname, navigate]);
 
   if (state === "loading") {
     return <div className="h-screen flex flex-col items-center justify-center text-center px-4">

@@ -18,6 +18,8 @@ interface Visit {
   notes: string;
   isMissed?: boolean;
   activitiesPerformed: string[];
+  productName?: string;
+  productId?: number;
   [key: string]: unknown;
 }
 
@@ -147,6 +149,7 @@ export default function TrackVisits() {
       photoProof:data?.photoProof,
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
+      productId: data.detailedProductId,
     };
     try {
       await reMarkVisit(newVisit);
@@ -194,6 +197,7 @@ export default function TrackVisits() {
       // longitude: 76.686770,
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
+      productId: data.detailedProductId,
     };
 
     try {

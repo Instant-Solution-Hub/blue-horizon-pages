@@ -83,7 +83,7 @@ export default function ManagerSlotPlanning() {
     return day === 0 ? 1 : day + 1;
   };
   const today = new Date();
-  const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
+  const isFirstOfMonth = today.getDate() === 3 || slotPlanDayEnabled;
   // const isFirstOfMonth = true; // For testing
 
   const getMonth = () => {
