@@ -12,6 +12,8 @@ interface BaseVisit {
   notes: string;
   isMissed?: boolean;
   activitiesPerformed: string[];
+  productName?: string;
+  productId?: number;
 }
 
 interface DoctorVisit extends BaseVisit {
@@ -20,6 +22,8 @@ interface DoctorVisit extends BaseVisit {
   designation: string;
   category: string;
   practiceType: string;
+  productName?: string;
+  productId?: number;
   hospital: string;
   location: { lat: number; lng: number } | null;
 }
@@ -74,6 +78,7 @@ export function VisitCard({ visit }: VisitCardProps) {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm mt-3">
+        <p><span className="text-muted-foreground">Product:</span> {visit.productName}</p>
         <p><span className="text-muted-foreground">Prescription Type:</span> {v.practiceType}</p>
         <p><span className="text-muted-foreground">Hospital:</span> {v.hospital}</p>
         <p className="text-xs text-muted-foreground">Visit ID: {visit.id}</p>

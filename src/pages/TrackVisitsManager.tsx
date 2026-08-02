@@ -47,6 +47,7 @@ interface UnscheduledVisitData {
   notes: string;
   activitiesPerformed: string[];
   convertedProducts?: number[];
+  detailedProductId?: number | null;
   isMissed?: boolean;
 }
 
@@ -128,6 +129,7 @@ export default function TrackVisitsManager() {
         doctorId: data.doctorId,
         notes: data.notes,
         activitiesPerformed: data.activitiesPerformed,
+        productId:data.detailedProductId
       });
 
       getTodaysVisits();
@@ -172,6 +174,7 @@ export default function TrackVisitsManager() {
       // No location data for manager
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
+      productId:data.detailedProductId
     };
 
     try {
@@ -201,6 +204,7 @@ export default function TrackVisitsManager() {
       // No location data for manager
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
+      productId:data.detailedProductId
     };
 
     try {

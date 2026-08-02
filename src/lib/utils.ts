@@ -16,6 +16,8 @@ export function adaptBackendVisits(data: any[], isMissed: boolean): Visit[] {
       notes: v.notes ?? "",
       activitiesPerformed: v.activitiesPerformed ?? [],
       isMissed: isMissed,
+      productName: v.productName ?? undefined,
+      productId: v.productId ?? undefined,
     };
 
     switch (v.visitType) {

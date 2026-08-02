@@ -52,6 +52,7 @@ interface Visit {
     practiceType: string;
     visitDate: string;
     status: "Completed" | "Missed" | "Pending";
+    visitProgress:string
 }
 
 const defaultVisitReport = {
@@ -87,6 +88,7 @@ const AdminVisitReports = () => {
     const [visitReports, setVisitReports] = useState(defaultVisitReport);
     const [visits, setVisits] = useState<Visit[]>([]);
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
+    const [docTypeFilter, setDocTypeFilter] = useState<string>("all");
 
     useEffect(() => {
         getAllFieldExecutives();
@@ -131,7 +133,7 @@ const AdminVisitReports = () => {
             const formattedToDate = formatDate(toDate);
 
             if (userType === "field_executive") {
-                fetchFEVisitReport(selectedUserId, formattedFromDate.trim(), formattedToDate.trim(), statusFilter, categoryFilter)
+                fetchFEVisitReport(selectedUserId, formattedFromDate.trim(), formattedToDate.trim(), statusFilter, categoryFilter, docTypeFilter)
                     .then((data) => {
                         setVisitReports(data);
                         // Assuming the API returns visits array in the response
@@ -144,7 +146,7 @@ const AdminVisitReports = () => {
                     });
             } else {
 
-                fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter)
+                fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter, docTypeFilter)
                     .then((data) => {
                         setVisitReports(data);
                         setVisits(data.visits || []);
@@ -401,111 +403,135 @@ const AdminVisitReports = () => {
                         <>
                             {/* Filters Section */}
                             <div className="animate-fade-in space-y-3" style={{ animationDelay: "0.15s" }}>
-                                <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
-                                    <div className="space-y-1">
-                                        <Label className="text-sm">From Date</Label>
-                                        <div>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className={cn("w-[180px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {fromDate ? format(fromDate, "PPP") : "Pick a date"}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={fromDate}
-                                                        onSelect={setFromDate}
-                                                        initialFocus
-                                                        className={cn("p-3 pointer-events-auto")}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-sm">To Date</Label>
-                                        <div>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className={cn("w-[180px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {toDate ? format(toDate, "PPP") : "Pick a date"}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={toDate}
-                                                        onSelect={setToDate}
-                                                        initialFocus
-                                                        className={cn("p-3 pointer-events-auto")}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-sm">Status</Label>
-                                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Filter by status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">All</SelectItem>
-                                                <SelectItem value="COMPLETED">Completed</SelectItem>
-                                                <SelectItem value="MISSED">Missed</SelectItem>
-                                                <SelectItem value="SCHEDULED">Pending</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-sm">Category</Label>
-                                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Filter by category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">All Categories</SelectItem>
-                                                <SelectItem value="A_PLUS">A+</SelectItem>
-                                                <SelectItem value="A">A</SelectItem>
-                                                <SelectItem value="B">B</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            onClick={() => {
-                                                apply();
-                                            }}
-                                            className="bg-primary hover:bg-primary/90"
-                                        >
-                                            Apply
-                                        </Button>
-                                        {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
-                                            <Button
-                                                variant="ghost"
-                                                onClick={() => {
-                                                    setFromDate(undefined);
-                                                    setToDate(undefined);
-                                                    setStatusFilter("all");
-                                                    setCategoryFilter("all");
-                                                    setCurrentPage(1);
-                                                }}
-                                            >
-                                                Clear Filters
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {/* From Date */}
+        <div className="space-y-1">
+            <Label className="text-sm">From Date</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn("w-full justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                        <span className="truncate">{fromDate ? format(fromDate, "PPP") : "Pick a date"}</span>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                        mode="single"
+                        selected={fromDate}
+                        onSelect={setFromDate}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                    />
+                </PopoverContent>
+            </Popover>
+        </div>
+
+        {/* To Date */}
+        <div className="space-y-1">
+            <Label className="text-sm">To Date</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn("w-full justify-start text-left font-normal", !toDate && "text-muted-foreground")}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                        <span className="truncate">{toDate ? format(toDate, "PPP") : "Pick a date"}</span>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                        mode="single"
+                        selected={toDate}
+                        onSelect={setToDate}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                    />
+                </PopoverContent>
+            </Popover>
+        </div>
+
+        {/* Status */}
+        <div className="space-y-1">
+            <Label className="text-sm">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="MISSED">Missed</SelectItem>
+                    <SelectItem value="SCHEDULED">Pending</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+
+        {/* Category */}
+        <div className="space-y-1">
+            <Label className="text-sm">Category</Label>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter by category" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="A_PLUS">A+</SelectItem>
+                    <SelectItem value="A">A</SelectItem>
+                    <SelectItem value="B">B</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+
+        {/* Doctor Type */}
+        <div className="space-y-1">
+            <Label className="text-sm">Doctor Type</Label>
+            <Select value={docTypeFilter} onValueChange={setDocTypeFilter}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="RP">RP</SelectItem>
+                    <SelectItem value="OP">OP</SelectItem>
+                    <SelectItem value="NP">NP</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+
+        {/* Buttons */}
+        <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+            <Label className="text-sm opacity-0">Actions</Label>
+            <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                    onClick={apply}
+                    className="bg-primary hover:bg-primary/90 flex-1"
+                >
+                    Apply
+                </Button>
+                {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
+                    <Button
+                        variant="ghost"
+                        onClick={() => {
+                            setFromDate(undefined);
+                            setToDate(undefined);
+                            setStatusFilter("all");
+                            setCategoryFilter("all");
+                            setDocTypeFilter("all");
+                            setCurrentPage(1);
+                        }}
+                        className="flex-1"
+                    >
+                        Clear Filters
+                    </Button>
+                )}
+            </div>
+        </div>
+    </div>
+</div>
                             {/* Summary Stats */}
                             <div className="animate-fade-in grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
                                 <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
@@ -611,6 +637,7 @@ const AdminVisitReports = () => {
                                                             <TableHead className="w-[100px]">Visit ID</TableHead>
                                                             <TableHead>Doctor Name</TableHead>
                                                             <TableHead>Category</TableHead>
+                                                            <TableHead>Sequence</TableHead>
                                                             {userType === "field_executive" && <TableHead>Prescription Type</TableHead>}
                                                             {userType === "manager" && <TableHead>Field Executive</TableHead>}
 
@@ -626,6 +653,7 @@ const AdminVisitReports = () => {
                                                                 </TableCell>
                                                                 <TableCell>{visit?.doctorName || visit?.pharmacyName}</TableCell>
                                                                 <TableCell>{visit?.category}</TableCell>
+                                                                <TableCell>{visit?.visitProgress}</TableCell>
                                                                 {userType === "field_executive" &&
                                                                     <TableCell>{visit?.practiceType}</TableCell>}
 
