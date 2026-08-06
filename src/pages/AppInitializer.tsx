@@ -15,7 +15,6 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        // Check authentication
         const userId = sessionStorage.getItem("userID");
         const userRole = sessionStorage.getItem("userRole")?.toLowerCase();
 
@@ -24,7 +23,6 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           throw new Error("User not authenticated");
         }
 
-        // Skip portal status check for Admin and Super Admin
         if (userRole === "admin" || userRole === "super_admin") {
           setState("ready");
           return;
@@ -55,7 +53,7 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
     };
 
     init();
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   if (state === "loading") {
     return <div className="h-screen flex flex-col items-center justify-center text-center px-4">

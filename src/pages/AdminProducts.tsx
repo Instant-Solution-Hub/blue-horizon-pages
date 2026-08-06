@@ -6,11 +6,11 @@
  import AddProductModal from "@/components/admin-products/AddProductModal";
  import UpdateProductModal from "@/components/admin-products/UpdateProductModal";
  import { useToast } from "@/hooks/use-toast";
+ import { isZonalManager } from "@/lib/userRoleUtils";
  import { Product, getProducts, createProduct, updateProduct } from "@/services/ProductService";
  
 
- 
- const categories = [
+  const categories = [
    "FIRST",
    "SECOND"
  ];
@@ -24,8 +24,10 @@
    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+   const isZonal = isZonalManager();
  
    const handleAddProduct = async (productData: Omit<Product, "id">) => {
+     if (isZonal) return;
      try {
        setLoading(true);
        const created = await createProduct(productData);
@@ -46,6 +48,7 @@
    };
  
    const handleUpdateProduct = async (updatedProduct: Product) => {
+     if (isZonal) return;
      try {
        setLoading(true);
        const payload = {
@@ -75,6 +78,7 @@
    };
  
    const handleEditClick = (product: Product) => {
+     if (isZonal) return;
      setSelectedProduct(product);
      setIsUpdateModalOpen(true);
    };
@@ -106,31 +110,42 @@
            <p className="text-muted-foreground">
              Manage your product catalog
            </p>
+           {isZonal && (
+             <p className="text-sm text-muted-foreground mt-1">
+               You can view products, but you cannot add or edit them.
+             </p>
+           )}
          </div>
  
-         <div className="flex justify-end mb-4">
-           <Button onClick={() => setIsAddModalOpen(true)}>
-             <Plus className="h-4 w-4 mr-2" />
-             Add Product
-           </Button>
-         </div>
+         {!isZonal && (
+           <div className="flex justify-end mb-4">
+             <Button onClick={() => setIsAddModalOpen(true)}>
+               <Plus className="h-4 w-4 mr-2" />
+               Add Product
+             </Button>
+           </div>
+         )}
  
-         <ProductList products={products} onEdit={handleEditClick} />
+         <ProductList products={products} onEdit={handleEditClick} isReadOnly={isZonal} />
  
-         <AddProductModal
-           open={isAddModalOpen}
-           onOpenChange={setIsAddModalOpen}
-           onAdd={handleAddProduct}
-           categories={categories}
-         />
+         {!isZonal && (
+           <>
+             <AddProductModal
+               open={isAddModalOpen}
+               onOpenChange={setIsAddModalOpen}
+               onAdd={handleAddProduct}
+               categories={categories}
+             />
  
-         <UpdateProductModal
-           open={isUpdateModalOpen}
-           onOpenChange={setIsUpdateModalOpen}
-           onUpdate={handleUpdateProduct}
-           product={selectedProduct}
-           categories={categories}
-         />
+             <UpdateProductModal
+               open={isUpdateModalOpen}
+               onOpenChange={setIsUpdateModalOpen}
+               onUpdate={handleUpdateProduct}
+               product={selectedProduct}
+               categories={categories}
+             />
+           </>
+         )}
        </main>
        </div>
      </div>

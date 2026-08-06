@@ -36,6 +36,7 @@ const defaultNavItems: NavItem[] = [
   { icon: Gift, label: "Promotions", href: "/dashboard/promotions" },
    { icon: ClipboardCheck, label: "Work Approvals", href: "/dashboard/work-approvals" },
   { icon: ClipboardCheck, label: "Visit Compliance", href: "/dashboard/visit-compliance" },
+  { icon: Pill, label: "My Doctors", href: "/dashboard/my-doctors" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/dashboard/sales-progress" },
 ];

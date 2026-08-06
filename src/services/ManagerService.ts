@@ -209,6 +209,20 @@ export const fetchEmployees = async (managerId:number) => {
     return res.data.data;
   }
 
+  export const fetchLiquidationPlansByDateRange = async (
+    managerId: number,
+    fromDate: string,
+    toDate: string
+  ) => {
+    const res = await API.get(
+      `/managers/${managerId}/liquidation-plans/date-range`,
+      {
+        params: { fromDate, toDate },
+      }
+    );
+    return res.data.data;
+  };
+
 
 export const fetchVisits = async (managerId: number, week: number, day: number) => {
   const response = await API.get(`/visit/manager/${managerId}/scheduled-visits?weekNumber=${week}&dayOfWeek=${day}`, { 

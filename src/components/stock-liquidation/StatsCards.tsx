@@ -10,7 +10,14 @@ const StatsCards = ({ plans }: StatsCardsProps) => {
   const activePlans = plans.length;
   const pendingApproval = plans.filter((p) => p.status === "PENDING").length;
   const targetUnits = plans.reduce((sum, p) => sum + p.targetLiquidation, 0);
-  const achievedUnits = plans.reduce((sum, p) => sum + p.achievedUnits, 0);
+  // const achievedUnits = plans.reduce((sum, p) => sum + p.liquidated1 + p.liquidated2 + p.liquidated3, 0);
+  const achievedUnits = plans.reduce(
+  (sum, p) =>
+    p.status === "APPROVED"
+      ? sum + p.liquidated1 + p.liquidated2 + p.liquidated3
+      : sum,
+  0
+);
 
   const stats = [
     {
