@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ClipboardList, Search, CalendarIcon, User, AlertTriangle, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ClipboardList, Search, CalendarIcon, User, AlertTriangle, ChevronLeft, ChevronRight, Download, CalendarDays, X } from "lucide-react";
 import { format } from "date-fns";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
@@ -52,25 +59,19 @@ interface Visit {
     practiceType: string;
     visitDate: string;
     status: "Completed" | "Missed" | "Pending";
-    visitProgress:string
+    visitProgress: string;
+}
+
+interface DayWiseCount {
+    date: string;
+    count: number;
+    visits: Visit[];
 }
 
 const defaultVisitReport = {
     completedVisitCount: 0,
     missedVisitCount: 0,
     pendingVisitCount: 0,
-    // completedAPlusVisits: 0,
-    // completedAVisits: 0,
-    // completedBVisits: 0,
-    // completedDoctorVisitCount: 0,
-    // completedVisitCount: 0,
-    // missedAPlusVisits: 0,
-    // missedAVisits: 0,
-    // missedBVisits: 0,
-    // missedDoctorVisitCount: 0,
-    // missedVisitCount: 0,
-    // completedPharmacistVisitCount: 0,
-    // missedPharmacistVisitCount: 0,
     visits: [] as Visit[],
 };
 
@@ -89,43 +90,18 @@ const AdminVisitReports = () => {
     const [visits, setVisits] = useState<Visit[]>([]);
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [docTypeFilter, setDocTypeFilter] = useState<string>("all");
+    
+    // Day Wise Count states
+    const [dayWiseDialogOpen, setDayWiseDialogOpen] = useState(false);
+    const [dayWiseData, setDayWiseData] = useState<DayWiseCount[]>([]);
+    const [selectedDayVisits, setSelectedDayVisits] = useState<Visit[]>([]);
+    const [selectedDay, setSelectedDay] = useState<string>("");
+    const [dayVisitsDialogOpen, setDayVisitsDialogOpen] = useState(false);
 
     useEffect(() => {
         getAllFieldExecutives();
         getAllManagers();
     }, []);
-
-    // useEffect(() => {
-    //     if (selectedUserId && fromDate && toDate ) {
-    //         const formattedFromDate = formatDate(fromDate);
-    //         const formattedToDate = formatDate(toDate);
-
-    //         if (userType === "field_executive") {
-    //             fetchFEVisitReport(selectedUserId, formattedFromDate, formattedToDate)
-    //                 .then((data) => {
-    //                     setVisitReports(data);
-    //                     // Assuming the API returns visits array in the response
-    //                     setVisits(data.visits || []);
-    //                 })
-    //                 .catch((error) => {
-    //                     console.error("Error fetching visit report:", error);
-    //                     setVisitReports(defaultVisitReport);
-    //                     setVisits([]);
-    //                 });
-    //         } else {
-    //             fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate)
-    //                 .then((data) => {
-    //                     setVisitReports(data);
-    //                     setVisits(data.visits || []);
-    //                 })
-    //                 .catch((error) => {
-    //                     console.error("Error fetching visit report:", error);
-    //                     setVisitReports(defaultVisitReport);
-    //                     setVisits([]);
-    //                 });
-    //         }
-    //     }
-    // }, [selectedUserId, fromDate, toDate]);
 
     const apply = async () => {
         if (selectedUserId && fromDate && toDate && statusFilter) {
@@ -136,7 +112,6 @@ const AdminVisitReports = () => {
                 fetchFEVisitReport(selectedUserId, formattedFromDate.trim(), formattedToDate.trim(), statusFilter, categoryFilter, docTypeFilter)
                     .then((data) => {
                         setVisitReports(data);
-                        // Assuming the API returns visits array in the response
                         setVisits(data.visits || []);
                     })
                     .catch((error) => {
@@ -145,12 +120,11 @@ const AdminVisitReports = () => {
                         setVisits([]);
                     });
             } else {
-
                 fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter, docTypeFilter)
                     .then((data) => {
                         setVisitReports(data);
                         setVisits(data.visits || []);
-                        console.log("manager visits", visits)
+                        console.log("manager visits", visits);
                     })
                     .catch((error) => {
                         console.error("Error fetching visit report:", error);
@@ -159,7 +133,52 @@ const AdminVisitReports = () => {
                     });
             }
         }
-    }
+    };
+
+    const handleDayWiseCount = () => {
+        if (!fromDate || !toDate || visits.length === 0) {
+            return;
+        }
+
+        // Group visits by date
+        const visitsByDate: { [key: string]: Visit[] } = {};
+        visits.forEach(visit => {
+            const dateKey = format(new Date(visit.visitDate), "yyyy-MM-dd");
+            if (!visitsByDate[dateKey]) {
+                visitsByDate[dateKey] = [];
+            }
+            visitsByDate[dateKey].push(visit);
+        });
+
+        // Get all dates between fromDate and toDate
+        const startDate = new Date(fromDate);
+        const endDate = new Date(toDate);
+        const dayCountData: DayWiseCount[] = [];
+
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            const dateKey = format(currentDate, "yyyy-MM-dd");
+            const formattedDate = format(currentDate, "dd MMM yyyy");
+            const visitsOnDate = visitsByDate[dateKey] || [];
+            
+            dayCountData.push({
+                date: formattedDate,
+                count: visitsOnDate.length,
+                visits: visitsOnDate
+            });
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        setDayWiseData(dayCountData);
+        setDayWiseDialogOpen(true);
+    };
+
+    const handleDayClick = (dayData: DayWiseCount) => {
+        setSelectedDay(dayData.date);
+        setSelectedDayVisits(dayData.visits);
+        setDayVisitsDialogOpen(true);
+    };
 
     const handleExportFeVisits = async () => {
         try {
@@ -169,20 +188,19 @@ const AdminVisitReports = () => {
                 "fieldExecutiveId": selectedUserId,
                 "visitStatus": statusFilter === "all" ? null : statusFilter,
                 "category": categoryFilter === "all" ? null : categoryFilter
-            }
-            const response = await exportFeVisits(obj)
-            // const blob = await response.blob();
+            };
+            const response = await exportFeVisits(obj);
             const url = window.URL.createObjectURL(response);
             const a = document.createElement('a');
             a.href = url;
             a.download = `visits_report_${selectedUser.name}_${formatDate(fromDate)}_${formatDate(toDate)}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
-
         } catch (error) {
             console.error("Error downloading file", error);
         }
-    }
+    };
+
     const handleExportManagerVisits = async () => {
         try {
             let obj = {
@@ -191,21 +209,18 @@ const AdminVisitReports = () => {
                 "managerId": selectedUserId,
                 "visitStatus": statusFilter === "all" ? null : statusFilter,
                 "category": categoryFilter === "all" ? null : categoryFilter
-            }
-            const response = await exportFeVisits(obj)
-
+            };
+            const response = await exportFeVisits(obj);
             const url = window.URL.createObjectURL(response);
             const a = document.createElement('a');
             a.href = url;
             a.download = `visits_report_${selectedUser.name}_${formatDate(fromDate)}_${formatDate(toDate)}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
-
         } catch (error) {
             console.error("Error downloading file", error);
         }
-
-    }
+    };
 
     const handleExport = async () => {
         if (userType === "field_executive") {
@@ -213,16 +228,16 @@ const AdminVisitReports = () => {
         } else {
             handleExportManagerVisits();
         }
-    }
+    };
 
-    const formatDateLocal = (date) => {
+    const formatDateLocal = (date: Date | undefined) => {
+        if (!date) return "";
         const d = new Date(date);
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, "0");
         const day = String(d.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
-
 
     const getAllFieldExecutives = async () => {
         try {
@@ -231,7 +246,7 @@ const AdminVisitReports = () => {
         } catch (error) {
             console.error("Error fetching field executives:", error);
         }
-    }
+    };
 
     const getAllManagers = async () => {
         try {
@@ -240,7 +255,7 @@ const AdminVisitReports = () => {
         } catch (error) {
             console.error("Error fetching managers:", error);
         }
-    }
+    };
 
     const formatDate = (date: Date) => {
         const year = date.getFullYear();
@@ -403,135 +418,150 @@ const AdminVisitReports = () => {
                         <>
                             {/* Filters Section */}
                             <div className="animate-fade-in space-y-3" style={{ animationDelay: "0.15s" }}>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {/* From Date */}
-        <div className="space-y-1">
-            <Label className="text-sm">From Date</Label>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn("w-full justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-                        <span className="truncate">{fromDate ? format(fromDate, "PPP") : "Pick a date"}</span>
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="single"
-                        selected={fromDate}
-                        onSelect={setFromDate}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                    />
-                </PopoverContent>
-            </Popover>
-        </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                                    {/* From Date */}
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">From Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn("w-full justify-start text-left font-normal", !fromDate && "text-muted-foreground")}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                                    <span className="truncate">{fromDate ? format(fromDate, "PPP") : "Pick a date"}</span>
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={fromDate}
+                                                    onSelect={setFromDate}
+                                                    initialFocus
+                                                    className="p-3 pointer-events-auto"
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
 
-        {/* To Date */}
-        <div className="space-y-1">
-            <Label className="text-sm">To Date</Label>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn("w-full justify-start text-left font-normal", !toDate && "text-muted-foreground")}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-                        <span className="truncate">{toDate ? format(toDate, "PPP") : "Pick a date"}</span>
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="single"
-                        selected={toDate}
-                        onSelect={setToDate}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                    />
-                </PopoverContent>
-            </Popover>
-        </div>
+                                    {/* To Date */}
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">To Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn("w-full justify-start text-left font-normal", !toDate && "text-muted-foreground")}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                                    <span className="truncate">{toDate ? format(toDate, "PPP") : "Pick a date"}</span>
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={toDate}
+                                                    onSelect={setToDate}
+                                                    initialFocus
+                                                    className="p-3 pointer-events-auto"
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
 
-        {/* Status */}
-        <div className="space-y-1">
-            <Label className="text-sm">Status</Label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="MISSED">Missed</SelectItem>
-                    <SelectItem value="SCHEDULED">Pending</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
+                                    {/* Status */}
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">Status</Label>
+                                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Filter by status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All</SelectItem>
+                                                <SelectItem value="COMPLETED">Completed</SelectItem>
+                                                <SelectItem value="MISSED">Missed</SelectItem>
+                                                <SelectItem value="SCHEDULED">Pending</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-        {/* Category */}
-        <div className="space-y-1">
-            <Label className="text-sm">Category</Label>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Filter by category" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="A_PLUS">A+</SelectItem>
-                    <SelectItem value="A">A</SelectItem>
-                    <SelectItem value="B">B</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
+                                    {/* Category */}
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">Category</Label>
+                                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Filter by category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Categories</SelectItem>
+                                                <SelectItem value="A_PLUS">A+</SelectItem>
+                                                <SelectItem value="A">A</SelectItem>
+                                                <SelectItem value="B">B</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-        {/* Doctor Type */}
-        <div className="space-y-1">
-            <Label className="text-sm">Doctor Type</Label>
-            <Select value={docTypeFilter} onValueChange={setDocTypeFilter}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="RP">RP</SelectItem>
-                    <SelectItem value="OP">OP</SelectItem>
-                    <SelectItem value="NP">NP</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
+                                    {/* Doctor Type */}
+                                    <div className="space-y-1">
+                                        <Label className="text-sm">Doctor Type</Label>
+                                        <Select value={docTypeFilter} onValueChange={setDocTypeFilter}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Filter by type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Types</SelectItem>
+                                                <SelectItem value="RP">RP</SelectItem>
+                                                <SelectItem value="OP">OP</SelectItem>
+                                                <SelectItem value="NP">NP</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-        {/* Buttons */}
-        <div className="space-y-1 sm:col-span-2 lg:col-span-1">
-            <Label className="text-sm opacity-0">Actions</Label>
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                    onClick={apply}
-                    className="bg-primary hover:bg-primary/90 flex-1"
-                >
-                    Apply
-                </Button>
-                {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
-                    <Button
-                        variant="ghost"
-                        onClick={() => {
-                            setFromDate(undefined);
-                            setToDate(undefined);
-                            setStatusFilter("all");
-                            setCategoryFilter("all");
-                            setDocTypeFilter("all");
-                            setCurrentPage(1);
-                        }}
-                        className="flex-1"
-                    >
-                        Clear Filters
-                    </Button>
-                )}
-            </div>
-        </div>
-    </div>
-</div>
+                                    {/* Buttons */}
+                                    <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+                                        <Label className="text-sm opacity-0">Actions</Label>
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            <Button
+                                                onClick={apply}
+                                                className="bg-primary hover:bg-primary/90 flex-1"
+                                            >
+                                                Apply
+                                            </Button>
+                                            {(fromDate || toDate || statusFilter !== "all" || categoryFilter !== "all") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        setFromDate(undefined);
+                                                        setToDate(undefined);
+                                                        setStatusFilter("all");
+                                                        setCategoryFilter("all");
+                                                        setDocTypeFilter("all");
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className="flex-1"
+                                                >
+                                                    Clear Filters
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Day Wise Count Button */}
+                                {fromDate && toDate && visits.length > 0 && (
+                                    <div className="flex justify-end">
+                                        <Button
+                                            onClick={handleDayWiseCount}
+                                            variant="outline"
+                                            className="gap-2 border-primary text-primary hover:bg-primary/10"
+                                        >
+                                            <CalendarDays className="h-4 w-4" />
+                                            Day Wise Count
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Summary Stats */}
                             <div className="animate-fade-in grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ animationDelay: "0.2s" }}>
                                 <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
@@ -640,7 +670,6 @@ const AdminVisitReports = () => {
                                                             <TableHead>Sequence</TableHead>
                                                             {userType === "field_executive" && <TableHead>Prescription Type</TableHead>}
                                                             {userType === "manager" && <TableHead>Field Executive</TableHead>}
-
                                                             <TableHead>Visit Date</TableHead>
                                                             <TableHead className="w-[100px]">Status</TableHead>
                                                         </TableRow>
@@ -656,9 +685,7 @@ const AdminVisitReports = () => {
                                                                 <TableCell>{visit?.visitProgress}</TableCell>
                                                                 {userType === "field_executive" &&
                                                                     <TableCell>{visit?.practiceType}</TableCell>}
-
                                                                 {userType === "manager" && <TableCell>{visit?.fieldExecutiveName}</TableCell>}
-
                                                                 <TableCell>
                                                                     {format(new Date(visit.visitDate), "dd MMM yyyy")}
                                                                 </TableCell>
@@ -706,7 +733,6 @@ const AdminVisitReports = () => {
                                                                 } else {
                                                                     pageNum = currentPage - 2 + i;
                                                                 }
-
                                                                 return (
                                                                     <Button
                                                                         key={pageNum}
@@ -740,6 +766,123 @@ const AdminVisitReports = () => {
                     )}
                 </div>
             </main>
+
+            {/* Day Wise Count Dialog */}
+            <Dialog open={dayWiseDialogOpen} onOpenChange={setDayWiseDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CalendarDays className="h-5 w-5 text-primary" />
+                            Day Wise Visit Count
+                        </DialogTitle>
+                        <DialogDescription>
+                            Showing visit counts for each day between {fromDate && format(fromDate, "dd MMM yyyy")} and {toDate && format(toDate, "dd MMM yyyy")}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto mt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {dayWiseData.map((dayData, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleDayClick(dayData)}
+                                    className={cn(
+                                        "p-4 rounded-lg border-2 text-left transition-all hover:shadow-md",
+                                        dayData.count > 0 
+                                            ? "border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10 cursor-pointer" 
+                                            : "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+                                    )}
+                                    disabled={dayData.count === 0}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium text-sm">{dayData.date}</span>
+                                        <span className={cn(
+                                            "inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                            dayData.count > 0 
+                                                ? "bg-primary text-white" 
+                                                : "bg-gray-300 text-gray-600"
+                                        )}>
+                                            {dayData.count}
+                                        </span>
+                                    </div>
+                                    {dayData.count > 0 && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Click to view details
+                                        </p>
+                                    )}
+                                    {dayData.count === 0 && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            No visits
+                                        </p>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Day Visits Detail Dialog */}
+            <Dialog open={dayVisitsDialogOpen} onOpenChange={setDayVisitsDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                                <ClipboardList className="h-5 w-5 text-primary" />
+                                Visits on {selectedDay}
+                            </span>
+                            <span className="text-sm font-normal text-muted-foreground">
+                                Total: {selectedDayVisits.length} visits
+                            </span>
+                        </DialogTitle>
+                        <DialogDescription>
+                            Detailed list of all visits on this day
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto mt-4">
+                        {selectedDayVisits.length === 0 ? (
+                            <div className="text-center py-8">
+                                <p className="text-muted-foreground">No visits on this day</p>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Visit ID</TableHead>
+                                        <TableHead>Doctor Name</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Sequence</TableHead>
+                                        {userType === "field_executive" && <TableHead>Prescription Type</TableHead>}
+                                        {userType === "manager" && <TableHead>Field Executive</TableHead>}
+                                        <TableHead className="w-[100px]">Status</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {selectedDayVisits.map((visit) => (
+                                        <TableRow key={visit.id}>
+                                            <TableCell className="font-medium">{visit.visitId}</TableCell>
+                                            <TableCell>{visit?.doctorName || visit?.pharmacyName}</TableCell>
+                                            <TableCell>{visit?.category}</TableCell>
+                                            <TableCell>{visit?.visitProgress}</TableCell>
+                                            {userType === "field_executive" && 
+                                                <TableCell>{visit?.practiceType}</TableCell>}
+                                            {userType === "manager" && 
+                                                <TableCell>{visit?.fieldExecutiveName}</TableCell>}
+                                            <TableCell>
+                                                <span className={cn(
+                                                    "inline-flex px-2 py-1 rounded-full text-xs font-medium border",
+                                                    getStatusColor(visit.status)
+                                                )}>
+                                                    {visit.status}
+                                                </span>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
