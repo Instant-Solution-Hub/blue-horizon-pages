@@ -31,4 +31,9 @@ export const fetchUserCounts = async ():Promise<any> => {
   return response.data;
 }
 
+export const getAllZsm = async ():Promise<any> => {
+  const response = await API.get('/admin/get-all-zsm');
+  return response.data;
+}
+
 
