@@ -21,6 +21,8 @@ interface SlotPlanDayRequest {
     reason: string;
     requestedManagerId: number | null;
     requestedManagerName: string | null;
+    requestedZsmId: number | null;
+    requestedZsmName: string | null;
     requestedFieldExecutiveId: number | null;
     requestedFieldExecutiveName: string | null;
     status: "PENDING" | "APPROVED" | "REJECTED";
@@ -29,56 +31,7 @@ interface SlotPlanDayRequest {
     adminNotes: string | null;
 }
 
-const mockRequests: SlotPlanDayRequest[] = [
-    {
-        id: 1,
-        reason: "Need to reschedule visits due to doctor unavailability",
-        requestedManagerId: null,
-        requestedManagerName: null,
-        requestedFieldExecutiveId: 5,
-        requestedFieldExecutiveName: "AKHIL",
-        status: "PENDING",
-        requestedAt: "2026-03-08",
-        reviewedAt: null,
-        adminNotes: null,
-    },
-    {
-        id: 3,
-        reason: "Territory change requires slot plan update",
-        requestedManagerId: 3,
-        requestedManagerName: "SALEESH",
-        requestedFieldExecutiveId: null,
-        requestedFieldExecutiveName: null,
-        status: "PENDING",
-        requestedAt: "2026-03-08",
-        reviewedAt: null,
-        adminNotes: null,
-    },
-    {
-        id: 4,
-        reason: "New doctors added to territory",
-        requestedManagerId: null,
-        requestedManagerName: null,
-        requestedFieldExecutiveId: 7,
-        requestedFieldExecutiveName: "RAJESH",
-        status: "APPROVED",
-        requestedAt: "2026-03-05",
-        reviewedAt: "2026-03-06",
-        adminNotes: "Approved for March cycle",
-    },
-    {
-        id: 5,
-        reason: "Want to adjust weekly schedule",
-        requestedManagerId: 2,
-        requestedManagerName: "DEEPA",
-        requestedFieldExecutiveId: null,
-        requestedFieldExecutiveName: null,
-        status: "REJECTED",
-        requestedAt: "2026-03-04",
-        reviewedAt: "2026-03-05",
-        adminNotes: "Slot plan already locked for this month",
-    },
-];
+
 
 const statusConfig = {
     PENDING: { label: "Pending", icon: Clock, variant: "outline" as const, className: "bg-amber-100 text-amber-800 border-amber-300" },
@@ -107,6 +60,9 @@ export default function AdminSlotPlanDayRequests() {
     const getRequesterInfo = (req: SlotPlanDayRequest) => {
         if (req.requestedFieldExecutiveName) {
             return { name: req.requestedFieldExecutiveName, role: "Field Executive" };
+        }
+        if (req.requestedZsmName) {
+            return { name: req.requestedZsmName, role: "ZSM" };
         }
         return { name: req.requestedManagerName ?? "Unknown", role: "Manager" };
     };
@@ -264,8 +220,8 @@ function RequestCard({
     onApprove?: () => void;
     onReject?: () => void;
 }) {
-    const requesterName = request.requestedFieldExecutiveName ?? request.requestedManagerName ?? "Unknown";
-    const requesterRole = request.requestedFieldExecutiveId ? "Field Executive" : "Manager";
+    const requesterName = request.requestedFieldExecutiveName ?? request.requestedManagerName ?? request.requestedZsmName ?? "Unknown";
+    const requesterRole = request.requestedFieldExecutiveId ? "Field Executive" : request.requestedZsmId ? "ZSM" : "Manager";
     const config = statusConfig[request.status];
 
     return (

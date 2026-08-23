@@ -39,6 +39,12 @@ export const slotPlanDayRequestManager = async (obj, managerId) : Promise<any[]>
   return res.data.data; // ApiResponseDto → data
 }
 
+export const slotPlanDayRequestZsm = async (obj, zsmId) : Promise<any[]> => {
+  const res = await API.post(`/slot-planning-requests/zsm/${zsmId}`, obj);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
 export const checkIfSlotPlanDayEnabled = async (userType, userId) : Promise<any> => {
   const res = await API.get(`/slot-planning-requests/can-plan-slot-today?requesterType=${userType}&requesterId=${userId}`);
   console.log(res);

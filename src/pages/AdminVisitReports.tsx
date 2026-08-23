@@ -39,8 +39,10 @@ import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
 import { exportFeVisits, fetchFEVisitReport } from "@/services/VisitService";
 import { fetchManagerVisitReport } from "@/services/ManagerVisitService";
+import { getAllZsm } from "@/services/AdminProfileService";
+import { exportZsmVisits, fetchZsmVisitReport } from "@/services/ZsmService";
 
-type UserType = "field_executive" | "manager";
+type UserType = "field_executive" | "manager" | "zsm";
 
 interface UserOption {
     id: number;
@@ -86,11 +88,12 @@ const AdminVisitReports = () => {
     const [itemsPerPage] = useState(10);
     const [fieldExecutives, setFieldExecutives] = useState<any[]>([]);
     const [managers, setManagers] = useState<any[]>([]);
+    const [zonalManagers, setZonalManagers] = useState<any[]>([]);
     const [visitReports, setVisitReports] = useState(defaultVisitReport);
     const [visits, setVisits] = useState<Visit[]>([]);
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [docTypeFilter, setDocTypeFilter] = useState<string>("all");
-    
+
     // Day Wise Count states
     const [dayWiseDialogOpen, setDayWiseDialogOpen] = useState(false);
     const [dayWiseData, setDayWiseData] = useState<DayWiseCount[]>([]);
@@ -101,6 +104,7 @@ const AdminVisitReports = () => {
     useEffect(() => {
         getAllFieldExecutives();
         getAllManagers();
+        getAllZonalManagers();
     }, []);
 
     const apply = async () => {
@@ -119,12 +123,23 @@ const AdminVisitReports = () => {
                         setVisitReports(defaultVisitReport);
                         setVisits([]);
                     });
-            } else {
+            } else if (userType === "manager") {
                 fetchManagerVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter, docTypeFilter)
                     .then((data) => {
                         setVisitReports(data);
                         setVisits(data.visits || []);
                         console.log("manager visits", visits);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching visit report:", error);
+                        setVisitReports(defaultVisitReport);
+                        setVisits([]);
+                    });
+            } else if (userType === "zsm") {
+                fetchZsmVisitReport(selectedUserId, formattedFromDate, formattedToDate, statusFilter, categoryFilter, docTypeFilter)
+                    .then((data) => {
+                        setVisitReports(data);
+                        setVisits(data.visits || []);
                     })
                     .catch((error) => {
                         console.error("Error fetching visit report:", error);
@@ -160,7 +175,7 @@ const AdminVisitReports = () => {
             const dateKey = format(currentDate, "yyyy-MM-dd");
             const formattedDate = format(currentDate, "dd MMM yyyy");
             const visitsOnDate = visitsByDate[dateKey] || [];
-            
+
             dayCountData.push({
                 date: formattedDate,
                 count: visitsOnDate.length,
@@ -222,11 +237,34 @@ const AdminVisitReports = () => {
         }
     };
 
+    const handleExportZsmVisits = async () => {
+        try {
+            let obj = {
+                "startDate": formatDateLocal(fromDate),
+                "endDate": formatDateLocal(toDate),
+                "zsmId": selectedUserId,
+                "visitStatus": statusFilter === "all" ? null : statusFilter,
+                "category": categoryFilter === "all" ? null : categoryFilter
+            };
+            const response = await exportZsmVisits(obj);
+            const url = window.URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visits_report_${selectedUser.name}_${formatDate(fromDate)}_${formatDate(toDate)}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading file", error);
+        }
+    };
+
     const handleExport = async () => {
         if (userType === "field_executive") {
             handleExportFeVisits();
-        } else {
+        } else if (userType === "manager") {
             handleExportManagerVisits();
+        } else if (userType === "zsm") {
+            handleExportZsmVisits();
         }
     };
 
@@ -257,6 +295,16 @@ const AdminVisitReports = () => {
         }
     };
 
+    const getAllZonalManagers = async () => {
+        try {
+            const response = await getAllZsm();
+            console.log("Fetched Zonal Managers: ", response);
+            setZonalManagers(response.data);
+        } catch (error) {
+            console.error("Error fetching zonal managers:", error);
+        }
+    };
+
     const formatDate = (date: Date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -264,7 +312,7 @@ const AdminVisitReports = () => {
         return `${year}-${month}-${day}`;
     };
 
-    const users = userType === "field_executive" ? fieldExecutives : managers;
+    const users = userType === "field_executive" ? fieldExecutives : userType === "manager" ? managers : zonalManagers;
 
     const filteredUsers = useMemo(() => {
         if (!userSearch.trim()) return users;
@@ -336,7 +384,7 @@ const AdminVisitReports = () => {
                             <h1 className="text-2xl font-bold text-white">Visit Reports</h1>
                         </div>
                         <p className="text-white/80 ml-14">
-                            View visit reports of Field Executives and Managers
+                            View visit reports of Field Executives, Managers and Zonal Sales Managers (ZSMs).
                         </p>
                     </div>
 
@@ -356,13 +404,20 @@ const AdminVisitReports = () => {
                         >
                             Manager
                         </Button>
+                        <Button
+                            variant={userType === "zsm" ? "default" : "outline"}
+                            onClick={() => handleUserTypeChange("zsm")}
+                            className="min-w-[160px]"
+                        >
+                            ZSM
+                        </Button>
                     </div>
 
                     {/* User List with Search */}
                     <Card className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
                         <CardHeader>
                             <CardTitle className="text-base">
-                                Select {userType === "field_executive" ? "Field Executive" : "Manager"}
+                                Select {userType === "field_executive" ? "Field Executive" : userType === "manager" ? "Manager" : "ZSM"}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -546,7 +601,7 @@ const AdminVisitReports = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* Day Wise Count Button */}
                                 {fromDate && toDate && visits.length > 0 && (
                                     <div className="flex justify-end">
@@ -787,8 +842,8 @@ const AdminVisitReports = () => {
                                     onClick={() => handleDayClick(dayData)}
                                     className={cn(
                                         "p-4 rounded-lg border-2 text-left transition-all hover:shadow-md",
-                                        dayData.count > 0 
-                                            ? "border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10 cursor-pointer" 
+                                        dayData.count > 0
+                                            ? "border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10 cursor-pointer"
                                             : "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
                                     )}
                                     disabled={dayData.count === 0}
@@ -797,8 +852,8 @@ const AdminVisitReports = () => {
                                         <span className="font-medium text-sm">{dayData.date}</span>
                                         <span className={cn(
                                             "inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                                            dayData.count > 0 
-                                                ? "bg-primary text-white" 
+                                            dayData.count > 0
+                                                ? "bg-primary text-white"
                                                 : "bg-gray-300 text-gray-600"
                                         )}>
                                             {dayData.count}
@@ -863,9 +918,9 @@ const AdminVisitReports = () => {
                                             <TableCell>{visit?.doctorName || visit?.pharmacyName}</TableCell>
                                             <TableCell>{visit?.category}</TableCell>
                                             <TableCell>{visit?.visitProgress}</TableCell>
-                                            {userType === "field_executive" && 
+                                            {userType === "field_executive" &&
                                                 <TableCell>{visit?.practiceType}</TableCell>}
-                                            {userType === "manager" && 
+                                            {userType === "manager" &&
                                                 <TableCell>{visit?.fieldExecutiveName}</TableCell>}
                                             <TableCell>
                                                 <span className={cn(

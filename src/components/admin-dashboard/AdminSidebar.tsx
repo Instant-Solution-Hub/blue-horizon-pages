@@ -22,7 +22,8 @@ import {
   ClipboardList,
   CalendarCheck,
   PackageOpen,
-  Stethoscope
+  Stethoscope,
+  Calendar
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,29 +41,42 @@ const AdminSidebar = () => {
   }, []);
 
   const isZonal = isZonalManager();
-  const menuItems = [
-    { icon: Home, label: "Home", path: "/admin-dashboard" },
-    { icon: CalendarRange, label: "Slots", path: "/admin-dashboard/slots" },
-    { icon: UsersRound, label: "User Management", path: "/admin-dashboard/user-management" },
-    { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
-    { icon: FileText, label: "Manager Leave Requests", path: "/admin-dashboard/leave-requests" },
-    { icon: FileText, label: "BDE Leave Requests", path: "/admin-dashboard/manager-leave-requests" },
-    { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
-    { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
-    { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
-    { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
-    { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
-    { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
-    { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
-    { icon: CalendarCheck, label: "Slot Plan Requests", path: "/admin-dashboard/slot-plan-day-requests" },
-    { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
-    { icon: ClipboardList, label: "Visit Reports", path: "/admin-dashboard/visit-reports" },
-    { icon: User, label: "Profile", path: "/admin-dashboard/profile" },
-  ].filter((item) =>
-    isZonal
-      ? !["User Management", "Portal Requests", "Slot Plan Requests"].includes(item.label)
-      : true
-  );
+
+const menuItems = [
+  { icon: Home, label: "Home", path: "/admin-dashboard" },
+  { icon: Calendar, label: "Profile", path: "/admin-dashboard/profile" },
+  { icon: CalendarRange, label: "Slots", path: "/admin-dashboard/slots" },
+  { icon: UsersRound, label: "User Management", path: "/admin-dashboard/user-management" },
+  { icon: ShoppingBag, label: "Products", path: "/admin-dashboard/products" },
+  { icon: FileText, label: "Manager Leave Requests", path: "/admin-dashboard/leave-requests" },
+  { icon: FileText, label: "BDE Leave Requests", path: "/admin-dashboard/manager-leave-requests" },
+  { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+  { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
+  { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
+  { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
+  { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
+  { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
+  { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },
+  { icon: CalendarCheck, label: "Slot Plan Requests", path: "/admin-dashboard/slot-plan-day-requests" },
+  { icon: Users, label: "Missed Visits", path: "/admin-dashboard/missed-visits" },
+  { icon: ClipboardList, label: "Visit Reports", path: "/admin-dashboard/visit-reports" },
+  
+
+  // Zonal Manager only
+  ...(isZonal
+    ? [
+        {
+          icon: Calendar,
+          label: "ZSM Slot Planning",
+          path: "/admin-dashboard/zsm-slot-planning",
+        },
+      ]
+    : []),
+].filter((item) =>
+  isZonal
+    ? !["User Management", "Portal Requests", "Slot Plan Requests"].includes(item.label)
+    : true
+);
 
   return (
     <aside
