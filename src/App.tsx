@@ -49,6 +49,16 @@ import AdminMissedVisits from "./pages/AdminMissedVisits";
 import SuperAdminSalesProgress from "./pages/SuperAdminSalesProgress";
 import SuperAdminProducts from "./pages/SuperAdminProducts";
 import SuperAdminWorkApprovals from "./pages/SuperAdminWorkApprovals";
+import SuperAdminManagerLeaveRequests from "./pages/SuperAdminManagerLeaveRequests";
+import SuperAdminBDELeaveRequests from "./pages/SuperAdminBDELeaveRequests";
+import SuperAdminDoctorChangeRequests from "./pages/SuperAdminDoctorChangeRequests";
+import SuperAdminSlots from "./pages/SuperAdminSlots";
+import SuperAdminDoctorConversions from "./pages/SuperAdminDoctorConversions";
+import SuperAdminPromotions from "./pages/SuperAdminPromotions";
+import SuperAdminCompetitiveBrands from "./pages/SuperAdminCompetitiveBrands";
+import SuperAdminStockLiquidation from "./pages/SuperAdminStockLiquidation";
+import SuperAdminMissedVisits from "./pages/SuperAdminMissedVisits";
+import SuperAdminVisitReports from "./pages/SuperAdminVisitReports";
 import WorkApprovalRequests from "./pages/WorkApprovalRequests";
 import ManagerWorkApprovalRequests from "./pages/ManagerWorkApprovalModal";
 import { VisualAidsPage } from "./pages/VisualAidsPage";
@@ -58,7 +68,6 @@ import AdminVisitReports from "./pages/AdminVisitReports";
 import ManagerLeaveData from "./pages/ManagerLeaveData";
 import AdminSlotPlanDayRequests from "./pages/AdminSlotPlanDayRequests";
 import SuperAdminManagerJoinings from "./pages/SuperAdminManagerJoinings";
-import SuperAdminVisitReports from "./pages/SuperAdminVisitReports";
 import ManagerVisitReports from "./pages/ManagerVisitReports";
 import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
@@ -138,6 +147,15 @@ const App = () => (
           <Route path="/super-admin-dashboard/work-approvals" element={<SuperAdminWorkApprovals />} />
          <Route path="/super-admin-dashboard/manager-joinings" element={<SuperAdminManagerJoinings />} />
          <Route path="/super-admin-dashboard/visit-reports" element={<SuperAdminVisitReports />} />
+          <Route path="/super-admin-dashboard/slots" element={<SuperAdminSlots />} />
+         <Route path="/super-admin-dashboard/manager-leave-requests" element={<SuperAdminManagerLeaveRequests />} />
+         <Route path="/super-admin-dashboard/bde-leave-requests" element={<SuperAdminBDELeaveRequests />} />
+         <Route path="/super-admin-dashboard/doctor-conversions" element={<SuperAdminDoctorConversions />} />
+         <Route path="/super-admin-dashboard/promotions" element={<SuperAdminPromotions />} />
+         <Route path="/super-admin-dashboard/doctor-change-requests" element={<SuperAdminDoctorChangeRequests />} />
+         <Route path="/super-admin-dashboard/competitive-brands" element={<SuperAdminCompetitiveBrands />} />
+         <Route path="/super-admin-dashboard/stock-liquidation" element={<SuperAdminStockLiquidation />} />
+         <Route path="/super-admin-dashboard/missed-visits" element={<SuperAdminMissedVisits />} />
                
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -11,8 +11,9 @@ import { isZonalManager } from "@/lib/userRoleUtils";
 
 
 
-const ManagerLeaveRequestsTab = () => {
+const ManagerLeaveRequestsTab = ({ isViewOnly }: { isViewOnly?: boolean } = {}) => {
   const isZonal = isZonalManager();
+  const viewOnly = Boolean(isViewOnly);
 
   const managerId = Number(sessionStorage.getItem("userID"));
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,9 +219,9 @@ const handleReject = async (id: number) => {
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 ml-11 lg:ml-0">
-                      {isZonal ? (
+                      {isZonal || viewOnly ? (
                         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                          Zonal Sales Manager can only view Manager Leave Requests.
+                          {viewOnly ? "Super Admin can only view Manager Leave Requests." : "Zonal Sales Manager can only view Manager Leave Requests."}
                         </div>
                       ) : (
                         <div className="flex gap-2">
