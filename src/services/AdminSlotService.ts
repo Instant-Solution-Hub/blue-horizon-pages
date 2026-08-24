@@ -21,6 +21,12 @@ export const fetchManagerVisitsByWeekDay = async (managerId: number, week: numbe
   return res.data.data; // ApiResponseDto → data
 }
 
+export const fetchZsmVisitsByWeekDay = async (zsmId: number, week: number, day: number) : Promise<any[]> => {
+  const res = await API.post(`/zsm-visits/get-all-visits-by-week-day?zsmId=${zsmId}&weekNumber=${week}&dayOfWeek=${day}`);
+  console.log(res);
+  return res.data.data; // ApiResponseDto → data
+}
+
 export const fetchFEVisitsByWeekDay = async (feId: number, week: number, day: number) : Promise<any[]> => {
   const res = await API.post(`/visit/get-all-visits-by-week-day?fieldExecutiveId=${feId}&weekNumber=${week}&dayOfWeek=${day}`);
   console.log(res);
@@ -69,3 +75,7 @@ export const changeManagerVisitStatus = async (visitId, status):Promise<any[]> =
   return res.data.data;
 }
 
+export const changeZsmVisitStatus = async (visitId, status):Promise<any[]> => {
+  const res = await API.post(`/zsm-visits/change-status/${visitId}/${status}`);
+  return res.data.data;
+}

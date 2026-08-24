@@ -10,11 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, UserPlus, Send, CalendarCheck, Phone, Mail, MapPin, Hash, User, Calendar, Clock, Building, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  fetchPriorityFieldExecutives,
-  assignManagerToFieldExecutive,
-  unAssignManagerToFieldExecutive
-} from "@/services/ManagerService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,12 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ManagerRequestUpdateModal } from "@/components/manager-slot-planning/ManagerRequestUpdateModal";
-import { checkIfSlotPlanDayEnabled, slotChangeRequest, slotPlanDayRequestManager } from "@/services/SlotRequestService";
-import { fetchAllNextMonthVisits, fetchAllCurrentMonthVisits } from "@/services/ManagerVisitService";
+import { checkIfSlotPlanDayEnabled, slotChangeRequest, slotPlanDayRequestManager, slotPlanDayRequestZsm } from "@/services/SlotRequestService";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { holidayList } from "./SlotPlanning";
 import { SlotPlanDayRequestModal } from "@/components/slot-planning/SlotPlanDayRequestModal";
+import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
+import { assignZsmToFieldExecutive, fetchAllCurrentMonthVisits, fetchPriorityFieldExecutives, unAssignZsmFromFieldExecutive } from "@/services/ZsmService";
 
 /* ---------------- TYPES ---------------- */
 
@@ -61,7 +57,7 @@ interface ManagerVisit {
 
 /* ---------------- PAGE ---------------- */
 
-export default function ManagerSlotPlanning() {
+export default function ZsmSlotPlanning() {
   const { toast } = useToast();
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
   const [slotPlanDayEnabled, setSlotPlanDayEnabled] = useState(false);
@@ -84,7 +80,7 @@ export default function ManagerSlotPlanning() {
   };
   const today = new Date();
   const isFirstOfMonth = today.getDate() === 2 || slotPlanDayEnabled;
-  // const isFirstOfMonth = true; // For testing
+//   const isFirstOfMonth = true; // For testing
 
   const getMonth = () => {
     // if its the slot planning day, show next month, else show current month
@@ -135,11 +131,11 @@ export default function ManagerSlotPlanning() {
       if (isFirstOfMonth) {
         // First of month: Show FE assignment page
         fetchAllocatedFEsData();
-        fetchManagerVisitsByWeekDay();
+        fetchZsmVisitsByWeekDay();
 
       } else {
         // After first of month: Show manager's assigned visits
-        fetchManagerVisitsByWeekDay();
+        fetchZsmVisitsByWeekDay();
       }
     }
   }, [selectedWeek, selectedDay, isFirstOfMonth]);
@@ -182,7 +178,6 @@ export default function ManagerSlotPlanning() {
     setIsLoading(true);
     try {
       const response = await fetchPriorityFieldExecutives(
-        userId,
         selectedWeek,
         selectedDay
       );
@@ -206,7 +201,7 @@ export default function ManagerSlotPlanning() {
     }
   };
 
-  const fetchManagerVisitsByWeekDay = async () => {
+  const fetchZsmVisitsByWeekDay = async () => {
     setIsLoading(true);
     try {
       let response;
@@ -258,15 +253,15 @@ export default function ManagerSlotPlanning() {
     setIsAssigning(true);
     try {
       let obj = {
-        "managerId": userId,
+        "zsmId": userId,
         "fieldExecutiveId": feId,
         "weekNumber": selectedWeek,
         "dayOfWeek": selectedDay
       }
-      const response = await assignManagerToFieldExecutive(obj);
+      const response = await assignZsmToFieldExecutive(obj);
 
       if (response.success) {
-        fetchManagerVisitsByWeekDay();
+        fetchZsmVisitsByWeekDay();
 
         // Update local state to track assignment
         // setAssignedFEs(prev => [...prev, feId]);
@@ -278,7 +273,7 @@ export default function ManagerSlotPlanning() {
 
         // Refresh the visits list if not first of month
         if (!isFirstOfMonth) {
-          fetchManagerVisitsByWeekDay();
+          fetchZsmVisitsByWeekDay();
         }
       }
     } catch (error: any) {
@@ -297,15 +292,15 @@ export default function ManagerSlotPlanning() {
     setIsUnAssigning(true);
     try {
       let obj = {
-        "managerId": userId,
+        "zsmId": userId,
         "fieldExecutiveId": feId,
         "weekNumber": selectedWeek,
         "dayOfWeek": selectedDay
       }
-      const response = await unAssignManagerToFieldExecutive(obj);
+      const response = await unAssignZsmFromFieldExecutive(obj);
 
       if (response.success) {
-        fetchManagerVisitsByWeekDay();
+        fetchZsmVisitsByWeekDay();
 
         // Update local state to track assignment
         // setAssignedFEs(prev => [...prev, feId]);
@@ -317,7 +312,7 @@ export default function ManagerSlotPlanning() {
 
         // Refresh the visits list if not first of month
         if (!isFirstOfMonth) {
-          fetchManagerVisitsByWeekDay();
+          fetchZsmVisitsByWeekDay();
         }
       }
     } catch (error: any) {
@@ -366,7 +361,7 @@ export default function ManagerSlotPlanning() {
   const handleSlotDayRequestSubmit = async (data) => {
     try {
       // API call to create request
-      const response = await slotPlanDayRequestManager(data, userId);
+      const response = await slotPlanDayRequestZsm(data, userId);
       console.log("Submitting Slot Plan Day Request with data: ", data);
       toast({
         title: "Success",
@@ -634,17 +629,17 @@ export default function ManagerSlotPlanning() {
 
   return (
     <div className="h-screen bg-background flex w-full overflow-hidden">
-      <ManagerSidebar />
+      <AdminSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <ManagerHeader />
+        <Header />
 
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold">Manager Slot Planning</h1>
+                <h1 className="text-2xl font-bold">ZSM Slot Planning</h1>
                 <p className="text-muted-foreground">
                   {nextMonthName} • {isFirstOfMonth ? "Assign to Field Executive Visits" : "Your Assigned Visits"}
                 </p>
@@ -670,7 +665,7 @@ export default function ManagerSlotPlanning() {
                   }
                 </CardTitle>
 
-                {!isFirstOfMonth && (
+                {/* {!isFirstOfMonth && (
                   <Button
                     variant="outline"
                     onClick={() => setIsRequestModalOpen(true)}
@@ -678,7 +673,7 @@ export default function ManagerSlotPlanning() {
                     <Send className="h-4 w-4 mr-2" />
                     Request Changes
                   </Button>
-                )}
+                )} */}
               </CardHeader>
 
               <CardContent className="space-y-6">
@@ -907,7 +902,7 @@ export default function ManagerSlotPlanning() {
                         )}
                       </>
                     ) : (
-                      /* ========== AFTER FIRST OF MONTH: MANAGER VISITS PAGE ========== */
+                      /* ========== AFTER FIRST OF MONTH: ZSM VISITS PAGE ========== */
                       <>
                         {/* Visits Summary */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1010,7 +1005,7 @@ export default function ManagerSlotPlanning() {
         isOpen={isSlotRequestPopupOpen}
         onClose={() => setIsSlotRequestPopupOpen(false)}
         onSubmit={handleSlotDayRequestSubmit}
-        userType={"MANAGER"}
+        userType={"ZSM"}
         userId={userId}
       />
     </div>
