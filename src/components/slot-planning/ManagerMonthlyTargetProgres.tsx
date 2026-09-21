@@ -1,0 +1,116 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { fetchMonthlyProgressData } from "@/services/VisitService";
+import { useEffect, useState } from "react";
+
+interface CategoryProgress {
+  category: string;
+  label: string;
+  targetDoctors: number;
+  visitsPerDoctor: number;
+  completedDoctors: number;
+  completedVisits: number;
+  color: string;
+}
+
+// const categoryData: CategoryProgress[] = [
+//   {
+//     category: "A_PLUS",
+//     label: "A+",
+//     targetDoctors: 30,
+//     visitsPerDoctor: 3,
+//     completedDoctors: 12,
+//     completedVisits: 36,
+//     color: "bg-emerald-500",
+//   },
+//   {
+//     category: "A",
+//     label: "A",
+//     targetDoctors: 60,
+//     visitsPerDoctor: 2,
+//     completedDoctors: 25,
+//     completedVisits: 50,
+//     color: "bg-blue-500",
+//   },
+//   {
+//     category: "B",
+//     label: "B",
+//     targetDoctors: 10,
+//     visitsPerDoctor: 1,
+//     completedDoctors: 4,
+//     completedVisits: 4,
+//     color: "bg-amber-500",
+//   },
+// ];
+
+export function ManagerMonthlyTargetProgress() {
+  const [categoryData, setCategoryData] = useState<CategoryProgress[]>([]);
+  const [overall, setOverall] = useState<{
+    totalCompletedVisits: number;
+    totalTargetVisits: number;
+    overallProgress: number;
+  }>({
+    totalCompletedVisits: 0,
+    totalTargetVisits: 0,
+    overallProgress: 0,
+  });
+
+  useEffect(() => {
+    getMonthlyProgressData();
+  }, []);
+
+  const getMonthlyProgressData = async () => {
+   const data =  await fetchMonthlyProgressData(Number(sessionStorage.getItem("feID")));
+    setCategoryData(
+        data.categories.map((c: any) => ({
+          category: c.category,
+          label: c.label,
+          targetDoctors: c.targetDoctors,
+          visitsPerDoctor: c.visitsPerDoctor,
+          completedDoctors: c.completedDoctors,
+          completedVisits: c.completedVisits,
+          color:
+            c.category === "A_PLUS"
+              ? "bg-emerald-500"
+              : c.category === "A"
+              ? "bg-blue-500"
+              : "bg-amber-500",
+        }))
+      );
+      setOverall({
+        totalCompletedVisits: data.totalCompletedVisits,
+        totalTargetVisits: data.totalTargetVisits,
+        overallProgress: data.overallProgress,
+      });
+  };
+
+  const totalTargetVisits = categoryData.reduce(
+    (sum, cat) => sum + cat.targetDoctors * cat.visitsPerDoctor,
+    0
+  );
+  const totalCompletedVisits = categoryData.reduce(
+    (sum, cat) => sum + cat.completedVisits,
+    0
+  );
+  const overallProgress = Math.round((totalCompletedVisits / totalTargetVisits) * 100);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Monthly Target Progress</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Overall Progress */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Overall Completion</span>
+            <span className="text-muted-foreground">
+              {totalCompletedVisits} / {totalTargetVisits} visits ({overallProgress}%)
+            </span>
+          </div>
+          <Progress value={overallProgress} className="h-3" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

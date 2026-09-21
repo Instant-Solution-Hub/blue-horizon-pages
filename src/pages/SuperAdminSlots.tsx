@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
+import SuperAdminSidebar from "@/components/super-admin-dashboard/SuperAdminSidebar";
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,14 +13,10 @@ import { SlotRequestsModal, SlotRequest } from "@/components/admin-slots/SlotReq
 import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
 import { set } from "date-fns";
-import { changeFeVisitStatus, changeManagerVisitStatus, changeZsmVisitStatus, fetchFEVisitsByWeekDay, fetchManagerVisitsByWeekDay, fetchZsmVisitsByWeekDay } from "@/services/AdminSlotService";
+import { changeFeVisitStatus, changeManagerVisitStatus, fetchFEVisitsByWeekDay, fetchManagerVisitsByWeekDay } from "@/services/AdminSlotService";
 import { AdminSlotVisitListManager } from "@/components/admin-slots/AdminSlotVisitListManager";
 import { getAllPendingRequests, reviewSlotChangeRequest } from "@/services/SlotRequestService";
 import { holidayList } from "./SlotPlanning";
-import { getAllZsm } from "@/services/AdminProfileService";
-import { AdminSlotVisitListZsm } from "@/components/admin-slots/AdminSlotVisitListZsm";
-
-/* ---------- MOCK DATA ---------- */
 
 const mockFieldExecutives: Person[] = [
   { id: 1, name: "Rahul Sharma", employeeCode: "FE001", territory: "North Delhi" },
@@ -51,12 +47,9 @@ const mockVisits: Record<string, AdminSlotVisit[]> = {
   ],
 };
 
+type SlotType = "field_executive" | "manager";
 
-/* ---------- PAGE ---------- */
-
-type SlotType = "field_executive" | "manager" | "zsm";
-
-export default function AdminSlots() {
+export default function SuperAdminSlots() {
   const { toast } = useToast();
   const [slotType, setSlotType] = useState<SlotType | null>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
@@ -66,22 +59,18 @@ export default function AdminSlots() {
   const [slotRequests, setSlotRequests] = useState<SlotRequest[]>([]);
   const [fieldExecutives, setFieldExecutives] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
-  const [zonalManagers, setZonalManagers] = useState<any[]>([]);
   const [managerVisits, setManagerVisits] = useState<any[]>([]);
-  const [zsmVisits, setZsmVisits] = useState<any[]>([]);
   const [feDoctorVisits, setFEDoctorVisits] = useState<any[]>([]);
   const [fePharmacistVisits, setFEPharmacistVisits] = useState<any[]>([]);
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
   const userId = sessionStorage.getItem("userID");
-  const isAdmin = Number(userId) === 1; 
-  const [dayMapping, setDayMapping] = useState<
+ const [dayMapping, setDayMapping] = useState<
     Map<number, { date: number; label: string; isHoliday: boolean }>
   >(new Map());
 
   useEffect(() => {
     fetchAllFieldExecutives();
     fetchAllManagers();
-    fetchAllZonalManagers();
     fetchAllPendingSlotRequests();
 
   }, []);
@@ -92,8 +81,6 @@ export default function AdminSlots() {
       fetchFEVisits(selectedPersonId, selectedWeek, selectedDay);
     } else if (slotType === "manager" && selectedPersonId) {
       fetchManagerVisits(selectedPersonId, selectedWeek, selectedDay);
-    } else if (slotType === "zsm" && selectedPersonId) {
-      fetchZsmVisits(selectedPersonId, selectedWeek, selectedDay);
     }
   }, [selectedDay, selectedWeek, selectedPersonId]);
 
@@ -101,14 +88,6 @@ export default function AdminSlots() {
     const response = await fetchFEs();
     console.log("Fetched Field Executives: ", response);
     setFieldExecutives(response);
-    // You can set the fetched data to state here if needed
-  };
-
-  const fetchAllZonalManagers = async () => {
-    const response = await getAllZsm();
-    console.log("Fetched Zonal Managers: ", response);
-    setZonalManagers(response.data);
-    // You can set the fetched data to state here if needed
   };
 
   const fetchAllManagers = async () => {
@@ -121,12 +100,6 @@ export default function AdminSlots() {
     console.log(`Fetching visits for Manager ID: ${managerId}, Week: ${week}, Day: ${day}`);
     const response = await fetchManagerVisitsByWeekDay(managerId, week, day);
     setManagerVisits(response);
-  };
-
-  const fetchZsmVisits = async (zsmId: number, week: number, day: number) => {
-    console.log(`Fetching visits for ZSM ID: ${zsmId}, Week: ${week}, Day: ${day}`);
-    const response = await fetchZsmVisitsByWeekDay(zsmId, week, day);
-    setZsmVisits(response);
   };
 
   const fetchFEVisits = async (feId: number, week: number, day: number) => {
@@ -185,7 +158,7 @@ export default function AdminSlots() {
     toast({ title: "Request Rejected", description: "The slot update request has been rejected." });
   };
 
-  const persons = slotType === "field_executive" ? fieldExecutives : slotType === "manager" ? managers : slotType === "zsm" ? zonalManagers : [];
+  const persons = slotType === "field_executive" ? fieldExecutives : slotType === "manager" ? managers : [];
 
   const selectedPerson = useMemo(
     () => persons.find((p) => p.id === selectedPersonId) ?? null,
@@ -206,12 +179,8 @@ export default function AdminSlots() {
 
   function getCurrentWeekAndDay() {
     const today = new Date();
-
-    // Day of week: Mon = 1, Sun = 7
-    const jsDay = today.getDay(); // 0 = Sun
+    const jsDay = today.getDay();
     const currentDay = jsDay === 0 ? 7 : jsDay;
-
-    // Week of month (1–4/5)
     const firstDayOfMonth = new Date(
       today.getFullYear(),
       today.getMonth(),
@@ -224,35 +193,24 @@ export default function AdminSlots() {
     return { currentWeek, currentDay };
   }
 
-  const handleFeStatusChange = async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
+  const handleFeStatusChange =async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
     try {
       let response = await changeFeVisitStatus(visitId, newStatus);
       fetchFEVisits(selectedPersonId, selectedWeek, selectedDay);
       toast({ title: "Status Updated", description: "Status has been updated successfully." });
     } catch (error) {
-      toast({ title: "Status Updation Failed", description: "Status updation failed." });
+      toast({ title: "Status Updation Failed", description: "Status updation failed."});
     }
 
   };
 
-  const handleManagerStatusChange = async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
+    const handleManagerStatusChange =async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
     try {
       let response = await changeManagerVisitStatus(visitId, newStatus);
       fetchManagerVisits(selectedPersonId, selectedWeek, selectedDay);
       toast({ title: "Status Updated", description: "Status has been updated successfully." });
     } catch (error) {
-      toast({ title: "Status Updation Failed", description: "Status updation failed." });
-    }
-
-  };
-
-  const handleZsmStatusChange = async (visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") => {
-    try {
-      let response = await changeZsmVisitStatus(visitId, newStatus);
-      fetchZsmVisits(selectedPersonId, selectedWeek, selectedDay);
-      toast({ title: "Status Updated", description: "Status has been updated successfully." });
-    } catch (error) {
-      toast({ title: "Status Updation Failed", description: "Status updation failed." });
+      toast({ title: "Status Updation Failed", description: "Status updation failed."});
     }
 
   };
@@ -260,12 +218,11 @@ export default function AdminSlots() {
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
-      <AdminSidebar />
+      <SuperAdminSidebar />
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 overflow-auto">
           <div className="p-6 space-y-6">
-            {/* Header */}
             <div className="animate-fade-in bg-primary rounded-xl p-6 shadow-md">
               <div className="flex items-center justify-between">
                 <div>
@@ -279,7 +236,7 @@ export default function AdminSlots() {
                     View planned slot schedules for Field Executives and Managers
                   </p>
                 </div>
-                {isAdmin && (<Button
+                <Button
                   variant="secondary"
                   onClick={() => setIsRequestsOpen(true)}
                   className="relative"
@@ -291,11 +248,10 @@ export default function AdminSlots() {
                       {pendingCount}
                     </span>
                   )}
-                </Button>)}
+                </Button>
               </div>
             </div>
 
-            {/* Step 1 — Select Type */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Select Slot Type</CardTitle>
@@ -314,28 +270,15 @@ export default function AdminSlots() {
                   >
                     Manager
                   </Button>
-                 {isAdmin && ( <Button
-                    variant={slotType === "zsm" ? "default" : "outline"}
-                    onClick={() => handleTypeChange("zsm")}
-                  >
-                    RSM
-                  </Button>)}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Step 2 — Select Person */}
             {slotType && (
               <Card className="animate-fade-in">
                 <CardHeader>
                   <CardTitle className="text-base">
-                    Select {
-                      slotType === "field_executive"
-                        ? "Field Executive"
-                        : slotType === "zsm"
-                          ? "ZSM"
-                          : "Manager"
-                    }
+                    Select {slotType === "field_executive" ? "Field Executive" : "Manager"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -343,13 +286,12 @@ export default function AdminSlots() {
                     persons={persons}
                     selectedPersonId={selectedPersonId}
                     onSelect={setSelectedPersonId}
-                    placeholder={`Search ${slotType === "field_executive" ? "Field Executive" : slotType === "zsm" ? "ZSM" : "Manager"} by name or employee ID...`}
+                    placeholder={`Search ${slotType === "field_executive" ? "Field Executive" : "Manager"} by name or employee ID...`}
                   />
                 </CardContent>
               </Card>
             )}
 
-            {/* Step 3 — Week & Day + Visits */}
             {selectedPerson && (
               <Card className="animate-fade-in">
                 <CardHeader>
@@ -375,10 +317,10 @@ export default function AdminSlots() {
                     holidays={holidayList}
                   />
                   {slotType === "manager" ? (
-                    <AdminSlotVisitListManager isAdmin={isAdmin} doctorVisits={managerVisits} pharmacistVisits={[]} handleStatusChange={handleManagerStatusChange} />
-                  ) : slotType ==="zsm" ? (<AdminSlotVisitListZsm isAdmin={isAdmin} doctorVisits={zsmVisits} pharmacistVisits={[]} handleStatusChange={handleZsmStatusChange} />) : (
+                    <AdminSlotVisitListManager doctorVisits={managerVisits} pharmacistVisits={[]} handleStatusChange={handleManagerStatusChange} />
+                  ) : (
 
-                    <AdminSlotVisitList isAdmin={isAdmin} doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} handleStatusChange={handleFeStatusChange} />
+                    <AdminSlotVisitList doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} handleStatusChange={handleFeStatusChange} />
                   )}
                 </CardContent>
               </Card>

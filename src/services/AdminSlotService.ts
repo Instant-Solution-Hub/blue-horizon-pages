@@ -79,3 +79,52 @@ export const changeZsmVisitStatus = async (visitId, status):Promise<any[]> => {
   const res = await API.post(`/zsm-visits/change-status/${visitId}/${status}`);
   return res.data.data;
 }
+
+
+export const fetchAllZsmFeRequests = async () => {
+    const response = await API.get("/zsm-visits/admin/fe-requests/pending");
+    return response.data.data;
+};
+
+
+export const reviewZsmFeRequest = async (payload: {
+    requestId: number;
+    adminId: number;
+    adminRemarks: string | null;
+    action: "approve" | "reject";
+}) => {
+    const endpoint =
+        payload.action === "approve"
+            ? "/zsm-visits/admin/fe-requests/approve"
+            : "/zsm-visits/admin/fe-requests/reject";
+    const response = await API.post(endpoint, {
+        requestId: payload.requestId,
+        adminId: payload.adminId,
+        adminRemarks: payload.adminRemarks,
+    });
+    return response.data;
+};
+
+
+export const fetchAllManagerFeRequests = async () => {
+    const response = await API.get("/manager-visits/admin/fe-requests/pending");
+    return response.data.data;
+};
+
+export const reviewManagerFeRequest = async (payload: {
+    requestId: number;
+    adminId: number;
+    adminRemarks: string | null;
+    action: "approve" | "reject";
+}) => {
+    const endpoint =
+        payload.action === "approve"
+            ? "/manager-visits/admin/fe-requests/approve"
+            : "/manager-visits/admin/fe-requests/reject";
+    const response = await API.post(endpoint, {
+        requestId: payload.requestId,
+        adminId: payload.adminId,
+        adminRemarks: payload.adminRemarks,
+    });
+    return response.data;
+};

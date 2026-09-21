@@ -27,6 +27,7 @@ export interface AdminSlotVisit {
 interface AdminSlotVisitListProps {
   doctorVisits: AdminSlotVisit[];
   pharmacistVisits: AdminSlotVisit[];
+  isAdmin: boolean;
   handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
 }
 
@@ -46,11 +47,13 @@ const practiceTypeLabels: Record<string, string> = {
 function DoctorVisitTable({
   title,
   visits,
-  handleStatusChange
+  handleStatusChange,
+  isAdmin
 }: {
   title: string;
   visits: any[];
- handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
+  handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
+  isAdmin: boolean;
 }) {
 
    const [pendingStatus, setPendingStatus] = useState<Record<string, string>>({});
@@ -113,7 +116,7 @@ function DoctorVisitTable({
               <TableHead>Designation</TableHead>
               <TableHead>Hospital</TableHead>
               <TableHead>Visit Status</TableHead>
-              <TableHead>Action</TableHead>
+             {isAdmin && <TableHead>Action</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,7 +150,7 @@ function DoctorVisitTable({
                 <TableCell>
                   <Badge variant="secondary">{visit.status}</Badge>
                 </TableCell>
-                <TableCell>
+                {isAdmin && (<TableCell>
                   {pendingStatus[visit.visitId] ? (
                     <div className="flex items-center gap-2">
                       <div className="text-sm font-medium mr-1">
@@ -185,7 +188,7 @@ function DoctorVisitTable({
                       </SelectContent>
                     </Select>
                   )}
-                </TableCell>
+                </TableCell>)}
               </TableRow>
             ))}
           </TableBody>
@@ -196,12 +199,13 @@ function DoctorVisitTable({
 }
 
 export function AdminSlotVisitListManager({
+  isAdmin,  
   doctorVisits,
   handleStatusChange
 }: AdminSlotVisitListProps) {
   return (
     <div className="space-y-4">
-      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} handleStatusChange={handleStatusChange} />
+      <DoctorVisitTable title="Doctor Visits" isAdmin={isAdmin} visits={doctorVisits} handleStatusChange={handleStatusChange} />
     </div>
   );
 }

@@ -8,6 +8,8 @@ import {
   ChevronRight,
   UserPlus,
   ClipboardList,
+  Inbox,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,8 +21,17 @@ const SuperAdminSidebar = () => {
     { icon: TrendingUp, label: "Sales Progress", path: "/super-admin-dashboard/sales-progress" },
     { icon: Package, label: "Products", path: "/super-admin-dashboard/products" },
     { icon: ClipboardCheck, label: "Work Approvals", path: "/super-admin-dashboard/work-approvals" },
-     { icon: UserPlus, label: "Manager Joinings", path: "/super-admin-dashboard/manager-joinings" },
-     { icon: ClipboardList, label: "Visit Reports", path: "/super-admin-dashboard/visit-reports" },
+    { icon: UserPlus, label: "Manager Joinings", path: "/super-admin-dashboard/manager-joinings" },
+    { icon: ClipboardList, label: "Visit Reports", path: "/super-admin-dashboard/visit-reports" },
+    { icon: Inbox, label: "Slots", path: "/super-admin-dashboard/slots" },
+    { icon: FileText, label: "Manager Leave Requests", path: "/super-admin-dashboard/manager-leave-requests" },
+    { icon: FileText, label: "BDE Leave Requests", path: "/super-admin-dashboard/bde-leave-requests" },
+    { icon: UserPlus, label: "Doctor Conversions", path: "/super-admin-dashboard/doctor-conversions" },
+    { icon: ClipboardCheck, label: "Promotions", path: "/super-admin-dashboard/promotions" },
+    { icon: ClipboardList, label: "Doctor Change Requests", path: "/super-admin-dashboard/doctor-change-requests" },
+    { icon: Package, label: "Competitive Brands", path: "/super-admin-dashboard/competitive-brands" },
+    { icon: Inbox, label: "Stock Liquidation", path: "/super-admin-dashboard/stock-liquidation" },
+    { icon: Inbox, label: "Missed Visits", path: "/super-admin-dashboard/missed-visits" },
   ];
 
   return (

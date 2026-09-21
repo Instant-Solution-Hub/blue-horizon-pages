@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
+import SuperAdminSidebar from "@/components/super-admin-dashboard/SuperAdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,8 @@ const typeColor: Record<PracticeType, string> = {
   OP: "bg-amber-100 text-amber-700 border-amber-200",
   NP: "bg-slate-100 text-slate-700 border-slate-200",
 };
-const AdminDoctorChangeRequests = ({ isViewOnly }: { isViewOnly?: boolean } = {}) => {
+
+const SuperAdminDoctorChangeRequests = () => {
   const [stats, setStats] = useState<DoctorChangeStats[]>([]);
   const [pendingRequests, setPendingRequests] = useState<DoctorChangeRequest[]>([]);
   const [selectedFe, setSelectedFe] = useState<{ id: string; name: string } | null>(null);
@@ -79,7 +80,7 @@ const AdminDoctorChangeRequests = ({ isViewOnly }: { isViewOnly?: boolean } = {}
     return pendingRequests.filter((r) => r.fieldExecutiveId === selectedFe.id);
   }, [selectedFe, pendingRequests]);
 
-  const viewOnly = Boolean(isViewOnly);
+  const viewOnly = true; // Super Admin should be view-only for doctor change requests
 
   const handleReview = async (id: string, approve: boolean) => {
     if (viewOnly) return;
@@ -105,7 +106,7 @@ const AdminDoctorChangeRequests = ({ isViewOnly }: { isViewOnly?: boolean } = {}
   };
   return (
     <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+      <SuperAdminSidebar />
       <main className="flex-1 p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Doctor Change Requests</h1>
@@ -224,4 +225,4 @@ const AdminDoctorChangeRequests = ({ isViewOnly }: { isViewOnly?: boolean } = {}
     </div>
   );
 };
-export default AdminDoctorChangeRequests;
+export default SuperAdminDoctorChangeRequests;
