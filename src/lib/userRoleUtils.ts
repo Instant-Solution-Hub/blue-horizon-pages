@@ -24,5 +24,6 @@ export const isZonalManager = (): boolean => {
   const userId = sessionStorage.getItem("userID");
   console.log( role==="Admin");
   console.log(userId==="2");
+  console.log("Zonal Manager", role === "Admin" && userId === "2");
   return role === "Admin" && userId === "2";
 };

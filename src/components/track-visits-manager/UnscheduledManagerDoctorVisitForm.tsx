@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,20 +75,24 @@ export function UnscheduledManagerDoctorVisitForm({ onSubmit, onCancel, products
     { productId: 0, quantity: 1, value: 0 },
   ]);
 
+  useEffect(() => {
+      console.log("doctors", doctors);
+    }, []);
+    
   // Search state
   const [doctorSearch, setDoctorSearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Filter doctors based on search
   const filteredDoctors = doctors.filter((doctor) =>
-    doctor.name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
-    doctor.hospitalName.toLowerCase().includes(doctorSearch.toLowerCase()) ||
-    doctor.designation.toLowerCase().includes(doctorSearch.toLowerCase())
+    doctor.name?.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+    doctor.hospitalName?.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+    doctor.designation?.toLowerCase().includes(doctorSearch.toLowerCase())
   );
 
   const handleDoctorChange = (doctorId: string) => {
     const doctor = doctors.find((d) => d.id === doctorId);
-    onDesignationChange(doctor.designation);
+    onDesignationChange(doctor?.designation);
     setSelectedVisit(doctor || null);
     setDoctorSearch(doctor?.name || "");
     setIsDropdownOpen(false);

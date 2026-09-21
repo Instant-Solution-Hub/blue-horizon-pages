@@ -68,3 +68,88 @@ export const exportZsmVisits = async (obj: any) => {
   });
     return response.data;
 }
+
+export const fetchTodaysAndMissedVisits = async (zsmId: number) => {
+  const response = await API.get(`/zsm-visits/today-scheduled-and-missed?zsmId=${zsmId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const fetchCompletedVisits = async (zsmId: number) => {
+  const response = await API.get(`/zsm-visits/completed-visits?zsmId=${zsmId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const fetchMissedVisits = async (zsmId: number) => {
+  const response = await API.get(`/zsm-visits/missed-visits?zsmId=${zsmId}`, { 
+    headers: {
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+
+export const markVisit = async (visitData: any) => {
+  const response = await API.post(`/zsm-visits/mark`, visitData, {
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const reMarkVisit = async (visitData: any) => {
+  const response = await API.post(`/zsm-visits/re-mark`, visitData, {
+    headers: {    
+        "Content-Type": "application/json", 
+        "Accept": "application/json", 
+    },
+  });
+    return response.data;
+}
+
+export const createUnscheduledVisit = async (visitData: any) => {
+  const response = await API.post(`/zsm-visits/create-unscheduled`, visitData, {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+  });
+    return response.data;
+}
+
+export const requestNewFieldExecutive = async (payload: {
+  zsmId: number;
+  requestedFieldExecutiveId: number;
+  currentFieldExecutiveId?: number;
+  weekNumber: number;
+  dayOfWeek: number;
+  reason: string;
+}) => {
+  const response = await API.post("/zsm-visits/request-new-fe", payload);
+  return response.data;
+};
+
+export const fetchMyFeRequests = async (zsmId: number) => {
+  const response = await API.get(`/zsm-visits/fe-requests?zsmId=${zsmId}`);
+  return response.data.data;
+};
+
+export const cancelFeRequest = async (requestId: number, zsmId: number) => {
+  const response = await API.post(
+    `/zsm-visits/fe-requests/cancel/${requestId}?zsmId=${zsmId}`
+  );
+  return response.data;
+};

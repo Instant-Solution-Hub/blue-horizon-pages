@@ -44,7 +44,7 @@ export function AddManagerVisitModal({ isOpen, onClose, onSubmit, todaysVisits, 
   };
 
   useEffect(() => {
-    console.log("Todays Visits in AddVisitModal:", todaysVisits,);
+    console.log("doctors", doctors);
   }, []);
 
   const handleSubmit = (data: ManagerDoctorVisitData) => {

@@ -1,0 +1,69 @@
+import { Bell, Search, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import { isZonalManager } from "@/lib/userRoleUtils";
+
+const AdminHeader = () => {
+  const navigate = useNavigate();
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const currentTime = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+ 
+ const userName = sessionStorage.getItem("userName") || "";
+ const userRole = sessionStorage.getItem("userRole") || "";
+ const isZonal = isZonalManager();
+  return (
+    <header className="bg-card border-b border-border px-6 py-4 sticky top-0 z-10">
+      <div className="flex items-center justify-between">
+        {/* Welcome Message */}
+        <div>
+          <h1 className="text-xl font-display font-bold text-foreground">
+            {isZonal ? "Regional Manager" : "Admin"} Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">Welcome, {userName}</p>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-4">
+          {/* Date & Time */}
+          <div className="hidden md:block text-right">
+            <p className="text-sm font-medium text-foreground">{currentDate}</p>
+            <p className="text-xs text-muted-foreground">{currentTime}</p>
+          </div>
+
+          {/* Notifications */}
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
+          </Button>
+
+          {/* Profile */}
+          <div className="flex items-center gap-3 pl-4 border-l border-border">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                JD
+              </AvatarFallback>
+            </Avatar>
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium text-foreground">{userName}</p>
+              <p className="text-xs text-muted-foreground">{userRole=="FE" ? "Field Executive" : "Manager"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default AdminHeader;

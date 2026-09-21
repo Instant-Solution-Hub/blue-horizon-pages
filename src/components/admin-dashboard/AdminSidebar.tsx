@@ -23,7 +23,8 @@ import {
   CalendarCheck,
   PackageOpen,
   Stethoscope,
-  Calendar
+  Calendar,
+  MapPin
 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -67,9 +68,10 @@ const menuItems = [
     ? [
         {
           icon: Calendar,
-          label: "ZSM Slot Planning",
+          label: "Slot Planning",
           path: "/admin-dashboard/zsm-slot-planning",
         },
+        { icon: MapPin, label: "Track Visits", path: "/admin-dashboard/zsm-track-visits" }
       ]
     : []),
 ].filter((item) =>

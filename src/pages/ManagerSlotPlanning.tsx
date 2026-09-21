@@ -27,11 +27,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ManagerRequestUpdateModal } from "@/components/manager-slot-planning/ManagerRequestUpdateModal";
 import { checkIfSlotPlanDayEnabled, slotChangeRequest, slotPlanDayRequestManager } from "@/services/SlotRequestService";
-import { fetchAllNextMonthVisits, fetchAllCurrentMonthVisits } from "@/services/ManagerVisitService";
+import { fetchAllNextMonthVisits, fetchAllCurrentMonthVisits, requestNewFieldExecutiveForManager } from "@/services/ManagerVisitService";
 import ManagerSidebar from "@/components/manager-dashboard/ManagerSidebar";
 import ManagerHeader from "@/components/manager-dashboard/ManagerHeader";
 import { holidayList } from "./SlotPlanning";
 import { SlotPlanDayRequestModal } from "@/components/slot-planning/SlotPlanDayRequestModal";
+import { ManagerMonthlyTargetProgress } from "@/components/slot-planning/ManagerMonthlyTargetProgres";
+
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 /* ---------------- TYPES ---------------- */
 
@@ -65,6 +70,13 @@ export default function ManagerSlotPlanning() {
   const { toast } = useToast();
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
   const [slotPlanDayEnabled, setSlotPlanDayEnabled] = useState(false);
+  const [isRequestFEModalOpen, setIsRequestFEModalOpen] = useState(false);
+  const [allFieldExecutives, setAllFieldExecutives] = useState<FieldExecutive[]>([]);
+  const [isLoadingAllFEs, setIsLoadingAllFEs] = useState(false);
+  const [selectedRequestFE, setSelectedRequestFE] = useState<number | null>(null);
+  const [requestReason, setRequestReason] = useState("");
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [feSearchQuery, setFeSearchQuery] = useState("");
   const getFirstDayOfMonth = (isFirstOfMonth) => {
     const today = new Date();
 
@@ -111,7 +123,7 @@ export default function ManagerSlotPlanning() {
   const [isAssigning, setIsAssigning] = useState(false);
   const [isUnAssigning, setIsUnAssigning] = useState(false);
   const [isSlotRequestPopupOpen, setIsSlotRequestPopupOpen] = useState(false);
-  
+
 
   const [assignedFEs, setAssignedFEs] = useState<number[]>([]); // Track assigned FEs locally
   const [dayMapping, setDayMapping] = useState<
@@ -120,8 +132,8 @@ export default function ManagerSlotPlanning() {
   const userId = Number(sessionStorage.getItem("userID"));
   const managerName = sessionStorage.getItem("userName") || "Manager";
 
-  
-  
+
+
 
 
 
@@ -167,6 +179,85 @@ export default function ManagerSlotPlanning() {
   }
 
   /* ---------------- API CALLS ---------------- */
+
+
+  const fetchAllFieldExecutivesList = async () => {
+    setIsLoadingAllFEs(true);
+    try {
+      const response = await fetchPriorityFieldExecutives(
+        userId,
+        selectedWeek,
+        selectedDay
+      );
+      setAllFieldExecutives(response);
+    } catch (error) {
+      console.error("Error fetching all field executives:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load field executives list",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingAllFEs(false);
+    }
+  };
+
+  const handleRequestNewFE = async () => {
+    if (!selectedRequestFE) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a field executive",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!requestReason.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please provide a reason for the request",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmittingRequest(true);
+    try {
+      const selectedFE = allFieldExecutives.find(fe => fe.id === selectedRequestFE);
+
+      const payload = {
+        managerId: userId,                    // ← Manager instead of ZSM
+        requestedFieldExecutiveId: selectedRequestFE,
+        weekNumber: selectedWeek,
+        dayOfWeek: selectedDay,
+        reason: requestReason,
+        currentFieldExecutiveId: assignedFEs[0],
+      };
+
+      const response = await requestNewFieldExecutiveForManager(payload);
+
+      if (response.success) {
+        toast({
+          title: "Request Submitted",
+          description: `Your request to assign ${selectedFE?.name} for Week ${selectedWeek}, Day ${selectedDay} has been sent for approval.`,
+        });
+
+        setIsRequestFEModalOpen(false);
+        setSelectedRequestFE(null);
+        setRequestReason("");
+        setFeSearchQuery("");
+      }
+    } catch (error: any) {
+      console.error("Error requesting new field executive:", error);
+      toast({
+        title: "Request Failed",
+        description: error.response?.data?.message || "Failed to submit request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingRequest(false);
+    }
+  };
 
   const checkIfSlotPlanEnabled = async () => {
     try {
@@ -223,11 +314,11 @@ export default function ManagerSlotPlanning() {
       //     selectedDay
       //   );
       // }
-       response = await fetchAllCurrentMonthVisits(
-          userId,
-          selectedWeek,
-          selectedDay
-        );
+      response = await fetchAllCurrentMonthVisits(
+        userId,
+        selectedWeek,
+        selectedDay
+      );
       const visits = response.data;
 
       setManagerVisits(visits);
@@ -658,7 +749,7 @@ export default function ManagerSlotPlanning() {
             </div>
 
 
-            {!isFirstOfMonth && <MonthlyTargetProgress />}
+            {!isFirstOfMonth && <ManagerMonthlyTargetProgress />}
             <WarningSection isFirstOfMonth={isFirstOfMonth} />
 
             <Card>
@@ -666,19 +757,36 @@ export default function ManagerSlotPlanning() {
                 <CardTitle>
                   {isFirstOfMonth
                     ? "Assign to Field Executive Visits"
-                    : "Your Assigned Visits"
-                  }
+                    : "Your Assigned Visits"}
                 </CardTitle>
 
-                {!isFirstOfMonth && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsRequestModalOpen(true)}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Request Changes
-                  </Button>
-                )}
+                <div className="flex items-center gap-3">
+                  {!isFirstOfMonth && (
+                    <>
+                      {/* Existing: Request Changes (visit-level) */}
+                      {/* <Button
+                        variant="outline"
+                        onClick={() => setIsRequestModalOpen(true)}
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        Request Changes
+                      </Button> */}
+
+                      {/* NEW: Request New FE (FE-level) */}
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsRequestFEModalOpen(true);
+                          fetchAllFieldExecutivesList();
+                        }}
+                        className="border-amber-500 text-amber-700 hover:bg-amber-50"
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Request New FE
+                      </Button>
+                    </>
+                  )}
+                </div>
               </CardHeader>
 
               <CardContent className="space-y-6">
@@ -1013,6 +1121,197 @@ export default function ManagerSlotPlanning() {
         userType={"MANAGER"}
         userId={userId}
       />
+      {/* Request New Field Executive Modal */}
+      <Dialog open={isRequestFEModalOpen} onOpenChange={setIsRequestFEModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-amber-600" />
+              Request New Field Executive
+            </DialogTitle>
+            <DialogDescription>
+              Request to assign a new field executive for Week {selectedWeek}, Day {selectedDay}.
+              This is typically used when your assigned FE is unavailable (e.g., on leave).
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-4">
+            {/* Info alert */}
+            {assignedFEs.length > 0 && (
+              <Alert className="bg-amber-50 border-amber-200">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-700">
+                  Requesting a new FE will require admin approval.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Search box */}
+            <div className="space-y-2">
+              <Label htmlFor="fe-search">Search Field Executive</Label>
+              <input
+                id="fe-search"
+                type="text"
+                placeholder="Search by name, employee code, or territory..."
+                value={feSearchQuery}
+                onChange={(e) => setFeSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            {/* FE list */}
+            <div className="space-y-2">
+              <Label>Select Field Executive</Label>
+              {isLoadingAllFEs ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-20 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="border rounded-lg max-h-64 overflow-y-auto">
+                  {allFieldExecutives
+                    .filter((fe) => {
+                      if (!feSearchQuery) return true;
+                      const q = feSearchQuery.toLowerCase();
+                      return (
+                        fe.name.toLowerCase().includes(q) ||
+                        fe.employeeCode.toLowerCase().includes(q) ||
+                        fe.territory.toLowerCase().includes(q) ||
+                        fe.region.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((fe) => {
+                      const isCurrentlyAssigned = assignedFEs.includes(fe.id);
+                      const isSelected = selectedRequestFE === fe.id;
+
+                      return (
+                        <div
+                          key={fe.id}
+                          onClick={() => !isCurrentlyAssigned && setSelectedRequestFE(fe.id)}
+                          className={`p-3 border-b last:border-b-0 cursor-pointer transition-colors ${isCurrentlyAssigned
+                              ? "bg-gray-50 opacity-60 cursor-not-allowed"
+                              : isSelected
+                                ? "bg-primary/10 border-l-4 border-l-primary"
+                                : "hover:bg-muted/50"
+                            }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{fe.name}</p>
+                                {isCurrentlyAssigned && (
+                                  <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                                    Already Assigned
+                                  </Badge>
+                                )}
+                                {isSelected && (
+                                  <Badge className="text-xs bg-primary">Selected</Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Hash className="h-3 w-3" />
+                                  {fe.employeeCode}
+                                </span>
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {fe.territory}, {fe.region}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  {allFieldExecutives.filter((fe) => {
+                    if (!feSearchQuery) return true;
+                    const q = feSearchQuery.toLowerCase();
+                    return (
+                      fe.name.toLowerCase().includes(q) ||
+                      fe.employeeCode.toLowerCase().includes(q) ||
+                      fe.territory.toLowerCase().includes(q) ||
+                      fe.region.toLowerCase().includes(q)
+                    );
+                  }).length === 0 && (
+                      <div className="p-8 text-center text-muted-foreground">
+                        <UserPlus className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No field executives found</p>
+                        {feSearchQuery && (
+                          <p className="text-xs mt-1">Try a different search term</p>
+                        )}
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+
+            {/* Selected preview */}
+            {selectedRequestFE && (
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <p className="text-sm font-medium text-blue-800">Selected Field Executive:</p>
+                <p className="text-sm text-blue-700">
+                  {allFieldExecutives.find((fe) => fe.id === selectedRequestFE)?.name}
+                  {" "}({allFieldExecutives.find((fe) => fe.id === selectedRequestFE)?.employeeCode})
+                </p>
+              </div>
+            )}
+
+            {/* Reason */}
+            <div className="space-y-2">
+              <Label htmlFor="request-reason">
+                Reason for Request <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="request-reason"
+                placeholder="e.g., Assigned field executive is on leave, emergency coverage needed, etc."
+                value={requestReason}
+                onChange={(e) => setRequestReason(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                This will be sent to your admin for approval along with the request.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsRequestFEModalOpen(false);
+                setSelectedRequestFE(null);
+                setRequestReason("");
+                setFeSearchQuery("");
+              }}
+              disabled={isSubmittingRequest}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRequestNewFE}
+              disabled={isSubmittingRequest || !selectedRequestFE || !requestReason.trim()}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              {isSubmittingRequest ? (
+                <>
+                  <span className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit Request
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
+
   );
 }

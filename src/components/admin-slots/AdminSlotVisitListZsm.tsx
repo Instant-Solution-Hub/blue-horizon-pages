@@ -25,6 +25,7 @@ export interface AdminSlotVisit {
 }
 
 interface AdminSlotVisitListProps {
+  isAdmin: boolean;
   doctorVisits: AdminSlotVisit[];
   pharmacistVisits: AdminSlotVisit[];
   handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
@@ -196,6 +197,7 @@ function DoctorVisitTable({
 }
 
 export function AdminSlotVisitListZsm({
+  isAdmin,
   doctorVisits,
   handleStatusChange
 }: AdminSlotVisitListProps) {

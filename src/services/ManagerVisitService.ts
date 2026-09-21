@@ -233,3 +233,34 @@ export const fetchManagerVisitReport = async (managerId: number, fromDate: any, 
   });
     return response.data;
 }
+
+
+export const fetchMyManagerFeRequests = async (managerId: number) => {
+  const response = await API.get(
+    `/manager-visits/fe-requests?managerId=${managerId}`
+  );
+  return response.data.data;
+};
+
+export const cancelManagerFeRequest = async (
+  requestId: number,
+  managerId: number
+) => {
+  const response = await API.post(
+    `/manager-visits/fe-requests/cancel/${requestId}?managerId=${managerId}`
+  );
+  return response.data;
+};
+
+export const requestNewFieldExecutiveForManager = async (payload: {
+  managerId: number;
+  requestedFieldExecutiveId: number;
+  currentFieldExecutiveId?: number;
+  weekNumber: number;
+  dayOfWeek: number;
+  reason: string;
+}) => {
+  const response = await API.post("/manager-visits/request-new-fe", payload);
+  return response.data;
+};
+

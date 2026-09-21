@@ -221,7 +221,7 @@ const handleReject = async (id: number) => {
                     <div className="flex flex-col gap-2 ml-11 lg:ml-0">
                       {isZonal || viewOnly ? (
                         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                          {viewOnly ? "Super Admin can only view Manager Leave Requests." : "Zonal Sales Manager can only view Manager Leave Requests."}
+                          {viewOnly ? "Super Admin can only view Manager Leave Requests." : "Regional Sales Manager can only view Manager Leave Requests."}
                         </div>
                       ) : (
                         <div className="flex gap-2">

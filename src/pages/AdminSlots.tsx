@@ -73,6 +73,7 @@ export default function AdminSlots() {
   const [fePharmacistVisits, setFEPharmacistVisits] = useState<any[]>([]);
   const { currentWeek, currentDay } = getCurrentWeekAndDay();
   const userId = sessionStorage.getItem("userID");
+  const isAdmin = Number(userId) === 1; 
   const [dayMapping, setDayMapping] = useState<
     Map<number, { date: number; label: string; isHoliday: boolean }>
   >(new Map());
@@ -278,7 +279,7 @@ export default function AdminSlots() {
                     View planned slot schedules for Field Executives and Managers
                   </p>
                 </div>
-                <Button
+                {isAdmin && (<Button
                   variant="secondary"
                   onClick={() => setIsRequestsOpen(true)}
                   className="relative"
@@ -290,7 +291,7 @@ export default function AdminSlots() {
                       {pendingCount}
                     </span>
                   )}
-                </Button>
+                </Button>)}
               </div>
             </div>
 
@@ -313,12 +314,12 @@ export default function AdminSlots() {
                   >
                     Manager
                   </Button>
-                  <Button
+                 {isAdmin && ( <Button
                     variant={slotType === "zsm" ? "default" : "outline"}
                     onClick={() => handleTypeChange("zsm")}
                   >
-                    ZSM
-                  </Button>
+                    RSM
+                  </Button>)}
                 </div>
               </CardContent>
             </Card>
@@ -374,10 +375,10 @@ export default function AdminSlots() {
                     holidays={holidayList}
                   />
                   {slotType === "manager" ? (
-                    <AdminSlotVisitListManager doctorVisits={managerVisits} pharmacistVisits={[]} handleStatusChange={handleManagerStatusChange} />
-                  ) : slotType ==="zsm" ? (<AdminSlotVisitListZsm doctorVisits={zsmVisits} pharmacistVisits={[]} handleStatusChange={handleZsmStatusChange} />) : (
+                    <AdminSlotVisitListManager isAdmin={isAdmin} doctorVisits={managerVisits} pharmacistVisits={[]} handleStatusChange={handleManagerStatusChange} />
+                  ) : slotType ==="zsm" ? (<AdminSlotVisitListZsm isAdmin={isAdmin} doctorVisits={zsmVisits} pharmacistVisits={[]} handleStatusChange={handleZsmStatusChange} />) : (
 
-                    <AdminSlotVisitList doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} handleStatusChange={handleFeStatusChange} />
+                    <AdminSlotVisitList isAdmin={isAdmin} doctorVisits={feDoctorVisits} pharmacistVisits={fePharmacistVisits} handleStatusChange={handleFeStatusChange} />
                   )}
                 </CardContent>
               </Card>

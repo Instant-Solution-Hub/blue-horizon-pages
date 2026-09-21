@@ -37,6 +37,7 @@ export interface AdminSlotVisit {
 }
 
 interface AdminSlotVisitListProps {
+  isAdmin: boolean;
   doctorVisits: AdminSlotVisit[];
   pharmacistVisits: AdminSlotVisit[];
   handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
@@ -232,11 +233,13 @@ function PharmacistVisitTable({
 function DoctorVisitTable({
   title,
   visits,
-  handleStatusChange
+  handleStatusChange,
+  isAdmin
 }: {
   title: string;
   visits: any[];
   handleStatusChange:(visitId: string, newStatus: "SCHEDULED" | "COMPLETED" | "MISSED") =>void
+  isAdmin: boolean;
 }) {
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; name: string } | null>(null);
 
@@ -304,7 +307,7 @@ function DoctorVisitTable({
               <TableHead>Hospital</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Visit Status</TableHead>
-              <TableHead>Actions</TableHead>
+              {isAdmin && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -358,7 +361,7 @@ function DoctorVisitTable({
                     {visit.status}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                {isAdmin && (<TableCell>
                   {pendingStatus[visit.visitId] ? (
                     <div className="flex items-center gap-2">
                       <div className="text-sm font-medium mr-1">
@@ -396,7 +399,7 @@ function DoctorVisitTable({
                       </SelectContent>
                     </Select>
                   )}
-                </TableCell>
+                </TableCell>)}
               </TableRow>
             ))}
           </TableBody>
@@ -407,14 +410,15 @@ function DoctorVisitTable({
 }
 
 export function AdminSlotVisitList({
+  isAdmin,
   doctorVisits,
   pharmacistVisits,
   handleStatusChange,
 }: AdminSlotVisitListProps) {
   return (
     <div className="space-y-4">
-      <DoctorVisitTable title="Doctor Visits" visits={doctorVisits} handleStatusChange={handleStatusChange}  />
-      <PharmacistVisitTable title="Pharmacist Visits" visits={pharmacistVisits} />
+      <DoctorVisitTable title="Doctor Visits" isAdmin={isAdmin} visits={doctorVisits} handleStatusChange={handleStatusChange}  />
+      <PharmacistVisitTable title="Pharmacist Visits"  visits={pharmacistVisits}  />
     </div>
   );
 }

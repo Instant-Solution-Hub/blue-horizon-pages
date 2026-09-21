@@ -384,7 +384,7 @@ const AdminVisitReports = () => {
                             <h1 className="text-2xl font-bold text-white">Visit Reports</h1>
                         </div>
                         <p className="text-white/80 ml-14">
-                            View visit reports of Field Executives, Managers and Zonal Sales Managers (ZSMs).
+                            View visit reports of Field Executives, Managers and Regional Sales Managers (ZSMs).
                         </p>
                     </div>
 
@@ -409,7 +409,7 @@ const AdminVisitReports = () => {
                             onClick={() => handleUserTypeChange("zsm")}
                             className="min-w-[160px]"
                         >
-                            ZSM
+                            RSM
                         </Button>
                     </div>
 
