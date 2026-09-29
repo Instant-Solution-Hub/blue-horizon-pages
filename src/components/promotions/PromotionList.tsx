@@ -11,6 +11,7 @@ export interface PromotionApi {
   name: string;
   description: string;
   productName: string;
+  products: string[];
   targetAudience: string;
   benefitsAndOffers: string;
   validFrom: Date;
@@ -99,7 +100,7 @@ const PromotionList = ({ promotions, onUsePromotion }: PromotionListProps) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Package className="h-4 w-4" />
-                    <span>Product: <span className="text-foreground">{promotion.productName}</span></span>
+                    <span>Products: <span className="text-foreground">{promotion.products?.length ? promotion.products.join(", ") : promotion.productName}</span></span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Users className="h-4 w-4" />

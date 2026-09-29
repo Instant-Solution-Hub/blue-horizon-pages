@@ -25,6 +25,7 @@ import {
   ArrowDown,
   ArrowUp,
   Building2,
+  FileSpreadsheet,
   MapPin,
   Phone,
   Stethoscope,
@@ -37,6 +38,7 @@ import {
   createDoctorChangeRequest,
   DoctorChangeRequest,
 } from "@/services/DoctorService";
+import * as XLSX from "xlsx";
 
 type AssignedDoctor = {
   id: string;
@@ -127,6 +129,21 @@ const AssignedDoctors = () => {
       d.hospitalName.toLowerCase().includes(search.toLowerCase())
   );
 
+   const handleExport = () => {
+    const data = doctorsFiltered.map((d) => ({
+      "Doctor Name": d.name,
+      Hospital: d.hospitalName,
+      Location: d.location,
+      Contact: d.contactNumber,
+      "Prescription Type": d.practiceType,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "My Doctors");
+    XLSX.writeFile(wb, "my-doctors.xlsx");
+    toast.success("Doctors exported successfully");
+  };
+
   const pendingIds = useMemo(
     () =>
       new Set(
@@ -203,12 +220,18 @@ const AssignedDoctors = () => {
             </div>
           </div>
           <div className="mb-4">
+             <div className="mb-4 flex items-center gap-3">
             <Input
               placeholder="Search by doctor or hospital..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+              <Button variant="outline" className="gap-2" onClick={handleExport}>
+              <FileSpreadsheet className="w-4 h-4" />
+              Export
+            </Button>
+            </div>
           </div>
           {loading ? (
             <div className="text-center py-12 text-muted-foreground">
