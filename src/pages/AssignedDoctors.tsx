@@ -154,13 +154,17 @@ const AssignedDoctors = () => {
             </div>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 flex items-center gap-3">
             <Input
               placeholder="Search by doctor or hospital..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+            <Button variant="outline" className="gap-2" onClick={handleExport}>
+              <FileSpreadsheet className="w-4 h-4" />
+              Export
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
