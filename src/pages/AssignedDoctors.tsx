@@ -77,6 +77,21 @@ const AssignedDoctors = () => {
       d.hospital.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleExport = () => {
+    const data = filtered.map((d) => ({
+      "Doctor Name": d.name,
+      Hospital: d.hospital,
+      Location: d.location,
+      Contact: d.contact,
+      "Prescription Type": d.prescriptionType,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "My Doctors");
+    XLSX.writeFile(wb, "my-doctors.xlsx");
+    toast.success("Doctors exported successfully");
+  };
+
   const openEdit = (d: AssignedDoctor) => {
     setEditDoctor(d);
     setNewType(d.prescriptionType);
