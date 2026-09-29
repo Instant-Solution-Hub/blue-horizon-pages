@@ -21,10 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import {
   ArrowDown,
   ArrowUp,
   Building2,
+  FileSpreadsheet,
   MapPin,
   Phone,
   Stethoscope,
@@ -74,6 +76,21 @@ const AssignedDoctors = () => {
       d.name.toLowerCase().includes(search.toLowerCase()) ||
       d.hospital.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleExport = () => {
+    const data = filtered.map((d) => ({
+      "Doctor Name": d.name,
+      Hospital: d.hospital,
+      Location: d.location,
+      Contact: d.contact,
+      "Prescription Type": d.prescriptionType,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "My Doctors");
+    XLSX.writeFile(wb, "my-doctors.xlsx");
+    toast.success("Doctors exported successfully");
+  };
 
   const openEdit = (d: AssignedDoctor) => {
     setEditDoctor(d);
@@ -137,13 +154,17 @@ const AssignedDoctors = () => {
             </div>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 flex items-center gap-3">
             <Input
               placeholder="Search by doctor or hospital..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+            <Button variant="outline" className="gap-2" onClick={handleExport}>
+              <FileSpreadsheet className="w-4 h-4" />
+              Export
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
