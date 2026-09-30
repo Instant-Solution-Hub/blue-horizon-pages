@@ -45,6 +45,7 @@ import ManagerVisitReports from "./pages/ManagerVisitReports";
 import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 import AssignedDoctors from "./pages/AssignedDoctors";
+import StockUpdate from "./pages/StockUpdate";
 import AdminDoctorChangeRequests from "./pages/AdminDoctorChangeRequests";
 import NotFound from "./pages/NotFound";
 
