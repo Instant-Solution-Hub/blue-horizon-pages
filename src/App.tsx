@@ -73,6 +73,7 @@ const App = () => (
           <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
           <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
+          <Route path="/dashboard/stock-update" element={<StockUpdate />} />
           {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
