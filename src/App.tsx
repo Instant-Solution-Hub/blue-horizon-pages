@@ -73,6 +73,7 @@ import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 import ZsmSlotPlanning from "./pages/ZsmSlotPlanning";
 import TrackVisitsZsm from "./pages/TrackVisitsZsm";
+import StockUpdate from "./pages/StockUpdate";
 
 
 
@@ -101,6 +102,7 @@ const App = () => (
           <Route path="/dashboard/promotions" element={<Promotions />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
+           <Route path="/dashboard/stock-update" element={<StockUpdate />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
                     <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
 
