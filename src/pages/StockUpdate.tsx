@@ -1,18 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import StockTable, { StockEntry } from "@/components/manager-stock/StockTable";
 import AddStockModal from "@/components/manager-stock/AddStockModal";
 import UpdateStockModal from "@/components/manager-stock/UpdateStockModal";
 import DeleteStockDialog from "@/components/manager-stock/DeleteStockDialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Store } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data for products
@@ -51,18 +44,10 @@ const initialStockEntries: StockEntry[] = [
 const StockUpdate = () => {
   const { toast } = useToast();
   const [stockEntries, setStockEntries] = useState<StockEntry[]>(initialStockEntries);
-  const [selectedStockist, setSelectedStockist] = useState<string>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<StockEntry | null>(null);
-
-  const filteredEntries = useMemo(() => {
-    if (selectedStockist === "all") return stockEntries;
-    const stockist = mockStockists.find((s) => s.id === selectedStockist);
-    if (!stockist) return stockEntries;
-    return stockEntries.filter((e) => e.stockistName === stockist.name);
-  }, [stockEntries, selectedStockist]);
 
   const handleAddStock = (newEntry: Omit<StockEntry, "id">) => {
     const id = Date.now().toString();
@@ -123,30 +108,9 @@ const StockUpdate = () => {
               </Button>
             </div>
 
-            {/* Stockist Filter */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Store className="h-4 w-4" />
-                <span className="font-medium">Filter by Stockist:</span>
-              </div>
-              <Select value={selectedStockist} onValueChange={setSelectedStockist}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="All Stockists" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Stockists</SelectItem>
-                  {mockStockists.map((stockist) => (
-                    <SelectItem key={stockist.id} value={stockist.id}>
-                      {stockist.name} ({stockist.marketName})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Stock Table */}
             <StockTable
-              stockEntries={filteredEntries}
+              stockEntries={stockEntries}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
