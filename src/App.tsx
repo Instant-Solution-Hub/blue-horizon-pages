@@ -45,6 +45,7 @@ import ManagerVisitReports from "./pages/ManagerVisitReports";
 import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 import AssignedDoctors from "./pages/AssignedDoctors";
+import StockUpdate from "./pages/StockUpdate";
 import AdminDoctorChangeRequests from "./pages/AdminDoctorChangeRequests";
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +73,7 @@ const App = () => (
           <Route path="/dashboard/sales-progress" element={<SalesProgress />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
           <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
+          <Route path="/dashboard/stock-update" element={<StockUpdate />} />
           {/* Manager Dashboard Routes */}
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/manager-dashboard/team" element={<ManagerTeamManagement />} />
