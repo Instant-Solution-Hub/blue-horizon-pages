@@ -108,30 +108,9 @@ const StockUpdate = () => {
               </Button>
             </div>
 
-            {/* Stockist Filter */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Store className="h-4 w-4" />
-                <span className="font-medium">Filter by Stockist:</span>
-              </div>
-              <Select value={selectedStockist} onValueChange={setSelectedStockist}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="All Stockists" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Stockists</SelectItem>
-                  {mockStockists.map((stockist) => (
-                    <SelectItem key={stockist.id} value={stockist.id}>
-                      {stockist.name} ({stockist.marketName})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Stock Table */}
             <StockTable
-              stockEntries={filteredEntries}
+              stockEntries={stockEntries}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
