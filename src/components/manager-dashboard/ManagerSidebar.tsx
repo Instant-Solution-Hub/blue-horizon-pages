@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
   { icon: FileText, label: "Leave Requests", href: "/manager-dashboard/leave-requests" },
   { icon: ClipboardCheck, label: "Manager Joining", href: "/manager-dashboard/manager-joining" },
   { icon: Package, label: "Stock Update", href: "/manager-dashboard/stock-update" },
+  { icon: Package, label: "Team Stock Updates", href: "/manager-dashboard/team-stock" },
   { icon: PackageOpen, label: "Stock Liquidation", href: "/manager-dashboard/stock-liquidation" },
   { icon: User, label: "Profile", href: "/manager-dashboard/profile" },
   { icon: BarChart3, label: "Sales Progress", href: "/manager-dashboard/sales-progress" },
