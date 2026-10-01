@@ -55,6 +55,7 @@ const menuItems = [
   { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
   { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
   { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },
+   { icon: Package, label: "Stock Update", path: "/admin-dashboard/stock-update" },
   { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
   { icon: TrendingUp, label: "Sales Progress", path: "/admin-dashboard/sales-progress" },
   { icon: BellDot, label: "Portal Requests", path: "/admin-portal-requests" },

@@ -83,6 +83,21 @@ export const getStockistStocksByFe = async (
   return Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
 };
 
+export const getStockByFeAndMonthRange = async (
+  feId: number,
+  fromMonth: string,
+  toMonth: string
+): Promise<FEStockRecord[]> => {
+  const res = await API.get(`/stockist-stocks/fe/${feId}/month-range`, {
+    params: {
+      fromMonth,
+      toMonth,
+    },
+  });
+
+  return Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
+};
+
 export const addStockByFe = async (
   feId: number,
   payload: StockistProductStockRequest

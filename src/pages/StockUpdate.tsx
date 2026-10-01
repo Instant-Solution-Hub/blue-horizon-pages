@@ -59,7 +59,7 @@ const StockUpdate = () => {
 
       setProducts(productsRes || []);
       setStockists(stockistsRes || []);
-
+     
       const stockistsMap = new Map((stockistsRes || []).map((stockist) => [stockist.id, stockist]));
       const mappedEntries: ExtendedStockEntry[] = (stockRes || []).map((item) => ({
         id: item.id.toString(),
