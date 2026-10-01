@@ -24,6 +24,7 @@ interface StockTableProps {
   stockEntries: StockEntry[];
   onEdit: (entry: StockEntry) => void;
   onDelete: (entry: StockEntry) => void;
+  readOnly?: boolean;
 }
 
 interface GroupedStock {
@@ -40,7 +41,7 @@ interface GroupedStock {
   totalStock: number;
 }
 
-const StockTable = ({ stockEntries, onEdit, onDelete }: StockTableProps) => {
+const StockTable = ({ stockEntries, onEdit, onDelete, readOnly = false }: StockTableProps) => {
   // Group stock entries by product and market
   const groupedData: GroupedStock[] = stockEntries.reduce((acc, entry) => {
     let product = acc.find(p => p.productName === entry.productName);
