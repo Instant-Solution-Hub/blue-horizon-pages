@@ -1,29 +1,24 @@
 import { useState, useMemo } from "react";
 import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
+import StockTable, { StockEntry } from "@/components/manager-stock/StockTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, FileSpreadsheet, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FileSpreadsheet, X, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 
-interface EmployeeStockEntry {
-  id: string;
+interface EmployeeStockEntry extends StockEntry {
   employeeName: string;
   role: string;
-  productName: string;
-  marketName: string;
-  stockistName: string;
-  quantity: number;
   date: string;
 }
 
@@ -46,22 +41,34 @@ const allStockEntries: EmployeeStockEntry[] = [
   { id: "9", employeeName: "Anita Desai", role: "Manager", productName: "Metformin 500mg", marketName: "South Zone", stockistName: "HealthCare Supplies", quantity: 450, date: iso(20, -1) },
 ];
 
+// Field executives derived from the stock entries
+const fieldExecutives = Array.from(
+  new Set(
+    allStockEntries
+      .filter((e) => e.role === "Field Executive")
+      .map((e) => e.employeeName)
+  )
+);
+
 const AdminStockUpdate = () => {
   const { toast } = useToast();
+  const [selectedFE, setSelectedFE] = useState<string>("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
   const filteredEntries = useMemo(
     () =>
       allStockEntries.filter((e) => {
+        if (selectedFE !== "all" && e.employeeName !== selectedFE) return false;
         if (fromDate && e.date < fromDate) return false;
         if (toDate && e.date > toDate) return false;
         return true;
       }),
-    [fromDate, toDate]
+    [selectedFE, fromDate, toDate]
   );
 
   const handleClear = () => {
+    setSelectedFE("all");
     setFromDate("");
     setToDate("");
   };
@@ -87,6 +94,11 @@ const AdminStockUpdate = () => {
     toast({ title: "Exported", description: `${rows.length} stock entries exported to Excel.` });
   };
 
+  const selectedLabel =
+    selectedFE === "all"
+      ? "All Employees"
+      : `${selectedFE}'s Stock Updates`;
+
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
@@ -106,10 +118,29 @@ const AdminStockUpdate = () => {
               </Button>
             </div>
 
-            {/* Date Filter */}
+            {/* Field Executive Filter */}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-wrap items-end gap-4">
+                  <div className="space-y-2 min-w-[240px]">
+                    <Label className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-primary" />
+                      Field Executive
+                    </Label>
+                    <Select value={selectedFE} onValueChange={setSelectedFE}>
+                      <SelectTrigger className="h-11 bg-background">
+                        <SelectValue placeholder="Select a field executive" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Field Executives</SelectItem>
+                        {fieldExecutives.map((fe) => (
+                          <SelectItem key={fe} value={fe}>
+                            {fe}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="from-date">From Date</Label>
                     <Input
@@ -136,50 +167,14 @@ const AdminStockUpdate = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Package className="h-5 w-5 text-primary" />
-                  Stock Entries ({filteredEntries.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Employee</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Market</TableHead>
-                      <TableHead>Stockist</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredEntries.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                          No stock updates found for the selected dates
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredEntries.map((entry) => (
-                        <TableRow key={entry.id}>
-                          <TableCell className="font-medium">{entry.employeeName}</TableCell>
-                          <TableCell>{entry.role}</TableCell>
-                          <TableCell>{entry.productName}</TableCell>
-                          <TableCell>{entry.marketName}</TableCell>
-                          <TableCell>{entry.stockistName}</TableCell>
-                          <TableCell className="text-right">{entry.quantity}</TableCell>
-                          <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {/* Stock entries — grouped view, same as the FE stock update section */}
+            <StockTable
+              key={selectedLabel}
+              stockEntries={filteredEntries}
+              onEdit={() => {}}
+              onDelete={() => {}}
+              readOnly
+            />
           </div>
         </main>
       </div>
