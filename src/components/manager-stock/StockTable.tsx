@@ -114,8 +114,8 @@ const StockTable = ({ stockEntries, onEdit, onDelete, readOnly = false }: StockT
             <TableBody>
               {groupedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No stock entries found. Add stock to get started.
+                  <TableCell colSpan={readOnly ? 4 : 5} className="text-center py-8 text-muted-foreground">
+                    No stock entries found for the selected filters.
                   </TableCell>
                 </TableRow>
               ) : (

@@ -175,13 +175,6 @@ const AdminStockUpdate = () => {
               onDelete={() => {}}
               readOnly
             />
-
-            {filteredEntries.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center -mt-2">
-                No stock updates found for {selectedLabel.toLowerCase()}
-                {fromDate || toDate ? " in the selected date range" : ""}.
-              </p>
-            )}
           </div>
         </main>
       </div>
