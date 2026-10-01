@@ -106,7 +106,9 @@ const StockTable = ({ stockEntries, onEdit, onDelete, readOnly = false }: StockT
                 <TableHead className="font-semibold text-primary">Product Name</TableHead>
                 <TableHead className="font-semibold text-primary">Market / Stockist</TableHead>
                 <TableHead className="font-semibold text-primary text-right">Stock Qty</TableHead>
-                <TableHead className="w-24 text-center font-semibold text-primary">Actions</TableHead>
+                {!readOnly && (
+                  <TableHead className="w-24 text-center font-semibold text-primary">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,26 +158,28 @@ const StockTable = ({ stockEntries, onEdit, onDelete, readOnly = false }: StockT
                               {stockist.quantity.toLocaleString()}
                             </span>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center gap-1">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10"
-                                onClick={() => onEdit(stockist.entry)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-destructive hover:text-destructive/80 hover:bg-destructive/10"
-                                onClick={() => onDelete(stockist.entry)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                          {!readOnly && (
+                            <TableCell>
+                              <div className="flex items-center justify-center gap-1">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10"
+                                  onClick={() => onEdit(stockist.entry)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                                  onClick={() => onDelete(stockist.entry)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
                         </TableRow>
                       );
                     })
