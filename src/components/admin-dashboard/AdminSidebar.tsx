@@ -48,6 +48,7 @@ const AdminSidebar = () => {
     { icon: Package, label: "Stock Update", path: "/admin-dashboard/stock-update" },
     { icon: PackageOpen, label: "Stock Liquidation", path: "/admin-dashboard/stock-liquidation" },
     { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+    { icon: Stethoscope, label: "Doctors", path: "/admin-dashboard/doctors" },
     { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
     { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
     { icon: ClipboardCheck, label: "Compliance Visit", path: "/admin-dashboard/compliance" },

@@ -80,10 +80,20 @@ const Doctors = () => {
                 </p>
               </div>
             </div>
-            <Button onClick={handleCreate} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add Doctor
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => toast.success("Export requested for your doctor list")}
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Export
+              </Button>
+              <Button onClick={handleCreate} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Doctor
+              </Button>
+            </div>
           </div>
 
           {/* Filters */}

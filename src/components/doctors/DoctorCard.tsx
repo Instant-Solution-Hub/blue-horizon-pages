@@ -133,6 +133,7 @@ const DoctorCard = ({ doctor, onEdit, onDelete, readOnly }: DoctorCardProps) => 
                 </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
           </div>
         </div>
       </CardHeader>
