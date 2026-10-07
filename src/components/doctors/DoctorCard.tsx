@@ -50,11 +50,12 @@ const practiceTypeLabels: Record<string, string> = {
 
 interface DoctorCardProps {
   doctor: Doctor;
-  onEdit: (doctor: Doctor) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (doctor: Doctor) => void;
+  onDelete?: (id: number) => void;
+  readOnly?: boolean;
 }
 
-const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
+const DoctorCard = ({ doctor, onEdit, onDelete, readOnly }: DoctorCardProps) => {
   return (
     <Card className="hover-lift transition-all duration-200 border-border/50">
       <CardHeader className="pb-3">
@@ -89,6 +90,7 @@ const DoctorCard = ({ doctor, onEdit, onDelete }: DoctorCardProps) => {
             >
               {doctor.active ? "Active" : "Inactive"}
             </Badge>
+            {!readOnly && onEdit && onDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
