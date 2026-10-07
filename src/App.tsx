@@ -47,6 +47,7 @@ import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 import AssignedDoctors from "./pages/AssignedDoctors";
 import StockUpdate from "./pages/StockUpdate";
 import AdminDoctorChangeRequests from "./pages/AdminDoctorChangeRequests";
+import AdminDoctors from "./pages/AdminDoctors";
 import ManagerEmployeeStock from "./pages/ManagerEmployeeStock";
 import AdminStockUpdate from "./pages/AdminStockUpdate";
 import NotFound from "./pages/NotFound";
@@ -103,6 +104,7 @@ const App = () => (
           <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
           <Route path="/admin-dashboard/stock-liquidation" element={<AdminStockLiquidation />} />
           <Route path="/admin-dashboard/doctor-change-requests" element={<AdminDoctorChangeRequests />} />
+          <Route path="/admin-dashboard/doctors" element={<AdminDoctors />} />
           <Route path="/admin-dashboard/stock-update" element={<AdminStockUpdate />} />
           {/* Super Admin Dashboard Routes */}
           <Route path="/super-admin-dashboard/sales-progress" element={<SuperAdminSalesProgress />} />
