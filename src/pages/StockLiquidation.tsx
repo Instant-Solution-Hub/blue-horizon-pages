@@ -7,12 +7,15 @@ import AddLiquidationModal, {
 import LiquidationList from "@/components/stock-liquidation/LiquidationList";
 import StatsCards from "@/components/stock-liquidation/StatsCards";
 import { useToast } from "@/hooks/use-toast";
-import { fetchLiquidationPlansForFE , updateLiquidationPlan , createLiquidationPlan } from "@/services/LiquidationService";
+import {
+  fetchLiquidationPlansForFE,
+  updateLiquidationPlan,
+  createLiquidationPlan,
+} from "@/services/LiquidationService";
 import axios from "axios";
-import StockUpdateTab , {ProductStock} from "@/components/stock-liquidation/StockUpdateTab";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, PackageOpen, RefreshCw } from "lucide-react";
-import { getAllocatedProducts , updateProductStock } from "@/services/StockService";
+import { Plus, PackageOpen } from "lucide-react";
+import { ProductStock } from "@/components/stock-liquidation/StockUpdateTab";
+import { getStockistStocksByFe } from "@/services/StockistService";
 
 
 
@@ -29,33 +32,42 @@ export const StockLiquidation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [plans, setPlans] = useState<LiquidationPlan[]>([]);
   const [editingPlan, setEditingPlan] = useState<LiquidationPlan | null>(null);
-   const [activeTab, setActiveTab] = useState("liquidation");
-    const [stockData, setStockData] = useState<ProductStock[]>([]);
+  const [stockData, setStockData] = useState<ProductStock[]>([]);
   const feId = parseInt(sessionStorage.getItem("feID") || "0");
 
   const fetchStock = async () => {
-  try {
-    const res = await getAllocatedProducts(feId);
+    try {
+      const res = await getStockistStocksByFe(feId);
 
-    const mapped: ProductStock[] = res.map(
-      (item: FEProductStockDto) => ({
-        id: item.productId,
-        name: item.productName,
-        totalQty: item.allocatedQuantity,
-        availableQty: item.remainingQuantity,
-      })
-    );
+      const mapped = res.reduce<Record<number, ProductStock>>((acc, item) => {
+        const productId = item.productId;
+        const existing = acc[productId];
 
-    setStockData(mapped);
-  } catch (err) {
-    toast({
-      title: "Error",
-      description: "Failed to load product stock",
-      variant: "destructive",
-    });
-  }
-};
+        if (existing) {
+          existing.totalQty += item.quantity;
+          existing.availableQty += item.quantity;
+          return acc;
+        }
 
+        acc[productId] = {
+          id: productId,
+          name: item.productName,
+          totalQty: item.quantity,
+          availableQty: item.quantity,
+        };
+
+        return acc;
+      }, {});
+
+      setStockData(Object.values(mapped));
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to load product stock",
+        variant: "destructive",
+      });
+    }
+  };
 
 
   const mapApiToLiquidationPlan = (apiPlan: any): LiquidationPlan => ({
@@ -217,84 +229,29 @@ useEffect(() => {
   if (feId) fetchStock();
 }, [feId]);
 
- const handleUpdateStock = async (productId: number, newQty: number) => {
-  try {
-    const updated = await updateProductStock({
-      feId,
-      productId,
-      newAllocatedQuantity: newQty,
-    });
-
-    await fetchStock();
-     await loadPlans();
-
-    // map backend → frontend
-    setStockData((prev) =>
-      prev.map((p) =>
-        p.id === productId
-          ? {
-              ...p,
-              availableQty: updated.remainingQuantity,
-              totalQty: updated.allocatedQuantity,
-            }
-          : p
-      )
-    );
-
-    toast({
-      title: "Success",
-      description: "Product stock updated successfully",
-    });
-  } catch (e) {
-    toast({
-      title: "Error",
-      description: "Failed to update product stock",
-      variant: "destructive",
-    });
-  }
-};
-
-
-  
-
   return (
     <div className="h-screen bg-background flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-      <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-xl">
-                <PackageOpen className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
-                  Stock Liquidation
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage stock liquidation plans and update product inventory
-                </p>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-primary/10 rounded-xl">
+                  <PackageOpen className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+                    Stock Liquidation
+                  </h1>
+                  <p className="text-muted-foreground mt-1">
+                    Manage stock liquidation plans and update product inventory
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="liquidation" className="gap-2">
-                <PackageOpen className="h-4 w-4" />
-                Stock Liquidation
-              </TabsTrigger>
-              <TabsTrigger value="update" className="gap-2">
-                <RefreshCw className="h-4 w-4" />
-                Stock Update
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="liquidation" className="mt-6 space-y-6">
-              {/* Add Button */}
+            <div className="space-y-6">
               <div className="flex justify-end">
                 <Button onClick={() => setIsModalOpen(true)} className="gap-2 shrink-0">
                   <Plus className="w-4 h-4" />
@@ -302,27 +259,22 @@ useEffect(() => {
                 </Button>
               </div>
 
-              {/* Stats Cards */}
               <StatsCards plans={plans} />
 
-              {/* Liquidation Plans List */}
               <LiquidationList plans={plans} onUpdate={handleUpdatePlan} stockData={stockData} />
-            </TabsContent>
+            </div>
+          </div>
 
-            <TabsContent value="update" className="mt-6">
-              <StockUpdateTab products={stockData} onUpdateStock={handleUpdateStock} />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Add/Edit Modal */}
-        <AddLiquidationModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleAddPlan}
-          editData={editingPlan}
-          stockData={stockData} feId={feId} plans={plans}        />
-      </main>
+          <AddLiquidationModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onSubmit={handleAddPlan}
+            editData={editingPlan}
+            stockData={stockData}
+            feId={feId}
+            plans={plans}
+          />
+        </main>
       </div>
     </div>
   );

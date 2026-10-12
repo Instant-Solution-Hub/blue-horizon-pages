@@ -30,7 +30,6 @@ import ManagerProfile from "./pages/ManagerProfile";
 import ManagerLeaveRequests from "./pages/ManagerLeaveRequests";
 import ManagerJoiningViewPage from "./pages/ManagerJoiningView";
 import TrackVisitsManager from "./pages/TrackVisitsManager";
-import ManagerStockUpdate from "./pages/ManagerStockUpdate";
 import AdminProfile from "./pages/AdminProfile";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminCompetetiveBrands from "./pages/AdminCompetetiveBrands";
@@ -73,6 +72,10 @@ import ManagerSalesProgress from "./pages/ManagerSalesProgress";
 import AdminStockLiquidation from "./pages/AdminStockLiquidation";
 import ZsmSlotPlanning from "./pages/ZsmSlotPlanning";
 import TrackVisitsZsm from "./pages/TrackVisitsZsm";
+import StockUpdate from "./pages/StockUpdate";
+import AdminStockUpdate from "./pages/AdminStockUpdate";
+import ManagerEmployeeStock from "./pages/ManagerEmployeeStock";
+import AdminDoctors from "./pages/AdminDoctors";
 
 
 
@@ -101,6 +104,7 @@ const App = () => (
           <Route path="/dashboard/promotions" element={<Promotions />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/stock-liquidation" element={<StockLiquidation />} />
+           <Route path="/dashboard/stock-update" element={<StockUpdate />} />
           <Route path="/dashboard/work-approvals" element={<WorkApprovalRequests />} />
                     <Route path="/dashboard/my-doctors" element={<AssignedDoctors />} />
 
@@ -116,7 +120,7 @@ const App = () => (
              <Route path="/manager-dashboard/sales-progress" element={<ManagerSalesProgress />} />
             <Route path="/manager-dashboard/manager-joining" element={<ManagerJoiningViewPage />} />
             <Route path="/manager-dashboard/track-visits" element={<TrackVisitsManager />} />
-            <Route path="/manager-dashboard/stock-update" element={<ManagerStockUpdate />} />
+               <Route path="/manager-dashboard/team-stock" element={<ManagerEmployeeStock />} />
             <Route path="/manager-dashboard/stock-liquidation" element={<ManagerStockLiquidation />} />
               <Route path="/manager-dashboard/work-approvals" element={<ManagerWorkApprovalRequests />} />
             <Route path="/manager-dashboard/visit-compliance" element={<ManagerVisitCompliance />} />
@@ -141,7 +145,9 @@ const App = () => (
                <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
                <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
                <Route path="/admin-dashboard/doctor-change-requests" element={<AdminDoctorChangeRequests />} />
+               <Route path="/admin-dashboard/doctors" element={<AdminDoctors />} />
                <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
+                <Route path="/admin-dashboard/stock-update" element={<AdminStockUpdate />} />
                 <Route path="/admin-dashboard/stock-liquidation" element={<AdminStockLiquidation />} />
                 <Route path="/admin-dashboard/zsm-slot-planning" element={<ZsmSlotPlanning />} />
                 <Route path="/admin-dashboard/zsm-track-visits" element={<TrackVisitsZsm />} />

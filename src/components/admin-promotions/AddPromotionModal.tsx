@@ -26,6 +26,7 @@ import { CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { getProducts } from "@/services/ProductService";
 
 interface AddPromotionModalProps {
@@ -40,7 +41,7 @@ export interface PromotionFormData {
   type: "New Product" | "Offer" | "Campaign";
   startDate: Date;
   endDate: Date;
-  product: string;
+  products: string[];
   benefits: string[];
   targetAudience: string[];
 }
@@ -66,7 +67,7 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
     type: "New Product",
     startDate: new Date(),
     endDate: new Date(),
-    product: "",
+    products: [],
     benefits: [],
     targetAudience: [],
   });
@@ -102,12 +103,12 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
         .filter((b) => b.length > 0);
       const updatedFormData = { ...formData, benefits: benefitsList };
       
-      if (updatedFormData.name && updatedFormData.product && updatedFormData.targetAudience.length > 0) {
+      if (updatedFormData.name && updatedFormData.products.length > 0 && updatedFormData.targetAudience.length > 0) {
         onAdd(updatedFormData);
         resetForm();
         onOpenChange(false);
       }
-    } else if (formData.name && formData.product && formData.targetAudience.length > 0) {
+    } else if (formData.name && formData.products.length > 0 && formData.targetAudience.length > 0) {
       onAdd(formData);
       resetForm();
       onOpenChange(false);
@@ -121,7 +122,7 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
       type: "New Product",
       startDate: new Date(),
       endDate: new Date(),
-      product: "",
+      products: [],
       benefits: [],
       targetAudience: [],
     });
@@ -143,6 +144,15 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
       ...formData,
       benefits: formData.benefits.filter((_, i) => i !== index),
     });
+  };
+
+  const toggleProduct = (productName: string) => {
+    setFormData((currentFormData) => ({
+      ...currentFormData,
+      products: currentFormData.products.includes(productName)
+        ? currentFormData.products.filter((product) => product !== productName)
+        : [...currentFormData.products, productName],
+    }));
   };
 
   const toggleTargetAudience = (audience: string) => {
@@ -216,23 +226,42 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
             </div>
 
             <div className="space-y-2">
-              <Label>Product *</Label>
-              <Select
-                value={formData.product}
-                onValueChange={(value) => setFormData({ ...formData, product: value })}
-                disabled={loadingProducts}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={loadingProducts ? "Loading products..." : "Select product"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {products.map((product) => (
-                    <SelectItem key={product} value={product}>
-                      {product}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Products *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-between text-left font-normal"
+                  >
+                    <span className={cn("truncate", formData.products.length === 0 && "text-muted-foreground")}>
+                      {formData.products.length > 0
+                        ? `${formData.products.length} selected: ${formData.products.join(", ")}`
+                        : "Select products"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">▼</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-2" align="start">
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {loadingProducts ? (
+                      <p className="text-sm text-muted-foreground">Loading products...</p>
+                    ) : products.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No products available</p>
+                    ) : (
+                      products.map((product) => (
+                        <label key={product} className="flex items-center gap-2 text-sm cursor-pointer rounded-md p-2 hover:bg-muted">
+                          <Checkbox
+                            checked={formData.products.includes(product)}
+                            onCheckedChange={() => toggleProduct(product)}
+                          />
+                          <span className="flex-1">{product}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -342,7 +371,7 @@ const AddPromotionModal = ({ open, onOpenChange, onAdd }: AddPromotionModalProps
             </Button>
             <Button
               type="submit"
-              disabled={!formData.name || !formData.product || formData.targetAudience.length === 0}
+              disabled={!formData.name || formData.products.length === 0 || formData.targetAudience.length === 0}
             >
               Add Promotion
             </Button>

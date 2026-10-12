@@ -66,7 +66,7 @@ export interface DoctorVisitData {
     quantity: number;
     value: number;
   }[];
-  detailedProductId?: number | null;
+  detailedProductIds?: number[];
 }
 
 // const products: Product[] = [
@@ -99,7 +99,7 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
   const [showPhotoCapture, setShowPhotoCapture] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [detailedProductId, setDetailedProductId] = useState<number>(0);
+  const [detailedProductIds, setDetailedProductIds] = useState<number[]>([]);
 
   const handleLocationFallback = (payload: any) => {
     setPendingPayload(payload);
@@ -144,6 +144,14 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
     );
   };
 
+  const handleDetailedProductToggle = (productId: number) => {
+    setDetailedProductIds((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   const handleSubmit = async () => {
     if (!selectedVisit) return;
 
@@ -157,9 +165,9 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
 
     if (
       selectedActivities.includes("Product Detailing") &&
-      !detailedProductId
+      detailedProductIds.length === 0
     ) {
-      alert("Please select the detailed product");
+      alert("Please select at least one detailed product");
       setIsSubmitting(false);
       return;
     }
@@ -204,10 +212,9 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
       activitiesPerformed: selectedActivities,
       notes,
       convertedProducts,
-      detailedProductId:
-        selectedActivities.includes("Product Detailing")
-          ? detailedProductId
-          : null,
+      detailedProductIds: selectedActivities.includes("Product Detailing")
+        ? detailedProductIds
+        : [],
     };
 
     // If missed, no location needed
@@ -524,26 +531,34 @@ export function DoctorVisitForm({ onSubmit, onCancel, products, doctorVisits, on
 
       {selectedActivities.includes("Product Detailing") && (
         <div className="space-y-3 border rounded-lg p-3">
-          <Label className="font-medium">Detailed Product</Label>
+          <Label className="font-medium">
+            Detailed Products (Select one or more)
+          </Label>
 
-          <Select
-            value={detailedProductId ? detailedProductId.toString() : ""}
-            onValueChange={(value) => setDetailedProductId(Number(value))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select product" />
-            </SelectTrigger>
-            <SelectContent>
-              {products.map((product) => (
-                <SelectItem
-                  key={product.id}
-                  value={product.id.toString()}
+          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+            {products.map((product) => (
+              <div key={product.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`detailed-product-${product.id}`}
+                  checked={detailedProductIds.includes(product.id)}
+                  onCheckedChange={() => handleDetailedProductToggle(product.id)}
+                />
+                <Label
+                  htmlFor={`detailed-product-${product.id}`}
+                  className="text-sm font-normal cursor-pointer"
                 >
                   {product.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                </Label>
+              </div>
+            ))}
+          </div>
+
+          {detailedProductIds.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {detailedProductIds.length} product
+              {detailedProductIds.length > 1 ? "s" : ""} selected
+            </p>
+          )}
         </div>
       )}
       {selectedActivities.includes("Product Conversion") && (

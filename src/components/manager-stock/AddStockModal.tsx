@@ -24,7 +24,8 @@ import { addStock } from "@/services/StockistService";
 interface Stockist {
   id: number;
   name: string;
-  marketName: string;
+  location?: string;
+  marketName?: string;
 }
 
 interface AddStockModalProps {
@@ -34,6 +35,7 @@ interface AddStockModalProps {
   existingEntries: StockEntry[];
   products: Product[];
   stockists: Stockist[];
+  customSubmit?: (payload: { stockistId: number; productId: number; quantity: number }) => Promise<void>;
 }
 
 const AddStockModal = ({
@@ -43,6 +45,7 @@ const AddStockModal = ({
   existingEntries,
   products,
   stockists,
+  customSubmit,
 }: AddStockModalProps) => {
   const { toast } = useToast();
   const [productName, setProductName] = useState("");
@@ -56,7 +59,7 @@ const AddStockModal = ({
     if (stockistId) {
       const selectedStockist = stockists.find(s => s.id === Number(stockistId));
       if (selectedStockist) {
-        setMarketName(selectedStockist.marketName);
+        setMarketName(selectedStockist.location || selectedStockist.marketName || "");
       }
     } else {
       setMarketName("");
@@ -101,7 +104,7 @@ const AddStockModal = ({
         return (
           entry.productName === (selectedProduct?.name || productName) &&
           entry.stockistName === selectedStockist.name &&
-          entry.marketName === selectedStockist.marketName
+          entry.marketName === (selectedStockist.location || selectedStockist.marketName || "")
         );
       });
 
@@ -125,27 +128,44 @@ const AddStockModal = ({
     }
 
     try {
-     const responseData =  await addStock({
+      if (customSubmit) {
+        await customSubmit({
+          stockistId: Number(stockistId),
+          productId: Number(productId),
+          quantity: qty,
+        });
+
+        toast({
+          title: "Success",
+          description: "Stock added successfully",
+        });
+
+        setProductName("");
+        setStockistId("");
+        setMarketName("");
+        setQuantity("");
+        onClose();
+        return;
+      }
+
+      const responseData = await addStock({
         managerId: Number(sessionStorage.getItem("userID")),
         productId: Number(productId),
         stockistId: Number(stockistId),
         quantity: qty,
       });
 
-      // Get the product name from the products array
       const selectedProduct = products.find(p => p.id === Number(productId));
       const productName = selectedProduct?.name || "";
 
-      // Create a new StockEntry from the response data
       const newStock: StockEntry = {
         id: responseData.id.toString(),
         productName: responseData.productName || productName,
         stockistName: responseData.stockistName || selectedStockist.name,
-        marketName: responseData.marketName || selectedStockist.marketName,
+        marketName: responseData.marketName || responseData.location || selectedStockist.location || selectedStockist.marketName || "",
         quantity: responseData.availableQuantity || qty,
       };
 
-      // Pass the new stock to the parent instead of refetching
       onAdd(newStock);
 
       toast({
@@ -154,13 +174,12 @@ const AddStockModal = ({
       });
 
       setProductName("");
-    setStockistId("");
-    setMarketName("");
-    setQuantity("");
-    onClose();
+      setStockistId("");
+      setMarketName("");
+      setQuantity("");
       onClose();
     } catch (err) {
-        console.log(err);
+      console.log(err);
       toast({
         title: "Error",
         description: "Failed to add stock",

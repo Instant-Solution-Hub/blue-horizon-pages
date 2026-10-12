@@ -57,7 +57,7 @@ export interface ManagerDoctorVisitData {
   isPreviouslyMissed: boolean;
   activitiesPerformed: string[];
   notes: string;
-  detailedProductId?: number | null;
+  detailedProductIds?: number[];
 }
 
 // const products: Product[] = [
@@ -83,7 +83,7 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
   const [isMissed, setIsMissed] = useState(false);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [detailedProductId, setDetailedProductId] = useState<number>(0);
+  const [detailedProductIds, setDetailedProductIds] = useState<number[]>([]);
   const [conversionRows, setConversionRows] = useState<ConversionRow[]>([
     { productId: 0, quantity: 1, value: 0 },
   ]);
@@ -93,6 +93,14 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
     console.log("doctor change", doctor)
     onDesignationChange(doctor.designation);
     setSelectedVisit(doctor || null);
+  };
+
+  const handleDetailedProductToggle = (productId: number) => {
+    setDetailedProductIds((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
   };
 
   const handleActivityToggle = (activity: string) => {
@@ -112,12 +120,11 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
 
     if (
       selectedActivities.includes("Product Detailing") &&
-      !detailedProductId
+      detailedProductIds.length === 0
     ) {
-      alert("Please select the detailed product");
+      alert("Please select at least one detailed product");
       return;
     }
-
     if (isMissed && !notes.trim()) {
       alert("Notes are mandatory for missed visits");
       return;
@@ -136,10 +143,9 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
       isPreviouslyMissed: selectedVisit.status === "MISSED" ? true : false,
       activitiesPerformed: selectedActivities,
       notes,
-      detailedProductId:
-        selectedActivities.includes("Product Detailing")
-          ? detailedProductId
-          : null,
+      detailedProductIds: selectedActivities.includes("Product Detailing")
+        ? detailedProductIds
+        : [],
     });
 
 
@@ -247,29 +253,36 @@ export function DoctorVisitFormManager({ onSubmit, onCancel, products, doctorVis
 
       {selectedActivities.includes("Product Detailing") && (
         <div className="space-y-3 border rounded-lg p-3">
-          <Label className="font-medium">Detailed Product</Label>
+          <Label className="font-medium">
+            Detailed Products (Select one or more)
+          </Label>
 
-          <Select
-            value={detailedProductId ? detailedProductId.toString() : ""}
-            onValueChange={(value) => setDetailedProductId(Number(value))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select product" />
-            </SelectTrigger>
-            <SelectContent>
-              {products.map((product) => (
-                <SelectItem
-                  key={product.id}
-                  value={product.id.toString()}
+          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+            {products.map((product) => (
+              <div key={product.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`detailed-product-${product.id}`}
+                  checked={detailedProductIds.includes(product.id)}
+                  onCheckedChange={() => handleDetailedProductToggle(product.id)}
+                />
+                <Label
+                  htmlFor={`detailed-product-${product.id}`}
+                  className="text-sm font-normal cursor-pointer"
                 >
                   {product.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                </Label>
+              </div>
+            ))}
+          </div>
+
+          {detailedProductIds.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {detailedProductIds.length} product
+              {detailedProductIds.length > 1 ? "s" : ""} selected
+            </p>
+          )}
         </div>
       )}
-
       {selectedActivities.includes("Product Conversion") && (
         <div className="space-y-3 border rounded-lg p-3">
           <Label className="font-medium">Product Conversion Details</Label>

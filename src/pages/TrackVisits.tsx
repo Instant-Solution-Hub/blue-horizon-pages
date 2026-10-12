@@ -150,6 +150,7 @@ export default function TrackVisits() {
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
       productId: data.detailedProductId,
+      detailedProductIds: data.detailedProductIds,
     };
     try {
       await reMarkVisit(newVisit);
@@ -198,6 +199,7 @@ export default function TrackVisits() {
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
       productId: data.detailedProductId,
+      detailedProductIds: data.detailedProductIds,
     };
 
     try {

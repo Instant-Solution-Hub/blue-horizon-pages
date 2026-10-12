@@ -32,6 +32,7 @@ const defaultNavItems: NavItem[] = [
   { icon: Users, label: "Manager Joining", href: "/dashboard/manager-joining" },
   { icon: ShoppingCart, label: "POB", href: "/dashboard/pob" },
   { icon: TrendingUp, label: "Competitive Brands", href: "/dashboard/competitive-brands" },
+  { icon: Package, label: "Stock Update", href: "/dashboard/stock-update" },
   { icon: Package, label: "Stock Liquidation", href: "/dashboard/stock-liquidation" },
   { icon: Gift, label: "Promotions", href: "/dashboard/promotions" },
    { icon: ClipboardCheck, label: "Work Approvals", href: "/dashboard/work-approvals" },

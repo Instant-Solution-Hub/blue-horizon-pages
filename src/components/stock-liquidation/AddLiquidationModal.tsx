@@ -32,10 +32,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { fetchDoctorsByFE } from "@/services/DoctorService";
-import { getFEProductStock } from "@/services/StockService";
-import { getProducts } from "@/services/ProductService";
 import { createLiquidationPlan } from "@/services/LiquidationService";
-import { getAllocatedProducts } from "@/services/StockService";
 
 export interface ProductStockData {
    id: number;
@@ -103,7 +100,8 @@ const AddLiquidationModal = ({
   onSubmit,
   editData,
   feId,
-  plans
+  plans,
+  stockData,
 }: AddLiquidationModalProps) => {
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(0);
@@ -111,10 +109,10 @@ const AddLiquidationModal = ({
   const [marketName, setMarketName] = useState("");
   const [medicalShopName, setMedicalShopName] = useState("");
   const [doctorOpen, setDoctorOpen] = useState(false);
-const [products, setProducts] = useState<FEProductStock[]>([]);
-const [doctors, setDoctors] = useState<Doctor[]>([]);
-const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-const [selectedDoctorId, setSelectedDoctorId] = useState<number | null>(null);
+  const [products, setProducts] = useState<ProductStockData[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<number | null>(null);
 
 const [productName, setProductName] = useState("");
 const [doctorName, setDoctorName] = useState("");
@@ -168,16 +166,16 @@ useEffect(() => {
 useEffect(() => {
   if (!isOpen) return;
 
-  getAllocatedProducts(feId)
-    .then(setProducts)
-    .catch(() =>
-      toast({
-        title: "Error",
-        description: "Failed to load allocated products",
-        variant: "destructive",
-      })
-    );
-}, [isOpen, feId]);
+  setProducts(stockData);
+
+  if (selectedProductId) {
+    const selected = stockData.find((item) => item.id === selectedProductId);
+    if (selected) {
+      setQuantity(selected.availableQty);
+      setProductName(selected.name);
+    }
+  }
+}, [isOpen, stockData, selectedProductId]);
 
 
   const resetForm = () => {
@@ -249,23 +247,26 @@ const handleSubmit = async () => {
           {/* Product Selection */}
           <div className="space-y-2">
             <Label htmlFor="product">Product *</Label>
-            <Select value={selectedProductId?.toString()} onValueChange={async (value) => {
-    const productId = Number(value);
-    setSelectedProductId(productId);
+            <Select
+              value={selectedProductId?.toString()}
+              onValueChange={(value) => {
+                const productId = Number(value);
+                const selected = stockData.find((item) => item.id === productId);
 
-    const stock = await getFEProductStock(feId, productId);
-    setProductName(stock.productName);
-    setQuantity(stock.remainingQuantity);
-  }}>
+                setSelectedProductId(productId);
+                setProductName(selected?.name || "");
+                setQuantity(selected?.availableQty ?? 0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a product" />
               </SelectTrigger>
               <SelectContent>
-                 {products.map((p) => (
-    <SelectItem key={p.productId} value={p.productId.toString()}>
-      {p.productName} 
-    </SelectItem>
-  ))}
+                {products.map((p) => (
+                  <SelectItem key={p.id} value={p.id.toString()}>
+                    {p.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

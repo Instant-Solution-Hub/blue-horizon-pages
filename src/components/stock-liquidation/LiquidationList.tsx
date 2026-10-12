@@ -66,6 +66,12 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
       .reduce((sum, p) => sum + (p.targetLiquidation || 0), 0);
   };
 
+  const getMaxTargetForProduct = (product: string, excludePlanId?: string) => {
+    const availableQty = getProductStock(product);
+    const otherTargets = getTotalTargetForProduct(product, excludePlanId);
+    return Math.max(0, availableQty - otherTargets);
+  };
+
   // Group plans by product
   const groupedPlans = plans.reduce((acc, plan) => {
     if (!acc[plan.product]) {
@@ -87,13 +93,13 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
   };
 
   const handleSave = (plan: LiquidationPlan) => {
-    const existingTotal = getTotalTargetForProduct(plan.product, plan.id);
     const newTarget = editValues.targetLiquidation ?? plan.targetLiquidation;
+    const maxAllowed = getMaxTargetForProduct(plan.product, plan.id);
 
-    if (existingTotal + newTarget > plan.quantity) {
+    if (newTarget < 0 || newTarget > maxAllowed) {
       toast({
         title: "Cannot save",
-        description: "Total target liquidation exceeds available stock.",
+        description: `Maximum allowed for this product is ${maxAllowed}.`,
         variant: "destructive",
       });
       return;
@@ -246,8 +252,7 @@ const LiquidationList = ({ plans, onUpdate, stockData }: LiquidationListProps) =
                               value={editValues.targetLiquidation}
                               onChange={(e) => {
                                 const value = Number(e.target.value) || 0;
-                                const existingTotal = getTotalTargetForProduct(plan.product, plan.id);
-                                const maxAllowed = plan.quantity - existingTotal;
+                                const maxAllowed = getMaxTargetForProduct(plan.product, plan.id);
                                 if (value > maxAllowed) {
                                   toast({
                                     title: "Invalid quantity",
