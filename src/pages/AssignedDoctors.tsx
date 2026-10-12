@@ -136,6 +136,7 @@ const AssignedDoctors = () => {
       Location: d.location,
       Contact: d.contactNumber,
       "Prescription Type": d.practiceType,
+      "Category": d.category,
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();

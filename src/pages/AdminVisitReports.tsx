@@ -37,7 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { fetchFEs } from "@/services/FEService";
 import { fetchManagerInfos } from "@/services/ManagerService";
-import { exportFeVisits, fetchFEVisitReport } from "@/services/VisitService";
+import { exportFeVisits, exportManagerVisits, fetchFEVisitReport } from "@/services/VisitService";
 import { fetchManagerVisitReport } from "@/services/ManagerVisitService";
 import { getAllZsm } from "@/services/AdminProfileService";
 import { exportZsmVisits, fetchZsmVisitReport } from "@/services/ZsmService";
@@ -52,6 +52,7 @@ interface UserOption {
 }
 
 interface Visit {
+    detailedProducts: { id: number; name: string }[];
     id: number;
     visitId: string;
     doctorName: string;
@@ -225,7 +226,7 @@ const AdminVisitReports = () => {
                 "visitStatus": statusFilter === "all" ? null : statusFilter,
                 "category": categoryFilter === "all" ? null : categoryFilter
             };
-            const response = await exportFeVisits(obj);
+            const response = await exportManagerVisits(obj);
             const url = window.URL.createObjectURL(response);
             const a = document.createElement('a');
             a.href = url;
@@ -259,6 +260,7 @@ const AdminVisitReports = () => {
     };
 
     const handleExport = async () => {
+         console.log("Exporting visits for user type:", userType);
         if (userType === "field_executive") {
             handleExportFeVisits();
         } else if (userType === "manager") {
@@ -726,6 +728,7 @@ const AdminVisitReports = () => {
                                                             {userType === "field_executive" && <TableHead>Prescription Type</TableHead>}
                                                             {userType === "manager" && <TableHead>Field Executive</TableHead>}
                                                             <TableHead>Visit Date</TableHead>
+                                                            <TableHead>Products</TableHead>
                                                             <TableHead className="w-[100px]">Status</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
@@ -743,6 +746,23 @@ const AdminVisitReports = () => {
                                                                 {userType === "manager" && <TableCell>{visit?.fieldExecutiveName}</TableCell>}
                                                                 <TableCell>
                                                                     {format(new Date(visit.visitDate), "dd MMM yyyy")}
+                                                                </TableCell>
+                                                                <TableCell className="max-w-[200px] sm:max-w-[280px] md:max-w-none align-top">
+                                                                    {visit?.detailedProducts && visit.detailedProducts.length > 0 ? (
+                                                                        <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm break-words">
+                                                                            {visit.detailedProducts.map((product, index) => (
+                                                                                <li
+                                                                                    key={index}
+                                                                                    className="truncate sm:whitespace-normal sm:break-words"
+                                                                                    title={product.name}
+                                                                                >
+                                                                                    {product.name}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    ) : (
+                                                                        <span className="text-gray-400 text-xs sm:text-sm">N/A</span>
+                                                                    )}
                                                                 </TableCell>
                                                                 <TableCell>
                                                                     <span className={cn(

@@ -46,6 +46,7 @@ interface UnscheduledVisitData {
   convertedProducts?: number[];
   detailedProductId?: number | null;
   isMissed?: boolean;
+  detailedProductIds: []
 }
 
 export default function TrackVisitsZsm() {
@@ -126,7 +127,8 @@ export default function TrackVisitsZsm() {
         doctorId: data.doctorId,
         notes: data.notes,
         activitiesPerformed: data.activitiesPerformed,
-        productId:data.detailedProductId
+        productId:data.detailedProductId,
+        detailedProductIds: data.detailedProductIds,
       });
 
       getTodaysVisits();
@@ -171,7 +173,8 @@ export default function TrackVisitsZsm() {
       // No location data for manager
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
-      productId:data.detailedProductId
+      productId:data.detailedProductId,
+      detailedProductIds: data.detailedProductIds,
     };
 
     try {
@@ -201,7 +204,8 @@ export default function TrackVisitsZsm() {
       // No location data for manager
       activitiesPerformed: data.activitiesPerformed,
       convertedProducts: data.convertedProducts,
-      productId:data.detailedProductId
+      productId:data.detailedProductId,
+      detailedProductIds: data.detailedProductIds,
     };
 
     try {

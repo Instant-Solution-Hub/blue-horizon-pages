@@ -52,6 +52,7 @@ const menuItems = [
   { icon: FileText, label: "Manager Leave Requests", path: "/admin-dashboard/leave-requests" },
   { icon: FileText, label: "BDE Leave Requests", path: "/admin-dashboard/manager-leave-requests" },
   { icon: HeartHandshake, label: "Doctor Conversions", path: "/admin-dashboard/doctor-conversions" },
+  { icon: Stethoscope, label: "Doctors", path: "/admin-dashboard/doctors" },
   { icon: Megaphone, label: "Promotions", path: "/admin-dashboard/promotions" },
   { icon: Stethoscope, label: "Doctor Change Requests", path: "/admin-dashboard/doctor-change-requests", badge: pendingChangeRequests },
   { icon: TrendingUp, label: "Competitive Brands", path: "/admin-dashboard/competitive-brands" },

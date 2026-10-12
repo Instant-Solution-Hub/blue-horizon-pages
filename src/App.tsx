@@ -75,6 +75,7 @@ import TrackVisitsZsm from "./pages/TrackVisitsZsm";
 import StockUpdate from "./pages/StockUpdate";
 import AdminStockUpdate from "./pages/AdminStockUpdate";
 import ManagerEmployeeStock from "./pages/ManagerEmployeeStock";
+import AdminDoctors from "./pages/AdminDoctors";
 
 
 
@@ -144,6 +145,7 @@ const App = () => (
                <Route path="/admin-dashboard/missed-visits" element={<AdminMissedVisits />} />
                <Route path="/admin-dashboard/visit-reports" element={<AdminVisitReports />} />
                <Route path="/admin-dashboard/doctor-change-requests" element={<AdminDoctorChangeRequests />} />
+               <Route path="/admin-dashboard/doctors" element={<AdminDoctors />} />
                <Route path="/admin-dashboard/slot-plan-day-requests" element={<AdminSlotPlanDayRequests />} />
                 <Route path="/admin-dashboard/stock-update" element={<AdminStockUpdate />} />
                 <Route path="/admin-dashboard/stock-liquidation" element={<AdminStockLiquidation />} />
