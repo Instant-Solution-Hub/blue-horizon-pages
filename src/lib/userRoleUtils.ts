@@ -1,8 +1,17 @@
 // src/utils/userRole.ts
-export type UserType = "MANAGER" | "FIELD_EXECUTIVE" | "ADMIN";
+export type UserType = "MANAGER" | "FIELD_EXECUTIVE" | "ADMIN" | "ZSM";
+
+const ZSM_ADMIN_ID = "2";
 
 export const getUserType = (): UserType => {
   const role = sessionStorage.getItem("userRole");
+  const userId = sessionStorage.getItem("userID");
+  const isZsm = sessionStorage.getItem("isZsm") === "true"; // if you add the backend flag
+
+  // ZSM is an Admin with id 2 (or a dedicated flag) — must be checked
+  // BEFORE the generic "Admin" case.
+  const zsm = isZsm || (role === "Admin" && userId === ZSM_ADMIN_ID);
+  if (zsm) return "ZSM";
 
   switch (role) {
     case "Manager":
@@ -10,7 +19,6 @@ export const getUserType = (): UserType => {
     case "Admin":
       return "ADMIN";
     case "FE":
-      return "FIELD_EXECUTIVE";
     case "FieldExecutive":
     case "FIELD_EXECUTIVE":
       return "FIELD_EXECUTIVE";

@@ -10,11 +10,12 @@ interface WeekDaySelectorProps {
   currentMonth?: number; // 0-based (IMPORTANT)
   currentYear?: number;
   dayMapping?: Map<number, { date: number; label: string; isHoliday: boolean }>;
-  setDayMapping?:(mapping: Map<number, { date: number; label: string; isHoliday: boolean }>) => void;
+  setDayMapping?: (mapping: Map<number, { date: number; label: string; isHoliday: boolean }>) => void;
   isPastDisabled: boolean;
   onWeekChange: (week: number) => void;
   onDayChange: (day: number) => void;
   holidays?: string[]; // Add holidays prop
+  includeNextMonthFirstDay?: boolean;
 }
 
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -37,6 +38,7 @@ export function WeekDaySelector({
   onWeekChange,
   onDayChange,
   holidays = [], // Default to empty array
+  includeNextMonthFirstDay = true, // Default to true
 }: WeekDaySelectorProps) {
   const [availableDays, setAvailableDays] = useState<number[]>([]);
   // const [dayMapping, setDayMapping] = useState<
@@ -68,7 +70,6 @@ export function WeekDaySelector({
   ) => {
     const firstDayOfMonth = new Date(year, month, 1);
     const firstDayOfWeek = firstDayOfMonth.getDay();
-
     const weekStartDate = 1 + (week - 1) * 7 - firstDayOfWeek;
 
     const days: number[] = [];
@@ -81,15 +82,24 @@ export function WeekDaySelector({
       const currentDate = weekStartDate + i;
       const dateObj = new Date(year, month, currentDate);
 
-      if (dateObj.getMonth() === month) {
-        // Format date as YYYY-MM-DD for holiday lookup
-        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDate).padStart(2, '0')}`;
+      const isSameMonth = dateObj.getMonth() === month;
+      // Allow the 1st of the next month through when requested
+      const isNextMonthFirstDay =
+        includeNextMonthFirstDay &&
+        dateObj.getMonth() === (month + 1) % 12 &&
+        dateObj.getDate() === 1;
+
+      if (isSameMonth || isNextMonthFirstDay) {
+        const dateString = `${dateObj.getFullYear()}-${String(
+          dateObj.getMonth() + 1
+        ).padStart(2, "0")}-${String(currentDate).padStart(2, "0")}`;
         const isHoliday = holidaySet.has(dateString);
-        
+
         days.push(i + 1);
         mapping.set(i + 1, {
-          date: currentDate,
-          label: `${dayLabels[i]} ${currentDate}`,
+          // For next-month 1st, this is 1; for same-month it's currentDate
+          date: dateObj.getDate(),
+          label: `${dayLabels[i]} ${dateObj.getDate()}`,
           isHoliday,
         });
       }
@@ -98,7 +108,7 @@ export function WeekDaySelector({
     return { days, mapping };
   };
 
-useEffect(() => {
+  useEffect(() => {
     const { days, mapping } = getDaysInWeekForMonth(
       selectedWeek,
       currentMonth,
@@ -109,10 +119,13 @@ useEffect(() => {
     if (setDayMapping) {
       setDayMapping(mapping);
     }
-  }, [selectedWeek, currentMonth, currentYear, holidaySet]);
+  }, [selectedWeek, currentMonth, currentYear, holidaySet, includeNextMonthFirstDay]);
 
 
- // Separate effect to handle day selection when week changes
+  
+
+
+  // Separate effect to handle day selection when week changes
   // useEffect(() => {
   //   if (availableDays.length > 0) {
   //     // Check if current selected day is valid in the new week
@@ -126,10 +139,10 @@ useEffect(() => {
   const handleWeekChange = (week: number) => {
     // First, get the days for the new week
     const { days } = getDaysInWeekForMonth(week, currentMonth, currentYear);
-    
+
     // Call onWeekChange to update the parent state
     onWeekChange(week);
-    
+
     // Immediately update the day to the first day of the new week
     // This ensures the day changes at the same time as the week
     if (days.length > 0) {
@@ -142,12 +155,22 @@ useEffect(() => {
     return week < currentWeek;
   };
 
+  // const isPastDay = (day: number) => {
+  //   if (!isPastDisabled) return false;
+  //   if (selectedWeek < currentWeek) return true;
+  //   if (selectedWeek === currentWeek && day < currentDay) return true;
+  //   return false;
+  // };
+
   const isPastDay = (day: number) => {
-    if (!isPastDisabled) return false;
-    if (selectedWeek < currentWeek) return true;
-    if (selectedWeek === currentWeek && day < currentDay) return true;
-    return false;
-  };
+  if (!isPastDisabled) return false;
+  const dayInfo = dayMapping.get(day);
+  // next-month 1st is the carry-over gap day — always plannable
+  if (dayInfo?.date === 1) return false;
+  if (selectedWeek < currentWeek) return true;
+  if (selectedWeek === currentWeek && day < currentDay) return true;
+  return false;
+};
 
   return (
     <div className="space-y-4">
@@ -176,7 +199,7 @@ useEffect(() => {
                 "min-w-[80px]",
                 selectedWeek === week && "shadow-md",
                 (disabled || !hasDaysInMonth) &&
-                  "opacity-40 cursor-not-allowed"
+                "opacity-40 cursor-not-allowed"
               )}
             >
               Week {week}

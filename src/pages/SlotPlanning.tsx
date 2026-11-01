@@ -412,12 +412,14 @@ export default function SlotPlanning() {
                   currentWeek={currentWeek}
                   currentDay={currentDay}
                   currentMonth={getMonth()}
+                  currentYear={new Date().getFullYear()}
                   isPastDisabled={false}
                   onWeekChange={setSelectedWeek}
                   onDayChange={setSelectedDay}
                   setDayMapping={setDayMapping}
                   dayMapping={dayMapping}
                   holidays={holidayList}
+                  includeNextMonthFirstDay={isFirstOfMonth}
                 />
 
                 {isFirstOfMonth ? (
