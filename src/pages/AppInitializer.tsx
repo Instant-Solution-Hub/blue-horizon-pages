@@ -11,6 +11,7 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<InitState>("loading");
   const navigate = useNavigate();
   const location = useLocation();
+  const ZSM_ADMIN_ID = "2";
 
   useEffect(() => {
     const init = async () => {
@@ -23,7 +24,11 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           throw new Error("User not authenticated");
         }
 
-        if (userRole === "admin" || userRole === "super_admin") {
+        const isAdmin = userRole === "admin" || userRole === "super_admin";
+        const isZsm = isAdmin && userId === ZSM_ADMIN_ID;
+
+        // Only bypass the portal check for admins who are NOT ZSM
+        if (isAdmin && !isZsm) {
           setState("ready");
           return;
         }
@@ -37,7 +42,9 @@ const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           setState("ready");
 
           if (location.pathname.match(/^\/portal-locked/)) {
-            if (userRole === "manager") {
+            if (isZsm) {
+              navigate("/zsm-dashboard");
+            } else if (userRole === "manager") {
               navigate("/manager-dashboard");
             } else if (userRole === "fe") {
               navigate("/dashboard");

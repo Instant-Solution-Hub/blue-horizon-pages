@@ -84,7 +84,8 @@ const applyFilters = async () => {
       format(fromDate, "yyyy-MM-dd"),
       format(toDate, "yyyy-MM-dd"),
       statusFilter,
-      categoryFilter
+      categoryFilter,
+      "all" // Assuming docType is not being filtered in this context 
     );
 
     const mappedVisits: Visit[] = (data.visits || []).map((v: any) => ({
