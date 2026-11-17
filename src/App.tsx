@@ -76,6 +76,7 @@ import StockUpdate from "./pages/StockUpdate";
 import AdminStockUpdate from "./pages/AdminStockUpdate";
 import ManagerEmployeeStock from "./pages/ManagerEmployeeStock";
 import AdminDoctors from "./pages/AdminDoctors";
+import SuperAdminStockUpdate from "./pages/SuperAdminStockUpdate";
 
 
 
@@ -165,6 +166,7 @@ const App = () => (
          <Route path="/super-admin-dashboard/doctor-change-requests" element={<SuperAdminDoctorChangeRequests />} />
          <Route path="/super-admin-dashboard/competitive-brands" element={<SuperAdminCompetitiveBrands />} />
          <Route path="/super-admin-dashboard/stock-liquidation" element={<SuperAdminStockLiquidation />} />
+         <Route path="/super-admin-dashboard/stock-update" element={<SuperAdminStockUpdate />} />
          <Route path="/super-admin-dashboard/missed-visits" element={<SuperAdminMissedVisits />} />
                
           <Route path="*" element={<NotFound />} />

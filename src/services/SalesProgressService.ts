@@ -74,8 +74,10 @@ export const updateMarketSales = async (
   return res.data;
 };
 
-export const fetchMonthlyMarketSales = async () => {
-  const res = await API.get(`/fe/market-sales/current-month/all`);
+export const fetchMonthlyMarketSales = async (year?: number, month?: number) => {
+  const res = await API.get(`/fe/market-sales/current-month/all`, {
+    params: year !== undefined && month !== undefined ? { year, month } : {},
+  });
   console.log(res);
   return res.data;
 }

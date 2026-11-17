@@ -31,6 +31,7 @@ const SuperAdminSidebar = () => {
     { icon: ClipboardList, label: "Doctor Change Requests", path: "/super-admin-dashboard/doctor-change-requests" },
     { icon: Package, label: "Competitive Brands", path: "/super-admin-dashboard/competitive-brands" },
     { icon: Inbox, label: "Stock Liquidation", path: "/super-admin-dashboard/stock-liquidation" },
+       { icon: Package, label: "Stock Update", path: "/super-admin-dashboard/stock-update" },
     { icon: Inbox, label: "Missed Visits", path: "/super-admin-dashboard/missed-visits" },
   ];
 
