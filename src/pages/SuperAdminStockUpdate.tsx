@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import AdminSidebar from "@/components/admin-dashboard/AdminSidebar";
+import SuperAdminSidebar from "@/components/super-admin-dashboard/SuperAdminSidebar";
 import StockTable, { StockEntry } from "@/components/manager-stock/StockTable";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -144,7 +144,7 @@ const SuperAdminStockUpdate = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+      <SuperAdminSidebar />
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-6">
